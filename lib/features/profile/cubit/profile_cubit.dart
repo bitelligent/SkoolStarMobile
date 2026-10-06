@@ -76,7 +76,7 @@ class ProfileCubit extends Cubit<ProfileState> {
         if (s.newPasswordDraft != s.confirmPasswordDraft) {
           emit(s.copyWith(
             isSaving: false,
-            errorMessage: 'Passwords do not match',
+            errorMessage: 'Passwords do not match.',
           ));
           return false;
         }
