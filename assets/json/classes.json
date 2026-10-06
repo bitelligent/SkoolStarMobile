@@ -1,0 +1,4 @@
+[
+  { "id": "cls_1", "name": "Class 1", "studentCount": 1, "colorHex": "#2563EB" },
+  { "id": "cls_2", "name": "Class 2", "studentCount": 1, "colorHex": "#16A34A" }
+]

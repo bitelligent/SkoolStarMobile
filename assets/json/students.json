@@ -1,0 +1,18 @@
+[
+  {
+    "id": "st_01",
+    "firstName": "Irha",
+    "lastName": "Shahzadi",
+    "classGroupId": "cls_2",
+    "rollNo": "01",
+    "avatarUrl": ""
+  },
+  {
+    "id": "st_02",
+    "firstName": "Jannat",
+    "lastName": "Shahzadi",
+    "classGroupId": "cls_1",
+    "rollNo": "01",
+    "avatarUrl": ""
+  }
+]

@@ -1,0 +1,459 @@
+{
+  "threads": [
+    {
+      "id": "fb_01",
+      "name": "Sarah Mitchell",
+      "category": "feedback",
+      "role": "Parent · Emma Clarke",
+      "avatarUrl": "https://i.pravatar.cc/200?img=32",
+      "lastMessage": "Thank you for the feedback on Emma's homework!",
+      "lastMessageAt": "2026-10-05T09:42:00.000",
+      "unreadCount": 3,
+      "isOnline": true,
+      "isPinned": true
+    },
+    {
+      "id": "fb_02",
+      "name": "David Rodriguez",
+      "category": "feedback",
+      "role": "Parent · Liam Rodriguez",
+      "avatarUrl": "https://i.pravatar.cc/200?img=14",
+      "lastMessage": "Can we discuss Liam's progress this week?",
+      "lastMessageAt": "2026-10-05T08:15:00.000",
+      "unreadCount": 1,
+      "isTyping": true
+    },
+    {
+      "id": "fb_03",
+      "name": "Mrs. Patel",
+      "category": "feedback",
+      "role": "Parent · Sophia Patel",
+      "avatarUrl": "https://i.pravatar.cc/200?img=48",
+      "lastMessage": "Sophia enjoyed the Chemistry assignment.",
+      "lastMessageAt": "2026-10-04T19:03:00.000",
+      "outgoingLast": true
+    },
+    {
+      "id": "fb_04",
+      "name": "Khan Family",
+      "category": "feedback",
+      "role": "Parent · Farhan Khan",
+      "avatarUrl": "https://i.pravatar.cc/200?img=33",
+      "lastMessage": "Appreciate the detailed review 🙏",
+      "lastMessageAt": "2026-10-04T15:21:00.000"
+    },
+    {
+      "id": "fb_05",
+      "name": "Mr. Sharma",
+      "category": "feedback",
+      "role": "Parent · Bhavya Sharma",
+      "avatarUrl": "https://i.pravatar.cc/200?img=12",
+      "lastMessage": "Could we schedule a parent-teacher call?",
+      "lastMessageAt": "2026-10-03T11:10:00.000",
+      "unreadCount": 2
+    },
+    {
+      "id": "fb_06",
+      "name": "Priya Reddy",
+      "category": "feedback",
+      "role": "Parent · Aarav Reddy",
+      "avatarUrl": "https://i.pravatar.cc/200?img=40",
+      "lastMessage": "Noted, we'll practice this at home.",
+      "lastMessageAt": "2026-10-02T22:40:00.000",
+      "outgoingLast": true
+    },
+
+    {
+      "id": "o2o_01",
+      "name": "Anita Reddy",
+      "category": "oneToOne",
+      "role": "Parent · Aarav Reddy",
+      "avatarUrl": "https://i.pravatar.cc/200?img=47",
+      "lastMessage": "Will Aarav need extra practice sheets this weekend?",
+      "lastMessageAt": "2026-10-05T10:12:00.000",
+      "unreadCount": 2,
+      "isOnline": true,
+      "isPinned": true
+    },
+    {
+      "id": "o2o_02",
+      "name": "Zara Khan",
+      "category": "oneToOne",
+      "role": "Parent · Farhan Khan",
+      "avatarUrl": "https://i.pravatar.cc/200?img=45",
+      "lastMessage": "Farhan has a doctor's appointment at 11am tomorrow.",
+      "lastMessageAt": "2026-10-05T07:48:00.000",
+      "isOnline": true
+    },
+    {
+      "id": "o2o_03",
+      "name": "Robert Wilson",
+      "category": "oneToOne",
+      "role": "Parent · Emma Wilson",
+      "avatarUrl": "https://i.pravatar.cc/200?img=15",
+      "lastMessage": "Thanks for sharing the lesson plan.",
+      "lastMessageAt": "2026-10-04T18:30:00.000",
+      "outgoingLast": true
+    },
+    {
+      "id": "o2o_04",
+      "name": "Meera Pillai",
+      "category": "oneToOne",
+      "role": "Parent · Nikhil Das",
+      "avatarUrl": "https://i.pravatar.cc/200?img=44",
+      "lastMessage": "Nikhil enjoyed the field trip write-up assignment!",
+      "lastMessageAt": "2026-10-04T14:05:00.000"
+    },
+    {
+      "id": "o2o_05",
+      "name": "Tom Carter",
+      "category": "oneToOne",
+      "role": "Parent · James Carter",
+      "avatarUrl": "https://i.pravatar.cc/200?img=14",
+      "lastMessage": "Could you share tomorrow's reading list?",
+      "lastMessageAt": "2026-10-03T09:22:00.000",
+      "unreadCount": 1
+    },
+    {
+      "id": "o2o_06",
+      "name": "Linda Chen",
+      "category": "oneToOne",
+      "role": "Parent · Jayant Rao",
+      "avatarUrl": "https://i.pravatar.cc/200?img=49",
+      "lastMessage": "Great parent-teacher meeting today, thank you!",
+      "lastMessageAt": "2026-10-02T20:11:00.000"
+    }
+  ],
+  "feedbackTopics": [
+    {
+      "id": "ft_01",
+      "threadId": "fb_01",
+      "subject": "Math homework — Chapter 5",
+      "tone": "positive",
+      "createdAt": "2026-10-05T09:40:00.000",
+      "isResolved": false,
+      "messages": [
+        {
+          "id": "fm_01_1",
+          "fromTeacher": true,
+          "content": "Emma showed great improvement on Chapter 5. All ten exercises were correct and her working was neat.",
+          "sentAt": "2026-10-05T09:40:00.000",
+          "isRead": true
+        },
+        {
+          "id": "fm_01_2",
+          "fromTeacher": false,
+          "content": "Thank you! She practiced every day last week. We'll keep it up.",
+          "sentAt": "2026-10-05T09:41:30.000",
+          "isRead": false
+        },
+        {
+          "id": "fm_01_3",
+          "fromTeacher": false,
+          "content": "Should she move on to Chapter 6 now?",
+          "sentAt": "2026-10-05T09:42:00.000",
+          "isRead": false
+        }
+      ]
+    },
+    {
+      "id": "ft_02",
+      "threadId": "fb_01",
+      "subject": "Reading comprehension",
+      "tone": "neutral",
+      "createdAt": "2026-10-03T14:20:00.000",
+      "isResolved": true,
+      "messages": [
+        {
+          "id": "fm_02_1",
+          "fromTeacher": true,
+          "content": "Emma's reading pace is good but she skipped some comprehension questions. Please help her slow down.",
+          "sentAt": "2026-10-03T14:20:00.000",
+          "isRead": true
+        },
+        {
+          "id": "fm_02_2",
+          "fromTeacher": false,
+          "content": "Noted. We'll read together every evening this week.",
+          "sentAt": "2026-10-03T18:05:00.000",
+          "isRead": true
+        }
+      ]
+    },
+    {
+      "id": "ft_03",
+      "threadId": "fb_01",
+      "subject": "Classroom participation",
+      "tone": "positive",
+      "createdAt": "2026-09-28T11:00:00.000",
+      "isResolved": true,
+      "messages": [
+        {
+          "id": "fm_03_1",
+          "fromTeacher": true,
+          "content": "Emma answered three questions in class today without being prompted. Great confidence!",
+          "sentAt": "2026-09-28T11:00:00.000",
+          "isRead": true
+        },
+        {
+          "id": "fm_03_2",
+          "fromTeacher": false,
+          "content": "Wonderful to hear! Thank you for sharing.",
+          "sentAt": "2026-09-28T13:45:00.000",
+          "isRead": true
+        }
+      ]
+    },
+
+    {
+      "id": "ft_04",
+      "threadId": "fb_02",
+      "subject": "Weekly progress — Physics",
+      "tone": "needsAttention",
+      "createdAt": "2026-10-05T08:00:00.000",
+      "isResolved": false,
+      "messages": [
+        {
+          "id": "fm_04_1",
+          "fromTeacher": true,
+          "content": "Liam missed last week's lab and the follow-up quiz. Could we schedule a makeup session?",
+          "sentAt": "2026-10-05T08:00:00.000",
+          "isRead": true
+        },
+        {
+          "id": "fm_04_2",
+          "fromTeacher": false,
+          "content": "He wasn't well. Can we discuss his progress this week?",
+          "sentAt": "2026-10-05T08:15:00.000",
+          "isRead": false
+        }
+      ]
+    },
+
+    {
+      "id": "ft_05",
+      "threadId": "fb_03",
+      "subject": "Chemistry assignment",
+      "tone": "positive",
+      "createdAt": "2026-10-04T18:50:00.000",
+      "isResolved": false,
+      "messages": [
+        {
+          "id": "fm_05_1",
+          "fromTeacher": true,
+          "content": "Sophia's lab report was exceptional. The hypothesis section was very well written.",
+          "sentAt": "2026-10-04T18:50:00.000",
+          "isRead": true
+        },
+        {
+          "id": "fm_05_2",
+          "fromTeacher": false,
+          "content": "She enjoyed working on it. Thank you for noticing!",
+          "sentAt": "2026-10-04T19:03:00.000",
+          "isRead": true
+        }
+      ]
+    },
+
+    {
+      "id": "ft_06",
+      "threadId": "fb_04",
+      "subject": "English essay — Term 1",
+      "tone": "positive",
+      "createdAt": "2026-10-04T14:30:00.000",
+      "isResolved": true,
+      "messages": [
+        {
+          "id": "fm_06_1",
+          "fromTeacher": true,
+          "content": "Farhan's essay structure has improved a lot since last term. Keep encouraging the reading habit.",
+          "sentAt": "2026-10-04T14:30:00.000",
+          "isRead": true
+        },
+        {
+          "id": "fm_06_2",
+          "fromTeacher": false,
+          "content": "Appreciate the detailed review 🙏",
+          "sentAt": "2026-10-04T15:21:00.000",
+          "isRead": true
+        }
+      ]
+    },
+
+    {
+      "id": "ft_07",
+      "threadId": "fb_05",
+      "subject": "Attendance pattern",
+      "tone": "needsAttention",
+      "createdAt": "2026-10-03T10:30:00.000",
+      "isResolved": false,
+      "messages": [
+        {
+          "id": "fm_07_1",
+          "fromTeacher": true,
+          "content": "Bhavya has been late on three consecutive days this week. Is everything alright at home?",
+          "sentAt": "2026-10-03T10:30:00.000",
+          "isRead": true
+        },
+        {
+          "id": "fm_07_2",
+          "fromTeacher": false,
+          "content": "Could we schedule a parent-teacher call? I'd like to explain the situation.",
+          "sentAt": "2026-10-03T11:10:00.000",
+          "isRead": false
+        },
+        {
+          "id": "fm_07_3",
+          "fromTeacher": false,
+          "content": "Any time after 4pm works.",
+          "sentAt": "2026-10-03T11:11:00.000",
+          "isRead": false
+        }
+      ]
+    },
+
+    {
+      "id": "ft_08",
+      "threadId": "fb_06",
+      "subject": "Math drills — pronunciation",
+      "tone": "neutral",
+      "createdAt": "2026-10-02T22:30:00.000",
+      "isResolved": true,
+      "messages": [
+        {
+          "id": "fm_08_1",
+          "fromTeacher": true,
+          "content": "Aarav is doing well with written math but needs practice reading problem statements aloud.",
+          "sentAt": "2026-10-02T22:30:00.000",
+          "isRead": true
+        },
+        {
+          "id": "fm_08_2",
+          "fromTeacher": false,
+          "content": "Noted, we'll practice this at home.",
+          "sentAt": "2026-10-02T22:40:00.000",
+          "isRead": true
+        }
+      ]
+    }
+  ],
+  "directMessages": [
+    {
+      "id": "dm_01_1",
+      "threadId": "o2o_01",
+      "fromTeacher": false,
+      "content": "Good morning! How is Aarav settling in to the new class?",
+      "sentAt": "2026-10-04T08:30:00.000",
+      "isRead": true
+    },
+    {
+      "id": "dm_01_2",
+      "threadId": "o2o_01",
+      "fromTeacher": true,
+      "content": "Hi Anita! He's doing really well — making friends quickly and participating actively.",
+      "sentAt": "2026-10-04T09:05:00.000",
+      "isRead": true
+    },
+    {
+      "id": "dm_01_3",
+      "threadId": "o2o_01",
+      "fromTeacher": false,
+      "content": "That's such a relief, thank you 🙏",
+      "sentAt": "2026-10-04T09:08:00.000",
+      "isRead": true
+    },
+    {
+      "id": "dm_01_4",
+      "threadId": "o2o_01",
+      "fromTeacher": false,
+      "content": "Will Aarav need extra practice sheets this weekend?",
+      "sentAt": "2026-10-05T10:12:00.000",
+      "isRead": false
+    },
+    {
+      "id": "dm_01_5",
+      "threadId": "o2o_01",
+      "fromTeacher": false,
+      "content": "He's keen to try more.",
+      "sentAt": "2026-10-05T10:12:30.000",
+      "isRead": false
+    },
+
+    {
+      "id": "dm_02_1",
+      "threadId": "o2o_02",
+      "fromTeacher": false,
+      "content": "Hi, Farhan has a doctor's appointment at 11am tomorrow. He'll be back by lunch.",
+      "sentAt": "2026-10-05T07:48:00.000",
+      "isRead": true
+    },
+    {
+      "id": "dm_02_2",
+      "threadId": "o2o_02",
+      "fromTeacher": true,
+      "content": "Thanks for letting me know — I'll share today's notes with him when he's back.",
+      "sentAt": "2026-10-05T07:52:00.000",
+      "isRead": true
+    },
+
+    {
+      "id": "dm_03_1",
+      "threadId": "o2o_03",
+      "fromTeacher": false,
+      "content": "Could you share the lesson plan for the next two weeks?",
+      "sentAt": "2026-10-04T16:50:00.000",
+      "isRead": true
+    },
+    {
+      "id": "dm_03_2",
+      "threadId": "o2o_03",
+      "fromTeacher": true,
+      "content": "Of course — I'll send it over by this evening.",
+      "sentAt": "2026-10-04T17:10:00.000",
+      "isRead": true
+    },
+    {
+      "id": "dm_03_3",
+      "threadId": "o2o_03",
+      "fromTeacher": true,
+      "content": "Just emailed it to the ID on file. Let me know if anything is unclear.",
+      "sentAt": "2026-10-04T18:30:00.000",
+      "isRead": true
+    },
+
+    {
+      "id": "dm_04_1",
+      "threadId": "o2o_04",
+      "fromTeacher": true,
+      "content": "Hi Meera — Nikhil's write-up on the field trip was lovely. Really thoughtful observations.",
+      "sentAt": "2026-10-04T13:30:00.000",
+      "isRead": true
+    },
+    {
+      "id": "dm_04_2",
+      "threadId": "o2o_04",
+      "fromTeacher": false,
+      "content": "Nikhil enjoyed the field trip write-up assignment!",
+      "sentAt": "2026-10-04T14:05:00.000",
+      "isRead": true
+    },
+
+    {
+      "id": "dm_05_1",
+      "threadId": "o2o_05",
+      "fromTeacher": false,
+      "content": "Hi, could you share tomorrow's reading list for Grade 8?",
+      "sentAt": "2026-10-03T09:22:00.000",
+      "isRead": false
+    },
+
+    {
+      "id": "dm_06_1",
+      "threadId": "o2o_06",
+      "fromTeacher": false,
+      "content": "Great parent-teacher meeting today, thank you!",
+      "sentAt": "2026-10-02T20:11:00.000",
+      "isRead": true
+    }
+  ]
+}

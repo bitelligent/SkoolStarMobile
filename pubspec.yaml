@@ -1,0 +1,48 @@
+name: skoolstar_teacher_module
+description: "SkoolStar Teacher Module"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.5
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+
+  # State management
+  flutter_bloc: ^9.1.0
+  bloc: ^9.0.0
+
+  # Routing
+  go_router: ^16.0.0
+
+  # Models / serialization
+  freezed_annotation: ^3.0.0
+  json_annotation: ^4.9.0
+
+  # Fonts
+  google_fonts: ^6.2.1
+
+  # Utilities
+  equatable: ^2.0.5
+  intl: ^0.20.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  # Lints (stricter than flutter_lints)
+  very_good_analysis: ^9.0.0
+
+  # Code generation
+  build_runner: ^2.4.13
+  freezed: ^3.0.0
+  json_serializable: ^6.8.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/json/
+    - assets/images/

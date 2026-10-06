@@ -1,0 +1,46 @@
+[
+  {
+    "id": "sess_01",
+    "date": "2026-10-01T00:00:00.000",
+    "startTime": "15:48",
+    "endTime": "16:48",
+    "classIds": ["cls_1", "cls_2"],
+    "subjectIds": ["subj_cs", "subj_en", "subj_ma"],
+    "teacherId": "u_01",
+    "isLive": false,
+    "isLocked": false
+  },
+  {
+    "id": "sess_02",
+    "date": "2026-10-01T00:00:00.000",
+    "startTime": "18:41",
+    "endTime": "20:41",
+    "classIds": ["cls_1", "cls_2"],
+    "subjectIds": ["subj_cs", "subj_en", "subj_ma"],
+    "teacherId": "u_01",
+    "isLive": true,
+    "isLocked": false
+  },
+  {
+    "id": "sess_03",
+    "date": "2026-10-02T00:00:00.000",
+    "startTime": "09:00",
+    "endTime": "10:00",
+    "classIds": ["cls_1"],
+    "subjectIds": ["subj_sc"],
+    "teacherId": "u_01",
+    "isLive": false,
+    "isLocked": false
+  },
+  {
+    "id": "sess_04",
+    "date": "2026-10-03T00:00:00.000",
+    "startTime": "11:00",
+    "endTime": "12:30",
+    "classIds": ["cls_2"],
+    "subjectIds": ["subj_hi", "subj_en"],
+    "teacherId": "u_01",
+    "isLive": false,
+    "isLocked": false
+  }
+]

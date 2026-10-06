@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "id": "n1",
+      "title": "New homework submission",
+      "body": "Emma Clarke submitted Math homework for review.",
+      "timeAgo": "2m ago",
+      "type": "submission",
+      "isRead": false
+    },
+    {
+      "id": "n2",
+      "title": "Class reminder",
+      "body": "Chemistry — Grade 10, Section A starts in 15 minutes.",
+      "timeAgo": "12m ago",
+      "type": "reminder",
+      "isRead": false
+    },
+    {
+      "id": "n3",
+      "title": "Parent message",
+      "body": "David Rodriguez wants to reschedule the parent meeting.",
+      "timeAgo": "1h ago",
+      "type": "message",
+      "isRead": true
+    },
+    {
+      "id": "n4",
+      "title": "Attendance pending",
+      "body": "You haven't marked attendance for History — Grade 8 C.",
+      "timeAgo": "3h ago",
+      "type": "attendance",
+      "isRead": true
+    }
+  ]
+}
