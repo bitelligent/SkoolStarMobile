@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:skoolstar_teacher_module/core/network/api_client.dart';
+import 'package:skoolstar_teacher_module/core/network/token_store.dart';
 import 'package:skoolstar_teacher_module/core/router/app_router.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_theme.dart';
 import 'package:skoolstar_teacher_module/data/datasources/local_json_data_source.dart';
 import 'package:skoolstar_teacher_module/data/repositories/attendance_repository.dart';
+import 'package:skoolstar_teacher_module/data/repositories/auth_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/chat_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/class_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/feedback_repository.dart';
@@ -18,15 +21,40 @@ import 'package:skoolstar_teacher_module/data/repositories/subject_repository.da
 import 'package:skoolstar_teacher_module/data/repositories/user_repository.dart';
 
 class SkoolStarApp extends StatefulWidget {
-  const SkoolStarApp({super.key});
+  const SkoolStarApp({required this.tokenStore, super.key});
+
+  /// Already loaded with any persisted session (see `main`).
+  final TokenStore tokenStore;
 
   @override
   State<SkoolStarApp> createState() => _SkoolStarAppState();
 }
 
 class _SkoolStarAppState extends State<SkoolStarApp> {
-  final GoRouter _router = buildRouter();
   final LocalJsonDataSource _dataSource = const LocalJsonDataSource();
+  late final ApiClient _apiClient = ApiClient(
+    accessToken: () => widget.tokenStore.accessToken,
+    // A 401 on an authenticated call means the session is no longer valid
+    // (the backend's refresh endpoint can't renew it), so sign out and let the
+    // router send the user to login.
+    onUnauthorized: () async {
+      await _authRepository.logout();
+      return false;
+    },
+  );
+  late final AuthRepository _authRepository = AuthRepositoryImpl(
+    apiClient: _apiClient,
+    tokenStore: widget.tokenStore,
+  );
+  late final GoRouter _router = buildRouter(
+    authListenable: _authRepository.signedIn,
+  );
+
+  @override
+  void dispose() {
+    _apiClient.close();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +65,7 @@ class _SkoolStarAppState extends State<SkoolStarApp> {
 
     return MultiRepositoryProvider(
       providers: [
+        RepositoryProvider<AuthRepository>.value(value: _authRepository),
         RepositoryProvider<InstituteRepository>(
           create: (_) => InstituteRepositoryImpl(_dataSource),
         ),
