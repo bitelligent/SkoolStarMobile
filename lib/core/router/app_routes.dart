@@ -6,6 +6,9 @@ class AppRoutes {
   static const String splash = 'splash';
   static const String splashPath = '/';
 
+  static const String login = 'login';
+  static const String loginPath = '/login';
+
   // Bottom-nav shell tabs (match the web product's structure: Dashboard,
   // My Schedule, Profile).
   static const String dashboard = 'dashboard';

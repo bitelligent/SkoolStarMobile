@@ -1,7 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:skoolstar_teacher_module/core/router/app_routes.dart';
 import 'package:skoolstar_teacher_module/core/widgets/shell_scaffold.dart';
+import 'package:skoolstar_teacher_module/features/auth/view/login_screen.dart';
 import 'package:skoolstar_teacher_module/features/chat/view/chat_screen.dart';
 import 'package:skoolstar_teacher_module/features/chat/view/direct_chat_screen.dart';
 import 'package:skoolstar_teacher_module/features/chat/view/feedback_chat_screen.dart';
@@ -18,15 +20,33 @@ final _scheduleKey = GlobalKey<NavigatorState>();
 final _chatKey = GlobalKey<NavigatorState>();
 final _profileKey = GlobalKey<NavigatorState>();
 
-GoRouter buildRouter() {
+/// [authListenable] drives re-evaluation of `GoRouter.redirect` so signing in
+/// or out (or a session expiring) moves the user to the right place from
+/// anywhere in the app.
+GoRouter buildRouter({required ValueListenable<bool> authListenable}) {
   return GoRouter(
     navigatorKey: _rootKey,
     initialLocation: AppRoutes.splashPath,
+    refreshListenable: authListenable,
+    redirect: (context, state) {
+      final signedIn = authListenable.value;
+      final location = state.matchedLocation;
+      if (location == AppRoutes.splashPath) return null;
+      final onLogin = location == AppRoutes.loginPath;
+      if (!signedIn && !onLogin) return AppRoutes.loginPath;
+      if (signedIn && onLogin) return AppRoutes.dashboardPath;
+      return null;
+    },
     routes: [
       GoRoute(
         path: AppRoutes.splashPath,
         name: AppRoutes.splash,
         builder: (_, __) => const SplashScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.loginPath,
+        name: AppRoutes.login,
+        builder: (_, __) => const LoginScreen(),
       ),
       GoRoute(
         path: AppRoutes.notificationsPath,

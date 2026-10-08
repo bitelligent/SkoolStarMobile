@@ -10,6 +10,7 @@ import 'package:skoolstar_teacher_module/core/widgets/app_gradient_hero.dart';
 import 'package:skoolstar_teacher_module/core/widgets/avatar_circle.dart';
 import 'package:skoolstar_teacher_module/core/widgets/loading_view.dart';
 import 'package:skoolstar_teacher_module/core/widgets/primary_button.dart';
+import 'package:skoolstar_teacher_module/data/repositories/auth_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/user_repository.dart';
 import 'package:skoolstar_teacher_module/features/profile/cubit/profile_cubit.dart';
 import 'package:skoolstar_teacher_module/features/profile/cubit/profile_state.dart';
@@ -20,8 +21,7 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) =>
-          ProfileCubit(context.read<UserRepository>())..load(),
+      create: (context) => ProfileCubit(context.read<UserRepository>())..load(),
       child: const _ProfileView(),
     );
   }
@@ -41,9 +41,9 @@ class _ProfileView extends StatelessWidget {
             return switch (state) {
               ProfileInitial() || ProfileLoading() => const LoadingView(),
               ProfileError(:final message) => ErrorView(
-                  message: message,
-                  onRetry: () => context.read<ProfileCubit>().load(),
-                ),
+                message: message,
+                onRetry: () => context.read<ProfileCubit>().load(),
+              ),
               ProfileLoaded() => _Loaded(state: state),
             };
           },
@@ -217,8 +217,9 @@ class _LoadedState extends State<_Loaded> {
                             ),
                             decoration: BoxDecoration(
                               color: Colors.white.withOpacity(0.22),
-                              borderRadius:
-                                  BorderRadius.circular(AppRadius.pill),
+                              borderRadius: BorderRadius.circular(
+                                AppRadius.pill,
+                              ),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
@@ -346,12 +347,13 @@ class _ViewSection extends StatelessWidget {
           child: SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(
-              onPressed: () => onNotice('Logged out'),
+              onPressed: () => _confirmLogout(context),
               icon: const Icon(Icons.logout_rounded, color: AppColors.danger),
               label: Text(
                 'Log out',
-                style:
-                    AppTextStyles.titleSmall.copyWith(color: AppColors.danger),
+                style: AppTextStyles.titleSmall.copyWith(
+                  color: AppColors.danger,
+                ),
               ),
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 14),
@@ -365,6 +367,33 @@ class _ViewSection extends StatelessWidget {
         ),
       ],
     );
+  }
+}
+
+Future<void> _confirmLogout(BuildContext context) async {
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: const Text('Log out?'),
+      content: const Text('You will need to sign in again to continue.'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(ctx).pop(false),
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(ctx).pop(true),
+          child: const Text(
+            'Log out',
+            style: TextStyle(color: AppColors.danger),
+          ),
+        ),
+      ],
+    ),
+  );
+  // The router's auth redirect navigates to the login screen.
+  if ((confirmed ?? false) && context.mounted) {
+    await context.read<AuthRepository>().logout();
   }
 }
 
@@ -498,8 +527,10 @@ class _EditSection extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Change password',
-                              style: AppTextStyles.titleSmall),
+                          Text(
+                            'Change password',
+                            style: AppTextStyles.titleSmall,
+                          ),
                           Text(
                             'Set a new password for your account.',
                             style: AppTextStyles.labelSmall.copyWith(
