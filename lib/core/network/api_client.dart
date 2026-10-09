@@ -16,6 +16,19 @@ typedef AccessTokenProvider = FutureOr<String?> Function();
 /// concurrent refreshes themselves.
 typedef UnauthorizedHandler = Future<bool> Function();
 
+/// A file sent as a multipart form field.
+class UploadFile {
+  const UploadFile({
+    required this.field,
+    required this.filename,
+    required this.bytes,
+  });
+
+  final String field;
+  final String filename;
+  final List<int> bytes;
+}
+
 /// Thin wrapper around `package:http` that centralises base URL, auth header,
 /// JSON encoding, timeouts, 401-refresh-retry, logging and error mapping.
 ///
@@ -84,6 +97,44 @@ class ApiClient {
     authenticated: authenticated,
   );
 
+  /// `multipart/form-data` upload (files are held in memory so the request
+  /// can be rebuilt for the 401 retry).
+  Future<Object?> postMultipart(
+    String path, {
+    required List<UploadFile> files,
+    Map<String, String>? fields,
+  }) => _send(
+    'POST',
+    path,
+    authenticated: true,
+    files: files,
+    fields: fields,
+  );
+
+  /// Resolves a server-side file reference to a full URL. Accepts absolute
+  /// URLs and server-relative paths (`/uploads/a.pdf` or `uploads/a.pdf`).
+  /// Returns `null` for an empty/unparseable reference.
+  Uri? resolveFileUrl(String reference) {
+    final ref = reference.trim().replaceAll(r'\', '/');
+    if (ref.isEmpty) return null;
+    final lower = ref.toLowerCase();
+    if (lower.startsWith('http://') || lower.startsWith('https://')) {
+      return Uri.tryParse(ref);
+    }
+    final base = _baseUrl.endsWith('/')
+        ? _baseUrl.substring(0, _baseUrl.length - 1)
+        : _baseUrl;
+    return Uri.tryParse(ref.startsWith('/') ? '$base$ref' : '$base/$ref');
+  }
+
+  /// Headers for fetching protected files outside [ApiClient] (e.g. images).
+  Future<Map<String, String>> authHeaders() async {
+    final token = await accessToken?.call();
+    return {
+      if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
+    };
+  }
+
   void close() => _client.close();
 
   Future<Object?> _send(
@@ -92,18 +143,34 @@ class ApiClient {
     required bool authenticated,
     Object? body,
     Map<String, Object?>? query,
+    List<UploadFile>? files,
+    Map<String, String>? fields,
   }) async {
     final url = _buildUri(path, query);
-    logger.request(method, url, body);
+    logger.request(method, url, files == null ? body : {'files': files.length});
 
     try {
-      var response = await _execute(method, url, body, authenticated);
+      var response = await _execute(
+        method,
+        url,
+        body,
+        authenticated,
+        files,
+        fields,
+      );
 
       if (response.statusCode == 401 &&
           authenticated &&
           onUnauthorized != null &&
           await onUnauthorized!()) {
-        response = await _execute(method, url, body, authenticated);
+        response = await _execute(
+          method,
+          url,
+          body,
+          authenticated,
+          files,
+          fields,
+        );
       }
 
       logger.response(method, url, response.statusCode, response.body);
@@ -128,15 +195,31 @@ class ApiClient {
     Uri url,
     Object? body,
     bool authenticated,
+    List<UploadFile>? files,
+    Map<String, String>? fields,
   ) async {
-    final request = http.Request(method, url)
-      ..headers['Accept'] = 'application/json';
-
-    if (body != null) {
-      request
-        ..headers['Content-Type'] = 'application/json'
-        ..body = jsonEncode(body);
+    final http.BaseRequest request;
+    if (files != null) {
+      request = http.MultipartRequest(method, url)
+        ..fields.addAll(fields ?? const {})
+        ..files.addAll([
+          for (final f in files)
+            http.MultipartFile.fromBytes(
+              f.field,
+              f.bytes,
+              filename: f.filename,
+            ),
+        ]);
+    } else {
+      final r = http.Request(method, url);
+      if (body != null) {
+        r
+          ..headers['Content-Type'] = 'application/json'
+          ..body = jsonEncode(body);
+      }
+      request = r;
     }
+    request.headers['Accept'] = 'application/json';
 
     if (authenticated) {
       final token = await accessToken?.call();

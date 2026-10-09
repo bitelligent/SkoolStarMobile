@@ -11,33 +11,31 @@ part of 'homework_model.dart';
 
 // dart format off
 T _$identity<T>(T value) => value;
-
 /// @nodoc
 mixin _$HomeworkAttachment {
 
- String get fileName; int get sizeKb; String get type;
+ String get fileName; int get sizeKb; String get type;/// Server reference returned by the upload endpoint (empty until uploaded).
+ String get reference;
 /// Create a copy of HomeworkAttachment
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
 $HomeworkAttachmentCopyWith<HomeworkAttachment> get copyWith => _$HomeworkAttachmentCopyWithImpl<HomeworkAttachment>(this as HomeworkAttachment, _$identity);
 
-  /// Serializes this HomeworkAttachment to a JSON map.
-  Map<String, dynamic> toJson();
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is HomeworkAttachment&&(identical(other.fileName, fileName) || other.fileName == fileName)&&(identical(other.sizeKb, sizeKb) || other.sizeKb == sizeKb)&&(identical(other.type, type) || other.type == type));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is HomeworkAttachment&&(identical(other.fileName, fileName) || other.fileName == fileName)&&(identical(other.sizeKb, sizeKb) || other.sizeKb == sizeKb)&&(identical(other.type, type) || other.type == type)&&(identical(other.reference, reference) || other.reference == reference));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
-int get hashCode => Object.hash(runtimeType,fileName,sizeKb,type);
+int get hashCode => Object.hash(runtimeType,fileName,sizeKb,type,reference);
 
 @override
 String toString() {
-  return 'HomeworkAttachment(fileName: $fileName, sizeKb: $sizeKb, type: $type)';
+  return 'HomeworkAttachment(fileName: $fileName, sizeKb: $sizeKb, type: $type, reference: $reference)';
 }
 
 
@@ -48,7 +46,7 @@ abstract mixin class $HomeworkAttachmentCopyWith<$Res>  {
   factory $HomeworkAttachmentCopyWith(HomeworkAttachment value, $Res Function(HomeworkAttachment) _then) = _$HomeworkAttachmentCopyWithImpl;
 @useResult
 $Res call({
- String fileName, int sizeKb, String type
+ String fileName, int sizeKb, String type, String reference
 });
 
 
@@ -65,11 +63,12 @@ class _$HomeworkAttachmentCopyWithImpl<$Res>
 
 /// Create a copy of HomeworkAttachment
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? fileName = null,Object? sizeKb = null,Object? type = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? fileName = null,Object? sizeKb = null,Object? type = null,Object? reference = null,}) {
   return _then(_self.copyWith(
 fileName: null == fileName ? _self.fileName : fileName // ignore: cast_nullable_to_non_nullable
 as String,sizeKb: null == sizeKb ? _self.sizeKb : sizeKb // ignore: cast_nullable_to_non_nullable
 as int,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
+as String,reference: null == reference ? _self.reference : reference // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }
@@ -155,10 +154,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String fileName,  int sizeKb,  String type)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String fileName,  int sizeKb,  String type,  String reference)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _HomeworkAttachment() when $default != null:
-return $default(_that.fileName,_that.sizeKb,_that.type);case _:
+return $default(_that.fileName,_that.sizeKb,_that.type,_that.reference);case _:
   return orElse();
 
 }
@@ -176,10 +175,10 @@ return $default(_that.fileName,_that.sizeKb,_that.type);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String fileName,  int sizeKb,  String type)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String fileName,  int sizeKb,  String type,  String reference)  $default,) {final _that = this;
 switch (_that) {
 case _HomeworkAttachment():
-return $default(_that.fileName,_that.sizeKb,_that.type);case _:
+return $default(_that.fileName,_that.sizeKb,_that.type,_that.reference);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -196,10 +195,10 @@ return $default(_that.fileName,_that.sizeKb,_that.type);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String fileName,  int sizeKb,  String type)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String fileName,  int sizeKb,  String type,  String reference)?  $default,) {final _that = this;
 switch (_that) {
 case _HomeworkAttachment() when $default != null:
-return $default(_that.fileName,_that.sizeKb,_that.type);case _:
+return $default(_that.fileName,_that.sizeKb,_that.type,_that.reference);case _:
   return null;
 
 }
@@ -208,15 +207,17 @@ return $default(_that.fileName,_that.sizeKb,_that.type);case _:
 }
 
 /// @nodoc
-@JsonSerializable()
 
-class _HomeworkAttachment implements HomeworkAttachment {
-  const _HomeworkAttachment({required this.fileName, required this.sizeKb, required this.type});
-  factory _HomeworkAttachment.fromJson(Map<String, dynamic> json) => _$HomeworkAttachmentFromJson(json);
+
+class _HomeworkAttachment extends HomeworkAttachment {
+  const _HomeworkAttachment({required this.fileName, required this.sizeKb, required this.type, this.reference = ''}): super._();
+  
 
 @override final  String fileName;
 @override final  int sizeKb;
 @override final  String type;
+/// Server reference returned by the upload endpoint (empty until uploaded).
+@override@JsonKey() final  String reference;
 
 /// Create a copy of HomeworkAttachment
 /// with the given fields replaced by the non-null parameter values.
@@ -224,23 +225,20 @@ class _HomeworkAttachment implements HomeworkAttachment {
 @pragma('vm:prefer-inline')
 _$HomeworkAttachmentCopyWith<_HomeworkAttachment> get copyWith => __$HomeworkAttachmentCopyWithImpl<_HomeworkAttachment>(this, _$identity);
 
-@override
-Map<String, dynamic> toJson() {
-  return _$HomeworkAttachmentToJson(this, );
-}
+
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _HomeworkAttachment&&(identical(other.fileName, fileName) || other.fileName == fileName)&&(identical(other.sizeKb, sizeKb) || other.sizeKb == sizeKb)&&(identical(other.type, type) || other.type == type));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _HomeworkAttachment&&(identical(other.fileName, fileName) || other.fileName == fileName)&&(identical(other.sizeKb, sizeKb) || other.sizeKb == sizeKb)&&(identical(other.type, type) || other.type == type)&&(identical(other.reference, reference) || other.reference == reference));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
-int get hashCode => Object.hash(runtimeType,fileName,sizeKb,type);
+int get hashCode => Object.hash(runtimeType,fileName,sizeKb,type,reference);
 
 @override
 String toString() {
-  return 'HomeworkAttachment(fileName: $fileName, sizeKb: $sizeKb, type: $type)';
+  return 'HomeworkAttachment(fileName: $fileName, sizeKb: $sizeKb, type: $type, reference: $reference)';
 }
 
 
@@ -251,7 +249,7 @@ abstract mixin class _$HomeworkAttachmentCopyWith<$Res> implements $HomeworkAtta
   factory _$HomeworkAttachmentCopyWith(_HomeworkAttachment value, $Res Function(_HomeworkAttachment) _then) = __$HomeworkAttachmentCopyWithImpl;
 @override @useResult
 $Res call({
- String fileName, int sizeKb, String type
+ String fileName, int sizeKb, String type, String reference
 });
 
 
@@ -268,11 +266,12 @@ class __$HomeworkAttachmentCopyWithImpl<$Res>
 
 /// Create a copy of HomeworkAttachment
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? fileName = null,Object? sizeKb = null,Object? type = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? fileName = null,Object? sizeKb = null,Object? type = null,Object? reference = null,}) {
   return _then(_HomeworkAttachment(
 fileName: null == fileName ? _self.fileName : fileName // ignore: cast_nullable_to_non_nullable
 as String,sizeKb: null == sizeKb ? _self.sizeKb : sizeKb // ignore: cast_nullable_to_non_nullable
 as int,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
+as String,reference: null == reference ? _self.reference : reference // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }
@@ -280,33 +279,32 @@ as String,
 
 }
 
-
 /// @nodoc
 mixin _$Homework {
 
- String get id; String get sessionId; String get classId; String get subjectId; String get title; String get description; DateTime get deadline; int get maxMarks; List<String> get assignedStudentIds; List<HomeworkAttachment> get attachments;
+ String get id; String get sessionId; String get classId; String get subjectId; String get title; String get description; DateTime get deadline; int get maxMarks; List<String> get assignedStudentIds;/// Number of students the task is assigned to, when the server only sends
+/// a count (`totalAssigned`) and not their ids.
+ int get assignedCount; List<HomeworkAttachment> get attachments;
 /// Create a copy of Homework
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
 $HomeworkCopyWith<Homework> get copyWith => _$HomeworkCopyWithImpl<Homework>(this as Homework, _$identity);
 
-  /// Serializes this Homework to a JSON map.
-  Map<String, dynamic> toJson();
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Homework&&(identical(other.id, id) || other.id == id)&&(identical(other.sessionId, sessionId) || other.sessionId == sessionId)&&(identical(other.classId, classId) || other.classId == classId)&&(identical(other.subjectId, subjectId) || other.subjectId == subjectId)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.deadline, deadline) || other.deadline == deadline)&&(identical(other.maxMarks, maxMarks) || other.maxMarks == maxMarks)&&const DeepCollectionEquality().equals(other.assignedStudentIds, assignedStudentIds)&&const DeepCollectionEquality().equals(other.attachments, attachments));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Homework&&(identical(other.id, id) || other.id == id)&&(identical(other.sessionId, sessionId) || other.sessionId == sessionId)&&(identical(other.classId, classId) || other.classId == classId)&&(identical(other.subjectId, subjectId) || other.subjectId == subjectId)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.deadline, deadline) || other.deadline == deadline)&&(identical(other.maxMarks, maxMarks) || other.maxMarks == maxMarks)&&const DeepCollectionEquality().equals(other.assignedStudentIds, assignedStudentIds)&&(identical(other.assignedCount, assignedCount) || other.assignedCount == assignedCount)&&const DeepCollectionEquality().equals(other.attachments, attachments));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
-int get hashCode => Object.hash(runtimeType,id,sessionId,classId,subjectId,title,description,deadline,maxMarks,const DeepCollectionEquality().hash(assignedStudentIds),const DeepCollectionEquality().hash(attachments));
+int get hashCode => Object.hash(runtimeType,id,sessionId,classId,subjectId,title,description,deadline,maxMarks,const DeepCollectionEquality().hash(assignedStudentIds),assignedCount,const DeepCollectionEquality().hash(attachments));
 
 @override
 String toString() {
-  return 'Homework(id: $id, sessionId: $sessionId, classId: $classId, subjectId: $subjectId, title: $title, description: $description, deadline: $deadline, maxMarks: $maxMarks, assignedStudentIds: $assignedStudentIds, attachments: $attachments)';
+  return 'Homework(id: $id, sessionId: $sessionId, classId: $classId, subjectId: $subjectId, title: $title, description: $description, deadline: $deadline, maxMarks: $maxMarks, assignedStudentIds: $assignedStudentIds, assignedCount: $assignedCount, attachments: $attachments)';
 }
 
 
@@ -317,7 +315,7 @@ abstract mixin class $HomeworkCopyWith<$Res>  {
   factory $HomeworkCopyWith(Homework value, $Res Function(Homework) _then) = _$HomeworkCopyWithImpl;
 @useResult
 $Res call({
- String id, String sessionId, String classId, String subjectId, String title, String description, DateTime deadline, int maxMarks, List<String> assignedStudentIds, List<HomeworkAttachment> attachments
+ String id, String sessionId, String classId, String subjectId, String title, String description, DateTime deadline, int maxMarks, List<String> assignedStudentIds, int assignedCount, List<HomeworkAttachment> attachments
 });
 
 
@@ -334,7 +332,7 @@ class _$HomeworkCopyWithImpl<$Res>
 
 /// Create a copy of Homework
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? sessionId = null,Object? classId = null,Object? subjectId = null,Object? title = null,Object? description = null,Object? deadline = null,Object? maxMarks = null,Object? assignedStudentIds = null,Object? attachments = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? sessionId = null,Object? classId = null,Object? subjectId = null,Object? title = null,Object? description = null,Object? deadline = null,Object? maxMarks = null,Object? assignedStudentIds = null,Object? assignedCount = null,Object? attachments = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,sessionId: null == sessionId ? _self.sessionId : sessionId // ignore: cast_nullable_to_non_nullable
@@ -345,7 +343,8 @@ as String,description: null == description ? _self.description : description // 
 as String,deadline: null == deadline ? _self.deadline : deadline // ignore: cast_nullable_to_non_nullable
 as DateTime,maxMarks: null == maxMarks ? _self.maxMarks : maxMarks // ignore: cast_nullable_to_non_nullable
 as int,assignedStudentIds: null == assignedStudentIds ? _self.assignedStudentIds : assignedStudentIds // ignore: cast_nullable_to_non_nullable
-as List<String>,attachments: null == attachments ? _self.attachments : attachments // ignore: cast_nullable_to_non_nullable
+as List<String>,assignedCount: null == assignedCount ? _self.assignedCount : assignedCount // ignore: cast_nullable_to_non_nullable
+as int,attachments: null == attachments ? _self.attachments : attachments // ignore: cast_nullable_to_non_nullable
 as List<HomeworkAttachment>,
   ));
 }
@@ -431,10 +430,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String sessionId,  String classId,  String subjectId,  String title,  String description,  DateTime deadline,  int maxMarks,  List<String> assignedStudentIds,  List<HomeworkAttachment> attachments)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String sessionId,  String classId,  String subjectId,  String title,  String description,  DateTime deadline,  int maxMarks,  List<String> assignedStudentIds,  int assignedCount,  List<HomeworkAttachment> attachments)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Homework() when $default != null:
-return $default(_that.id,_that.sessionId,_that.classId,_that.subjectId,_that.title,_that.description,_that.deadline,_that.maxMarks,_that.assignedStudentIds,_that.attachments);case _:
+return $default(_that.id,_that.sessionId,_that.classId,_that.subjectId,_that.title,_that.description,_that.deadline,_that.maxMarks,_that.assignedStudentIds,_that.assignedCount,_that.attachments);case _:
   return orElse();
 
 }
@@ -452,10 +451,10 @@ return $default(_that.id,_that.sessionId,_that.classId,_that.subjectId,_that.tit
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String sessionId,  String classId,  String subjectId,  String title,  String description,  DateTime deadline,  int maxMarks,  List<String> assignedStudentIds,  List<HomeworkAttachment> attachments)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String sessionId,  String classId,  String subjectId,  String title,  String description,  DateTime deadline,  int maxMarks,  List<String> assignedStudentIds,  int assignedCount,  List<HomeworkAttachment> attachments)  $default,) {final _that = this;
 switch (_that) {
 case _Homework():
-return $default(_that.id,_that.sessionId,_that.classId,_that.subjectId,_that.title,_that.description,_that.deadline,_that.maxMarks,_that.assignedStudentIds,_that.attachments);case _:
+return $default(_that.id,_that.sessionId,_that.classId,_that.subjectId,_that.title,_that.description,_that.deadline,_that.maxMarks,_that.assignedStudentIds,_that.assignedCount,_that.attachments);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -472,10 +471,10 @@ return $default(_that.id,_that.sessionId,_that.classId,_that.subjectId,_that.tit
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String sessionId,  String classId,  String subjectId,  String title,  String description,  DateTime deadline,  int maxMarks,  List<String> assignedStudentIds,  List<HomeworkAttachment> attachments)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String sessionId,  String classId,  String subjectId,  String title,  String description,  DateTime deadline,  int maxMarks,  List<String> assignedStudentIds,  int assignedCount,  List<HomeworkAttachment> attachments)?  $default,) {final _that = this;
 switch (_that) {
 case _Homework() when $default != null:
-return $default(_that.id,_that.sessionId,_that.classId,_that.subjectId,_that.title,_that.description,_that.deadline,_that.maxMarks,_that.assignedStudentIds,_that.attachments);case _:
+return $default(_that.id,_that.sessionId,_that.classId,_that.subjectId,_that.title,_that.description,_that.deadline,_that.maxMarks,_that.assignedStudentIds,_that.assignedCount,_that.attachments);case _:
   return null;
 
 }
@@ -484,11 +483,11 @@ return $default(_that.id,_that.sessionId,_that.classId,_that.subjectId,_that.tit
 }
 
 /// @nodoc
-@JsonSerializable()
 
-class _Homework implements Homework {
-  const _Homework({required this.id, required this.sessionId, required this.classId, required this.subjectId, required this.title, required this.description, required this.deadline, this.maxMarks = 100, final  List<String> assignedStudentIds = const [], final  List<HomeworkAttachment> attachments = const []}): _assignedStudentIds = assignedStudentIds,_attachments = attachments;
-  factory _Homework.fromJson(Map<String, dynamic> json) => _$HomeworkFromJson(json);
+
+class _Homework extends Homework {
+  const _Homework({required this.id, required this.sessionId, required this.classId, required this.subjectId, required this.title, required this.description, required this.deadline, this.maxMarks = 100, final  List<String> assignedStudentIds = const [], this.assignedCount = 0, final  List<HomeworkAttachment> attachments = const []}): _assignedStudentIds = assignedStudentIds,_attachments = attachments,super._();
+  
 
 @override final  String id;
 @override final  String sessionId;
@@ -505,6 +504,9 @@ class _Homework implements Homework {
   return EqualUnmodifiableListView(_assignedStudentIds);
 }
 
+/// Number of students the task is assigned to, when the server only sends
+/// a count (`totalAssigned`) and not their ids.
+@override@JsonKey() final  int assignedCount;
  final  List<HomeworkAttachment> _attachments;
 @override@JsonKey() List<HomeworkAttachment> get attachments {
   if (_attachments is EqualUnmodifiableListView) return _attachments;
@@ -519,23 +521,20 @@ class _Homework implements Homework {
 @pragma('vm:prefer-inline')
 _$HomeworkCopyWith<_Homework> get copyWith => __$HomeworkCopyWithImpl<_Homework>(this, _$identity);
 
-@override
-Map<String, dynamic> toJson() {
-  return _$HomeworkToJson(this, );
-}
+
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Homework&&(identical(other.id, id) || other.id == id)&&(identical(other.sessionId, sessionId) || other.sessionId == sessionId)&&(identical(other.classId, classId) || other.classId == classId)&&(identical(other.subjectId, subjectId) || other.subjectId == subjectId)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.deadline, deadline) || other.deadline == deadline)&&(identical(other.maxMarks, maxMarks) || other.maxMarks == maxMarks)&&const DeepCollectionEquality().equals(other._assignedStudentIds, _assignedStudentIds)&&const DeepCollectionEquality().equals(other._attachments, _attachments));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Homework&&(identical(other.id, id) || other.id == id)&&(identical(other.sessionId, sessionId) || other.sessionId == sessionId)&&(identical(other.classId, classId) || other.classId == classId)&&(identical(other.subjectId, subjectId) || other.subjectId == subjectId)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.deadline, deadline) || other.deadline == deadline)&&(identical(other.maxMarks, maxMarks) || other.maxMarks == maxMarks)&&const DeepCollectionEquality().equals(other._assignedStudentIds, _assignedStudentIds)&&(identical(other.assignedCount, assignedCount) || other.assignedCount == assignedCount)&&const DeepCollectionEquality().equals(other._attachments, _attachments));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
-int get hashCode => Object.hash(runtimeType,id,sessionId,classId,subjectId,title,description,deadline,maxMarks,const DeepCollectionEquality().hash(_assignedStudentIds),const DeepCollectionEquality().hash(_attachments));
+int get hashCode => Object.hash(runtimeType,id,sessionId,classId,subjectId,title,description,deadline,maxMarks,const DeepCollectionEquality().hash(_assignedStudentIds),assignedCount,const DeepCollectionEquality().hash(_attachments));
 
 @override
 String toString() {
-  return 'Homework(id: $id, sessionId: $sessionId, classId: $classId, subjectId: $subjectId, title: $title, description: $description, deadline: $deadline, maxMarks: $maxMarks, assignedStudentIds: $assignedStudentIds, attachments: $attachments)';
+  return 'Homework(id: $id, sessionId: $sessionId, classId: $classId, subjectId: $subjectId, title: $title, description: $description, deadline: $deadline, maxMarks: $maxMarks, assignedStudentIds: $assignedStudentIds, assignedCount: $assignedCount, attachments: $attachments)';
 }
 
 
@@ -546,7 +545,7 @@ abstract mixin class _$HomeworkCopyWith<$Res> implements $HomeworkCopyWith<$Res>
   factory _$HomeworkCopyWith(_Homework value, $Res Function(_Homework) _then) = __$HomeworkCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String sessionId, String classId, String subjectId, String title, String description, DateTime deadline, int maxMarks, List<String> assignedStudentIds, List<HomeworkAttachment> attachments
+ String id, String sessionId, String classId, String subjectId, String title, String description, DateTime deadline, int maxMarks, List<String> assignedStudentIds, int assignedCount, List<HomeworkAttachment> attachments
 });
 
 
@@ -563,7 +562,7 @@ class __$HomeworkCopyWithImpl<$Res>
 
 /// Create a copy of Homework
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? sessionId = null,Object? classId = null,Object? subjectId = null,Object? title = null,Object? description = null,Object? deadline = null,Object? maxMarks = null,Object? assignedStudentIds = null,Object? attachments = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? sessionId = null,Object? classId = null,Object? subjectId = null,Object? title = null,Object? description = null,Object? deadline = null,Object? maxMarks = null,Object? assignedStudentIds = null,Object? assignedCount = null,Object? attachments = null,}) {
   return _then(_Homework(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,sessionId: null == sessionId ? _self.sessionId : sessionId // ignore: cast_nullable_to_non_nullable
@@ -574,7 +573,8 @@ as String,description: null == description ? _self.description : description // 
 as String,deadline: null == deadline ? _self.deadline : deadline // ignore: cast_nullable_to_non_nullable
 as DateTime,maxMarks: null == maxMarks ? _self.maxMarks : maxMarks // ignore: cast_nullable_to_non_nullable
 as int,assignedStudentIds: null == assignedStudentIds ? _self._assignedStudentIds : assignedStudentIds // ignore: cast_nullable_to_non_nullable
-as List<String>,attachments: null == attachments ? _self._attachments : attachments // ignore: cast_nullable_to_non_nullable
+as List<String>,assignedCount: null == assignedCount ? _self.assignedCount : assignedCount // ignore: cast_nullable_to_non_nullable
+as int,attachments: null == attachments ? _self._attachments : attachments // ignore: cast_nullable_to_non_nullable
 as List<HomeworkAttachment>,
   ));
 }

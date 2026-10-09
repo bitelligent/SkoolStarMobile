@@ -117,8 +117,7 @@ class SessionTab extends StatelessWidget {
               const SizedBox(height: AppSpacing.sm),
               if (students.isEmpty)
                 Padding(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: AppSpacing.md),
+                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
                   child: Center(
                     child: Text(
                       'No students match your filters.',
@@ -154,7 +153,10 @@ class SessionTab extends StatelessWidget {
                 onTap: () async {
                   final ok = await cubit.submitAttendance();
                   if (!context.mounted) return;
-                  _snack(context, ok ? 'Attendance saved' : 'Save failed');
+                  _snack(
+                    context,
+                    ok ? 'Attendance saved' : cubit.lastActionError,
+                  );
                 },
               ),
             ),

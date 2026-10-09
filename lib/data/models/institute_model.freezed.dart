@@ -11,7 +11,6 @@ part of 'institute_model.dart';
 
 // dart format off
 T _$identity<T>(T value) => value;
-
 /// @nodoc
 mixin _$InstituteInfo {
 
@@ -22,8 +21,6 @@ mixin _$InstituteInfo {
 @pragma('vm:prefer-inline')
 $InstituteInfoCopyWith<InstituteInfo> get copyWith => _$InstituteInfoCopyWithImpl<InstituteInfo>(this as InstituteInfo, _$identity);
 
-  /// Serializes this InstituteInfo to a JSON map.
-  Map<String, dynamic> toJson();
 
 
 @override
@@ -31,7 +28,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is InstituteInfo&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.type, type) || other.type == type));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,id,name,type);
 
@@ -208,11 +205,11 @@ return $default(_that.id,_that.name,_that.type);case _:
 }
 
 /// @nodoc
-@JsonSerializable()
+
 
 class _InstituteInfo implements InstituteInfo {
   const _InstituteInfo({required this.id, required this.name, required this.type});
-  factory _InstituteInfo.fromJson(Map<String, dynamic> json) => _$InstituteInfoFromJson(json);
+  
 
 @override final  String id;
 @override final  String name;
@@ -224,17 +221,14 @@ class _InstituteInfo implements InstituteInfo {
 @pragma('vm:prefer-inline')
 _$InstituteInfoCopyWith<_InstituteInfo> get copyWith => __$InstituteInfoCopyWithImpl<_InstituteInfo>(this, _$identity);
 
-@override
-Map<String, dynamic> toJson() {
-  return _$InstituteInfoToJson(this, );
-}
+
 
 @override
 bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is _InstituteInfo&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.type, type) || other.type == type));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,id,name,type);
 

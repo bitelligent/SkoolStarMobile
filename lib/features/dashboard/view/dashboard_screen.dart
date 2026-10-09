@@ -15,6 +15,7 @@ import 'package:skoolstar_teacher_module/core/widgets/main_top_bar.dart';
 import 'package:skoolstar_teacher_module/data/models/session_model.dart';
 import 'package:skoolstar_teacher_module/data/repositories/class_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/institute_repository.dart';
+import 'package:skoolstar_teacher_module/data/repositories/notifications_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/session_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/subject_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/user_repository.dart';
@@ -37,6 +38,7 @@ class DashboardScreen extends StatelessWidget {
         sessionRepository: context.read<SessionRepository>(),
         classRepository: context.read<ClassRepository>(),
         subjectRepository: context.read<SubjectRepository>(),
+        notificationsRepository: context.read<NotificationsRepository>(),
       )..load(),
       child: const _DashboardView(),
     );
@@ -57,9 +59,9 @@ class _DashboardView extends StatelessWidget {
             return switch (state) {
               DashboardInitial() || DashboardLoading() => const LoadingView(),
               DashboardError(:final message) => ErrorView(
-                  message: message,
-                  onRetry: () => context.read<DashboardCubit>().load(),
-                ),
+                message: message,
+                onRetry: () => context.read<DashboardCubit>().load(),
+              ),
               DashboardLoaded() => _Loaded(state: state),
             };
           },
@@ -78,8 +80,7 @@ class _Loaded extends StatefulWidget {
   State<_Loaded> createState() => _LoadedState();
 }
 
-class _LoadedState extends State<_Loaded>
-    with SingleTickerProviderStateMixin {
+class _LoadedState extends State<_Loaded> with SingleTickerProviderStateMixin {
   late final TabController _viewTabs = TabController(length: 2, vsync: this);
 
   @override
@@ -91,8 +92,9 @@ class _LoadedState extends State<_Loaded>
 
   void _onTabChanged() {
     if (_viewTabs.indexIsChanging) return;
-    final targetView =
-        _viewTabs.index == 0 ? DashboardView.month : DashboardView.agenda;
+    final targetView = _viewTabs.index == 0
+        ? DashboardView.month
+        : DashboardView.agenda;
     final cubit = context.read<DashboardCubit>();
     final currentView = widget.state.view;
     if (currentView != targetView) cubit.setView(targetView);
@@ -118,22 +120,27 @@ class _LoadedState extends State<_Loaded>
   }
 
   void _openSession(String id) => context.pushNamed(
-        AppRoutes.sessionDetail,
-        pathParameters: {'id': id},
-      );
+    AppRoutes.sessionDetail,
+    pathParameters: {'id': id},
+  );
 
   @override
   Widget build(BuildContext context) {
     final s = widget.state;
     final cubit = context.read<DashboardCubit>();
     final filtered = cubit.filteredSessions();
-    final todayCount = filtered
-        .where((x) => _isSameDay(x.date, DateTime.now()))
-        .length;
+    final todayCount = cubit.todayCount();
 
     return RefreshIndicator(
       color: AppColors.primary,
-      onRefresh: () => cubit.load(),
+      onRefresh: () async {
+        final error = await cubit.refresh();
+        if (error != null && context.mounted) {
+          ScaffoldMessenger.of(context)
+            ..hideCurrentSnackBar()
+            ..showSnackBar(SnackBar(content: Text(error)));
+        }
+      },
       child: ListView(
         padding: const EdgeInsets.only(bottom: AppSpacing.xxl),
         children: [
@@ -208,9 +215,9 @@ class _LoadedState extends State<_Loaded>
                 child: Text(
                   '${filtered.length}',
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.w700,
-                      ),
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
             ),
@@ -234,6 +241,8 @@ class _LoadedState extends State<_Loaded>
               classes: s.classes,
               subjects: s.subjects,
               dayFilter: s.dayFilter,
+              defaultDay: defaultDayFilter,
+              selectedDate: s.selectedDate,
               classFilterIds: s.classFilterIds,
               subjectFilterIds: s.subjectFilterIds,
               onDayChanged: cubit.setDayFilter,
@@ -262,8 +271,7 @@ class _LoadedState extends State<_Loaded>
                     children: [
                       if (s.selectedDate != null)
                         Padding(
-                          padding:
-                              const EdgeInsets.only(bottom: AppSpacing.sm),
+                          padding: const EdgeInsets.only(bottom: AppSpacing.sm),
                           child: _SelectedDateBanner(
                             date: s.selectedDate!,
                             onClear: cubit.clearSelectedDate,
@@ -281,9 +289,6 @@ class _LoadedState extends State<_Loaded>
       ),
     );
   }
-
-  bool _isSameDay(DateTime a, DateTime b) =>
-      a.year == b.year && a.month == b.month && a.day == b.day;
 }
 
 class _AgendaList extends StatelessWidget {
@@ -335,9 +340,9 @@ class _AgendaList extends StatelessWidget {
                 Text(
                   entry.key,
                   style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                        color: AppColors.textSecondary,
-                        fontWeight: FontWeight.w700,
-                      ),
+                    color: AppColors.textSecondary,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ],
             ),

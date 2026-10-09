@@ -1,7 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'feedback_model.freezed.dart';
-part 'feedback_model.g.dart';
 
 /// Message sent to one or more parents (the web screen is the "General
 /// Feedback" block). [isPositive] drives the toggle shown in the UI.
@@ -15,9 +14,6 @@ abstract class FeedbackMessage with _$FeedbackMessage {
     @Default(true) bool isPositive,
     DateTime? sentAt,
   }) = _FeedbackMessage;
-
-  factory FeedbackMessage.fromJson(Map<String, dynamic> json) =>
-      _$FeedbackMessageFromJson(json);
 }
 
 /// A graded review for one homework-student pair (the "Assignment Review
@@ -33,7 +29,4 @@ abstract class AssignmentReview with _$AssignmentReview {
     required String reviewText,
     DateTime? reviewedAt,
   }) = _AssignmentReview;
-
-  factory AssignmentReview.fromJson(Map<String, dynamic> json) =>
-      _$AssignmentReviewFromJson(json);
 }

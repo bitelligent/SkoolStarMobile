@@ -11,7 +11,6 @@ part of 'subject_model.dart';
 
 // dart format off
 T _$identity<T>(T value) => value;
-
 /// @nodoc
 mixin _$Subject {
 
@@ -22,8 +21,6 @@ mixin _$Subject {
 @pragma('vm:prefer-inline')
 $SubjectCopyWith<Subject> get copyWith => _$SubjectCopyWithImpl<Subject>(this as Subject, _$identity);
 
-  /// Serializes this Subject to a JSON map.
-  Map<String, dynamic> toJson();
 
 
 @override
@@ -31,7 +28,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is Subject&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.colorHex, colorHex) || other.colorHex == colorHex));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,id,name,colorHex);
 
@@ -208,11 +205,11 @@ return $default(_that.id,_that.name,_that.colorHex);case _:
 }
 
 /// @nodoc
-@JsonSerializable()
+
 
 class _Subject implements Subject {
   const _Subject({required this.id, required this.name, this.colorHex = '#2563EB'});
-  factory _Subject.fromJson(Map<String, dynamic> json) => _$SubjectFromJson(json);
+  
 
 @override final  String id;
 @override final  String name;
@@ -224,17 +221,14 @@ class _Subject implements Subject {
 @pragma('vm:prefer-inline')
 _$SubjectCopyWith<_Subject> get copyWith => __$SubjectCopyWithImpl<_Subject>(this, _$identity);
 
-@override
-Map<String, dynamic> toJson() {
-  return _$SubjectToJson(this, );
-}
+
 
 @override
 bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is _Subject&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.colorHex, colorHex) || other.colorHex == colorHex));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,id,name,colorHex);
 

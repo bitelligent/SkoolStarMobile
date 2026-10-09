@@ -5,13 +5,25 @@ abstract interface class TokenStore {
   String? get accessToken;
   String? get refreshToken;
 
+  /// JSON of the active `AuthContext` (role + institute), persisted with the
+  /// tokens so a cold start knows the staff/institute without a network call.
+  String? get contextJson;
+
   Future<void> save({required String accessToken, String? refreshToken});
+  Future<void> saveContext(String? json);
   Future<void> clear();
 }
 
 class InMemoryTokenStore implements TokenStore {
   String? _accessToken;
   String? _refreshToken;
+  String? _contextJson;
+
+  @override
+  String? get contextJson => _contextJson;
+
+  @override
+  Future<void> saveContext(String? json) async => _contextJson = json;
 
   @override
   String? get accessToken => _accessToken;
@@ -32,5 +44,6 @@ class InMemoryTokenStore implements TokenStore {
   Future<void> clear() async {
     _accessToken = null;
     _refreshToken = null;
+    _contextJson = null;
   }
 }

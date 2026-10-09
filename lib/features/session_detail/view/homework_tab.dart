@@ -1,3 +1,4 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,9 +16,12 @@ import 'package:skoolstar_teacher_module/core/widgets/app_sheet.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_upload_box.dart';
 import 'package:skoolstar_teacher_module/core/widgets/primary_button.dart';
 import 'package:skoolstar_teacher_module/data/models/homework_model.dart';
+import 'package:skoolstar_teacher_module/data/repositories/homework_repository.dart'
+    show maxAttachmentBytes;
 import 'package:skoolstar_teacher_module/data/models/student_model.dart';
 import 'package:skoolstar_teacher_module/features/session_detail/cubit/session_detail_cubit.dart';
 import 'package:skoolstar_teacher_module/features/session_detail/cubit/session_detail_state.dart';
+import 'package:skoolstar_teacher_module/features/session_detail/widgets/homework_detail_sheet.dart';
 import 'package:skoolstar_teacher_module/features/session_detail/widgets/session_header_card.dart';
 
 /// Third tab — Create Homework form plus a list of previously assigned
@@ -43,6 +47,8 @@ class _HomeworkTabState extends State<HomeworkTab> {
   TimeOfDay? _deadlineTime;
   final Set<String> _selectedStudents = {};
   final List<HomeworkAttachment> _attachments = [];
+  bool _uploading = false;
+  bool _creating = false;
 
   @override
   void initState() {
@@ -75,6 +81,7 @@ class _HomeworkTabState extends State<HomeworkTab> {
       _selectedStudents.isNotEmpty;
 
   Future<void> _assign() async {
+    if (_creating || _uploading) return;
     final deadline = _deadlineDate == null
         ? DateTime.now().add(const Duration(days: 1))
         : DateTime(
@@ -97,12 +104,16 @@ class _HomeworkTabState extends State<HomeworkTab> {
       assignedStudentIds: _selectedStudents.toList(),
       attachments: _attachments,
     );
-    final ok =
-        await context.read<SessionDetailCubit>().createHomework(draft);
+    if (!deadline.isAfter(DateTime.now())) {
+      _toast('Choose a deadline in the future.');
+      return;
+    }
+    final cubit = context.read<SessionDetailCubit>();
+    setState(() => _creating = true);
+    final ok = await cubit.createHomework(draft);
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(ok ? 'Homework assigned' : 'Failed')),
-    );
+    setState(() => _creating = false);
+    _toast(ok ? 'Homework assigned' : cubit.lastActionError);
     if (ok) {
       setState(() {
         _title.clear();
@@ -113,6 +124,60 @@ class _HomeworkTabState extends State<HomeworkTab> {
         _selectedStudents.clear();
         _attachments.clear();
       });
+    }
+  }
+
+  static const _allowedExtensions = [
+    'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', //
+    'jpg', 'jpeg', 'png', 'zip',
+  ];
+  static const _maxFiles = 5;
+
+  void _toast(String message) => ScaffoldMessenger.of(context)
+    ..hideCurrentSnackBar()
+    ..showSnackBar(SnackBar(content: Text(message)));
+
+  Future<void> _pickFiles() async {
+    if (_uploading) return;
+    final room = _maxFiles - _attachments.length;
+    if (room <= 0) {
+      _toast('You can attach up to $_maxFiles files.');
+      return;
+    }
+    final cubit = context.read<SessionDetailCubit>();
+    final picked = await FilePicker.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: _allowedExtensions,
+    );
+    if (!mounted || picked.isEmpty) return;
+
+    setState(() => _uploading = true);
+    var failed = 0;
+    for (final file in picked.take(room)) {
+      final size = await file.length() ?? 0;
+      if (size > maxAttachmentBytes) {
+        failed++;
+        continue;
+      }
+      final uploaded = await cubit.uploadAttachment(
+        fileName: file.name,
+        bytes: await file.readAsBytes(),
+      );
+      if (!mounted) return;
+      if (uploaded == null) {
+        failed++;
+      } else {
+        setState(() => _attachments.add(uploaded));
+      }
+    }
+    if (!mounted) return;
+    setState(() => _uploading = false);
+    if (failed > 0) {
+      _toast(
+        failed == 1
+            ? '1 file could not be attached (max 15MB).'
+            : '$failed files could not be attached.',
+      );
     }
   }
 
@@ -257,18 +322,9 @@ class _HomeworkTabState extends State<HomeworkTab> {
                 child: Column(
                   children: [
                     AppUploadBox(
-                      title: 'Tap to upload files',
+                      title: _uploading ? 'Uploading…' : 'Tap to upload files',
                       subtitle: 'From your device',
-                      onTap: _attachments.length >= 5
-                          ? () {}
-                          : () => setState(() => _attachments.add(
-                                HomeworkAttachment(
-                                  fileName:
-                                      'file_${_attachments.length + 1}.pdf',
-                                  sizeKb: 128,
-                                  type: 'pdf',
-                                ),
-                              )),
+                      onTap: _pickFiles,
                     ),
                     const SizedBox(height: AppSpacing.sm),
                     ..._attachments.map(
@@ -294,15 +350,15 @@ class _HomeworkTabState extends State<HomeworkTab> {
                   onPressed: _studentsForClass.isEmpty
                       ? null
                       : () => setState(() {
-                            if (_selectedStudents.length ==
-                                _studentsForClass.length) {
-                              _selectedStudents.clear();
-                            } else {
-                              _selectedStudents
-                                ..clear()
-                                ..addAll(_studentsForClass.map((s) => s.id));
-                            }
-                          }),
+                          if (_selectedStudents.length ==
+                              _studentsForClass.length) {
+                            _selectedStudents.clear();
+                          } else {
+                            _selectedStudents
+                              ..clear()
+                              ..addAll(_studentsForClass.map((s) => s.id));
+                          }
+                        }),
                   icon: const Icon(Icons.select_all_rounded, size: 14),
                   label: Text(
                     _selectedStudents.length == _studentsForClass.length &&
@@ -322,7 +378,9 @@ class _HomeworkTabState extends State<HomeworkTab> {
                         padding: const EdgeInsets.only(bottom: 6),
                         child: AppSelectableTile(
                           title: '${s.firstName} ${s.lastName}',
-                          subtitle: 'Roll ${s.rollNo}',
+                          subtitle: s.rollNo.isEmpty
+                              ? null
+                              : 'Roll ${s.rollNo}',
                           avatarName: '${s.firstName} ${s.lastName}',
                           selected: _selectedStudents.contains(s.id),
                           onToggle: () => setState(() {
@@ -347,7 +405,8 @@ class _HomeworkTabState extends State<HomeworkTab> {
               PrimaryButton(
                 label: 'Assign Task',
                 icon: Icons.rocket_launch_rounded,
-                onPressed: _canSubmit ? _assign : null,
+                isLoading: _creating,
+                onPressed: _canSubmit && !_uploading ? _assign : null,
               ),
             ],
           ),
@@ -391,7 +450,14 @@ class _HomeworkTabState extends State<HomeworkTab> {
                 ...state.homeworks.map(
                   (hw) => Padding(
                     padding: const EdgeInsets.only(bottom: 8),
-                    child: _HomeworkTile(homework: hw),
+                    child: HomeworkTile(
+                      homework: hw,
+                      onTap: () => showHomeworkDetail(
+                        context,
+                        homework: hw,
+                        state: state,
+                      ),
+                    ),
                   ),
                 ),
             ],
@@ -402,78 +468,122 @@ class _HomeworkTabState extends State<HomeworkTab> {
   }
 }
 
-class _HomeworkTile extends StatelessWidget {
-  const _HomeworkTile({required this.homework});
+class HomeworkTile extends StatelessWidget {
+  const HomeworkTile({required this.homework, required this.onTap});
 
   final Homework homework;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        border: Border.all(color: AppColors.border),
-        borderRadius: BorderRadius.circular(AppRadius.md),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(homework.title, style: AppTextStyles.titleSmall),
-              ),
-              AppChip(
-                label: '${homework.maxMarks} marks',
-                color: AppColors.accentPurple,
-                dense: true,
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(AppRadius.md),
+      child: Container(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          border: Border.all(color: AppColors.border),
+          borderRadius: BorderRadius.circular(AppRadius.md),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(homework.title, style: AppTextStyles.titleSmall),
+                ),
+                AppChip(
+                  label: homework.maxMarks == 1
+                      ? '1 mark'
+                      : '${homework.maxMarks} marks',
+                  color: AppColors.accentPurple,
+                  dense: true,
+                ),
+              ],
+            ),
+            if (homework.description.isNotEmpty) ...[
+              const SizedBox(height: 2),
+              Text(
+                homework.description,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: AppColors.textSecondary,
+                ),
               ),
             ],
-          ),
-          if (homework.description.isNotEmpty) ...[
-            const SizedBox(height: 2),
-            Text(
-              homework.description,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.textSecondary,
-              ),
+            const SizedBox(height: 6),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Wraps to a second line on narrow screens / large text
+                // instead of overflowing.
+                Expanded(
+                  child: Wrap(
+                    spacing: AppSpacing.md,
+                    runSpacing: 4,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      _Meta(
+                        icon: Icons.calendar_today_rounded,
+                        text:
+                            'Due ${DateFormat('MMM d, h:mm a').format(homework.deadline)}',
+                      ),
+                      _Meta(
+                        icon: Icons.people_outline_rounded,
+                        text: homework.studentTotal == 1
+                            ? '1 student'
+                            : '${homework.studentTotal} students',
+                      ),
+                      if (homework.attachments.isNotEmpty)
+                        _Meta(
+                          icon: Icons.attach_file_rounded,
+                          text: '${homework.attachments.length}',
+                        ),
+                    ],
+                  ),
+                ),
+                const Icon(
+                  Icons.chevron_right_rounded,
+                  size: 18,
+                  color: AppColors.iconSubtle,
+                ),
+              ],
             ),
           ],
-          const SizedBox(height: 6),
-          Row(
-            children: [
-              const Icon(
-                Icons.calendar_today_rounded,
-                size: 12,
-                color: AppColors.iconSubtle,
-              ),
-              const SizedBox(width: 4),
-              Text(
-                'Due ${DateFormat('MMM d, h:mm a').format(homework.deadline)}',
-                style: AppTextStyles.labelSmall.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-              ),
-              const SizedBox(width: AppSpacing.sm),
-              const Icon(
-                Icons.people_outline_rounded,
-                size: 12,
-                color: AppColors.iconSubtle,
-              ),
-              const SizedBox(width: 4),
-              Text(
-                '${homework.assignedStudentIds.length} students',
-                style: AppTextStyles.labelSmall.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-              ),
-            ],
-          ),
-        ],
+        ),
       ),
+    );
+  }
+}
+
+/// Small icon + label used in the homework card's meta line.
+class _Meta extends StatelessWidget {
+  const _Meta({required this.icon, required this.text});
+
+  final IconData icon;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 12, color: AppColors.iconSubtle),
+        const SizedBox(width: 4),
+        Flexible(
+          child: Text(
+            text,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyles.labelSmall.copyWith(
+              color: AppColors.textSecondary,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

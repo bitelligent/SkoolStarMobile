@@ -1,54 +1,83 @@
-import 'package:skoolstar_teacher_module/data/datasources/local_json_data_source.dart';
+import 'package:skoolstar_teacher_module/core/network/api_client.dart';
+import 'package:skoolstar_teacher_module/core/network/api_endpoints.dart';
+import 'package:skoolstar_teacher_module/core/network/api_exception.dart';
+import 'package:skoolstar_teacher_module/core/utils/json_utils.dart';
 import 'package:skoolstar_teacher_module/data/models/user_model.dart';
+import 'package:skoolstar_teacher_module/data/repositories/auth_repository.dart';
+import 'package:skoolstar_teacher_module/data/repositories/auth_scoped_cache.dart';
 
-abstract class UserRepository {
+abstract interface class UserRepository {
   Future<UserModel> getCurrentUser();
+
+  /// Updates the display name and, when [newPassword] is given, the password
+  /// (which requires [currentPassword]).
+  ///
+  /// Throws [ValidationException] with field errors on rejected input.
   Future<UserModel> updateProfile({
     required String firstName,
     required String lastName,
-  });
-  Future<void> changePassword({
-    required String currentPassword,
-    required String newPassword,
+    String? currentPassword,
+    String? newPassword,
   });
 }
 
-class UserRepositoryImpl implements UserRepository {
-  UserRepositoryImpl(this._dataSource);
+class UserRepositoryImpl extends AuthScopedCache implements UserRepository {
+  UserRepositoryImpl({
+    required ApiClient apiClient,
+    required AuthRepository authRepository,
+  }) : _api = apiClient,
+       super(authRepository);
 
-  final JsonDataSource _dataSource;
+  final ApiClient _api;
   UserModel? _cached;
 
   @override
+  void clearCache() => _cached = null;
+
+  @override
   Future<UserModel> getCurrentUser() async {
-    if (_cached != null) return _cached!;
-    final json = await _dataSource.readJsonObject('assets/json/user.json');
-    _cached = UserModel.fromJson(json);
-    return _cached!;
+    final cached = _cached;
+    if (cached != null) return cached;
+
+    final staffId = await requireStaffId();
+    final json = await _api.get(ApiEndpoints.staff(staffId));
+    if (json is! Json) throw const ParseException();
+
+    return _cached = UserModel(
+      id: '$staffId',
+      firstName: json.str('firstName'),
+      lastName: json.str('lastName'),
+      email: json.str('email'),
+      avatarUrl: json.str('photoUrl'),
+    );
   }
 
   @override
   Future<UserModel> updateProfile({
     required String firstName,
     required String lastName,
+    String? currentPassword,
+    String? newPassword,
   }) async {
-    await Future<void>.delayed(const Duration(milliseconds: 400));
     final current = await getCurrentUser();
-    _cached = current.copyWith(firstName: firstName, lastName: lastName);
-    return _cached!;
-  }
+    final changingPassword = newPassword != null && newPassword.isNotEmpty;
 
-  @override
-  Future<void> changePassword({
-    required String currentPassword,
-    required String newPassword,
-  }) async {
-    await Future<void>.delayed(const Duration(milliseconds: 400));
-    if (currentPassword.isEmpty) {
-      throw Exception('Current password required');
-    }
-    if (newPassword.length < 6) {
-      throw Exception('New password must be at least 6 characters');
-    }
+    await _api.put(
+      ApiEndpoints.myProfile,
+      body: {
+        'firstName': firstName,
+        'lastName': lastName,
+        if (changingPassword) ...{
+          'currentPassword': currentPassword ?? '',
+          'newPassword': newPassword,
+          'confirmNewPassword': newPassword,
+        },
+      },
+    );
+
+    return _cached = current.copyWith(
+      firstName: firstName,
+      lastName: lastName,
+    );
   }
 }

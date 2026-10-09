@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skoolstar_teacher_module/core/network/api_exception.dart';
+import 'package:skoolstar_teacher_module/core/network/error_message.dart';
 import 'package:skoolstar_teacher_module/data/repositories/auth_repository.dart';
 import 'package:skoolstar_teacher_module/features/auth/cubit/login_state.dart';
 
@@ -22,7 +23,16 @@ class LoginCubit extends Cubit<LoginState> {
         contextKey: contextKey,
       );
       if (res.requiresContextSelection) {
-        emit(LoginState.contextSelection(res.availableContexts));
+        final teacherContexts = res.availableContexts
+            .where((c) => c.role.toLowerCase() == 'teacher')
+            .toList();
+        emit(
+          teacherContexts.isEmpty
+              ? const LoginState.failure(
+                  'This app is for teachers. Please sign in with a teacher account.',
+                )
+              : LoginState.contextSelection(teacherContexts),
+        );
       } else {
         emit(const LoginState.success());
       }
@@ -30,6 +40,8 @@ class LoginCubit extends Cubit<LoginState> {
       emit(const LoginState.failure('Incorrect email or password.'));
     } on ApiException catch (e) {
       emit(LoginState.failure(e.message));
+    } on Object catch (e, st) {
+      emit(LoginState.failure(errorMessage(e, st)));
     }
   }
 }

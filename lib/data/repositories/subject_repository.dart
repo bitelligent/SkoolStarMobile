@@ -1,21 +1,15 @@
-import 'package:skoolstar_teacher_module/data/datasources/local_json_data_source.dart';
 import 'package:skoolstar_teacher_module/data/models/subject_model.dart';
+import 'package:skoolstar_teacher_module/data/repositories/teacher_catalog.dart';
 
-abstract class SubjectRepository {
+abstract interface class SubjectRepository {
   Future<List<Subject>> getAll();
 }
 
 class SubjectRepositoryImpl implements SubjectRepository {
-  const SubjectRepositoryImpl(this._dataSource);
+  const SubjectRepositoryImpl(this._catalog);
 
-  final JsonDataSource _dataSource;
+  final TeacherCatalogSource _catalog;
 
   @override
-  Future<List<Subject>> getAll() async {
-    final list = await _dataSource.readJsonArray('assets/json/subjects.json');
-    return list
-        .cast<Map<String, dynamic>>()
-        .map(Subject.fromJson)
-        .toList();
-  }
+  Future<List<Subject>> getAll() async => (await _catalog.load()).subjects;
 }

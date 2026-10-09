@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:skoolstar_teacher_module/core/network/error_message.dart';
 import 'package:skoolstar_teacher_module/data/repositories/user_repository.dart';
 import 'package:skoolstar_teacher_module/features/profile/cubit/profile_state.dart';
 
@@ -18,8 +19,8 @@ class ProfileCubit extends Cubit<ProfileState> {
           lastNameDraft: user.lastName,
         ),
       );
-    } on Exception catch (e) {
-      emit(ProfileState.error(e.toString()));
+    } on Object catch (e, st) {
+      emit(ProfileState.error(errorMessage(e, st)));
     }
   }
 
@@ -65,26 +66,37 @@ class ProfileCubit extends Cubit<ProfileState> {
 
   Future<bool> save() async {
     final s = state;
-    if (s is! ProfileLoaded) return false;
+    if (s is! ProfileLoaded || s.isSaving) return false;
+
+    final firstName = s.firstNameDraft.trim();
+    final lastName = s.lastNameDraft.trim();
+    if (firstName.isEmpty) {
+      emit(s.copyWith(errorMessage: 'First name is required.'));
+      return false;
+    }
+    if (s.changePasswordEnabled) {
+      if (s.currentPasswordDraft.isEmpty || s.newPasswordDraft.isEmpty) {
+        emit(
+          s.copyWith(errorMessage: 'Enter your current and new password.'),
+        );
+        return false;
+      }
+      if (s.newPasswordDraft != s.confirmPasswordDraft) {
+        emit(s.copyWith(errorMessage: 'Passwords do not match.'));
+        return false;
+      }
+    }
+
     emit(s.copyWith(isSaving: true, errorMessage: null));
     try {
       final updated = await _repo.updateProfile(
-        firstName: s.firstNameDraft.trim(),
-        lastName: s.lastNameDraft.trim(),
+        firstName: firstName,
+        lastName: lastName,
+        currentPassword: s.changePasswordEnabled
+            ? s.currentPasswordDraft
+            : null,
+        newPassword: s.changePasswordEnabled ? s.newPasswordDraft : null,
       );
-      if (s.changePasswordEnabled) {
-        if (s.newPasswordDraft != s.confirmPasswordDraft) {
-          emit(s.copyWith(
-            isSaving: false,
-            errorMessage: 'Passwords do not match.',
-          ));
-          return false;
-        }
-        await _repo.changePassword(
-          currentPassword: s.currentPasswordDraft,
-          newPassword: s.newPasswordDraft,
-        );
-      }
       emit(
         s.copyWith(
           user: updated,
@@ -96,8 +108,8 @@ class ProfileCubit extends Cubit<ProfileState> {
         ),
       );
       return true;
-    } on Exception catch (e) {
-      emit(s.copyWith(isSaving: false, errorMessage: e.toString()));
+    } on Object catch (e, st) {
+      emit(s.copyWith(isSaving: false, errorMessage: errorMessage(e, st)));
       return false;
     }
   }

@@ -1,47 +1,109 @@
-import 'package:skoolstar_teacher_module/data/datasources/local_json_data_source.dart';
-import 'package:skoolstar_teacher_module/data/models/attendance_entry.dart';
+import 'package:skoolstar_teacher_module/core/config/attendance_status_config.dart';
+import 'package:skoolstar_teacher_module/core/network/api_client.dart';
+import 'package:skoolstar_teacher_module/core/network/api_endpoints.dart';
+import 'package:skoolstar_teacher_module/core/utils/json_utils.dart';
+import 'package:skoolstar_teacher_module/data/mappers/people_mapper.dart';
+import 'package:skoolstar_teacher_module/data/models/class_group.dart';
+import 'package:skoolstar_teacher_module/data/models/session_model.dart';
+import 'package:skoolstar_teacher_module/data/models/student_model.dart';
 
-abstract class AttendanceRepository {
-  Future<Map<String, String>> getForSession(String sessionId);
-  Future<void> submit({
-    required String sessionId,
-    required Map<String, String> studentIdToStatus,
-  });
+/// Roster of a session with the attendance already recorded for it.
+class AttendanceSheet {
+  const AttendanceSheet({required this.students, required this.statuses});
+
+  final List<Student> students;
+
+  /// studentId → `present` | `absent` | `late` | `unmarked`.
+  final Map<String, String> statuses;
+}
+
+abstract interface class AttendanceRepository {
+  Future<AttendanceSheet> getSheet(Session session, List<ClassGroup> classes);
+
+  /// Saves the marked students (unmarked ones are not sent).
+  Future<void> submit(Session session, Map<String, String> statuses);
 }
 
 class AttendanceRepositoryImpl implements AttendanceRepository {
-  AttendanceRepositoryImpl(this._dataSource);
+  const AttendanceRepositoryImpl(this._api);
 
-  final JsonDataSource _dataSource;
-  final Map<String, Map<String, String>> _memoryStore = {};
+  final ApiClient _api;
 
   @override
-  Future<Map<String, String>> getForSession(String sessionId) async {
-    if (_memoryStore.containsKey(sessionId)) {
-      return Map<String, String>.from(_memoryStore[sessionId]!);
+  Future<AttendanceSheet> getSheet(
+    Session session,
+    List<ClassGroup> classes,
+  ) async {
+    final classIdByName = {for (final c in classes) c.name: c.id};
+    final classIds = session.classIds.map(int.tryParse).whereType<int>();
+
+    // A slot can span several classes; the endpoint is per class.
+    final responses = await Future.wait([
+      for (final classId in classIds)
+        _api
+            .get(
+              ApiEndpoints.attendanceForClass(classId),
+              query: {
+                'date': dateOnly(session.date),
+                'scheduleId': session.scheduleId,
+                'scheduleOccurrenceId': session.occurrenceId,
+                'scheduleOccurrencePublicId': session.id,
+              },
+            )
+            .then((json) => (classId, json)),
+    ]);
+
+    final students = <String, Student>{};
+    final statuses = <String, String>{};
+    for (final (classId, json) in responses) {
+      final rows = json is Json ? json.objects('students') : <Json>[];
+      for (final row in rows) {
+        final student = studentFromAttendanceRow(
+          row,
+          fallbackClassId: '$classId',
+          classIdByName: classIdByName,
+        );
+        if (student == null) continue;
+        // Classes of one slot can return the same pupils; keep the first.
+        students.putIfAbsent(student.id, () => student);
+        statuses.putIfAbsent(
+          student.id,
+          () => AttendanceStatusConfig.fromId(row.intOrNull('statusId')),
+        );
+      }
     }
-    final data = await _dataSource.readJsonObject(
-      'assets/json/attendance.json',
-    );
-    final entries = (data['entries'] as List<dynamic>? ?? const [])
-        .cast<Map<String, dynamic>>()
-        .map(AttendanceEntry.fromJson)
-        .where((e) => e.sessionId == sessionId)
-        .toList();
-    final map = <String, String>{};
-    for (final e in entries) {
-      map[e.studentId] = e.status;
-    }
-    _memoryStore[sessionId] = Map<String, String>.from(map);
-    return map;
+
+    final list = students.values.toList()
+      ..sort(
+        (a, b) => '${a.firstName} ${a.lastName}'.compareTo(
+          '${b.firstName} ${b.lastName}',
+        ),
+      );
+    return AttendanceSheet(students: list, statuses: statuses);
   }
 
   @override
-  Future<void> submit({
-    required String sessionId,
-    required Map<String, String> studentIdToStatus,
-  }) async {
-    await Future<void>.delayed(const Duration(milliseconds: 500));
-    _memoryStore[sessionId] = Map<String, String>.from(studentIdToStatus);
+  Future<void> submit(Session session, Map<String, String> statuses) async {
+    final items = [
+      for (final e in statuses.entries)
+        if (AttendanceStatusConfig.toId(e.value) != null &&
+            int.tryParse(e.key) != null)
+          {
+            'studentId': int.parse(e.key),
+            'statusId': AttendanceStatusConfig.toId(e.value),
+          },
+    ];
+    if (items.isEmpty) return;
+
+    await _api.post(
+      ApiEndpoints.markAttendance,
+      body: {
+        'date': dateOnly(session.date),
+        'scheduleId': session.scheduleId,
+        'scheduleOccurrenceId': session.occurrenceId,
+        'scheduleOccurrencePublicId': session.id,
+        'items': items,
+      },
+    );
   }
 }

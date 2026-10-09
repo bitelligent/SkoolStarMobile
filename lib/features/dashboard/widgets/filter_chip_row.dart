@@ -23,6 +23,8 @@ class FilterChipRow extends StatelessWidget {
     required this.onSubjectsChanged,
     required this.onReset,
     this.showDay = true,
+    this.defaultDay = '',
+    this.selectedDate,
     super.key,
   });
 
@@ -37,10 +39,17 @@ class FilterChipRow extends StatelessWidget {
   final VoidCallback onReset;
   final bool showDay;
 
+  /// The day filter value that counts as "not filtered" (the app's default).
+  final String defaultDay;
+
+  /// A specific day picked on the calendar; shown in the Day chip.
+  final DateTime? selectedDate;
+
+  bool get _dayActive =>
+      selectedDate != null || (showDay && dayFilter != defaultDay);
+
   bool get _anyActive =>
-      (showDay && dayFilter.isNotEmpty) ||
-      classFilterIds.isNotEmpty ||
-      subjectFilterIds.isNotEmpty;
+      _dayActive || classFilterIds.isNotEmpty || subjectFilterIds.isNotEmpty;
 
   Color _parseHex(String hex) {
     final value = hex.replaceFirst('#', '');
@@ -84,11 +93,15 @@ class FilterChipRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dayLabel = dayFilter.isEmpty
-        ? 'All days'
-        : dayFilter == 'today'
-            ? DateFormat('EEE, d MMM').format(DateTime.now())
-            : dayFilter;
+    final dayLabel = selectedDate != null
+        ? DateFormat('EEE, d MMM').format(selectedDate!)
+        : switch (dayFilter) {
+            '' => 'All days',
+            'today' => 'Today',
+            'week' => 'This week',
+            'month' => 'This month',
+            final other => other,
+          };
 
     return SizedBox(
       height: 40,
@@ -99,7 +112,7 @@ class FilterChipRow extends StatelessWidget {
             _Chip(
               label: dayLabel,
               icon: Icons.calendar_today_rounded,
-              active: dayFilter.isNotEmpty,
+              active: _dayActive,
               count: 0,
               color: AppColors.primary,
               onTap: () => _pickDay(context),
@@ -136,7 +149,9 @@ class FilterChipRow extends StatelessWidget {
     final picked = await showAppOptionsSheet<String>(
       context,
       title: 'Day',
-      selectedId: dayFilter.isEmpty ? 'all' : dayFilter,
+      selectedId: selectedDate != null
+          ? null
+          : (dayFilter.isEmpty ? 'all' : dayFilter),
       options: const [
         AppOption(
           id: 'all',
@@ -171,7 +186,9 @@ class FilterChipRow extends StatelessWidget {
             label: c.name,
             icon: Icons.groups_rounded,
             color: _parseHex(c.colorHex),
-            subtitle: '${c.studentCount} students',
+            subtitle: c.studentCount == 1
+                ? '1 student'
+                : '${c.studentCount} students',
           ),
       ],
     );

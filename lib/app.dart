@@ -16,8 +16,8 @@ import 'package:skoolstar_teacher_module/data/repositories/homework_repository.d
 import 'package:skoolstar_teacher_module/data/repositories/institute_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/notifications_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/session_repository.dart';
-import 'package:skoolstar_teacher_module/data/repositories/student_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/subject_repository.dart';
+import 'package:skoolstar_teacher_module/data/repositories/teacher_catalog.dart';
 import 'package:skoolstar_teacher_module/data/repositories/user_repository.dart';
 
 class SkoolStarApp extends StatefulWidget {
@@ -46,6 +46,10 @@ class _SkoolStarAppState extends State<SkoolStarApp> {
     apiClient: _apiClient,
     tokenStore: widget.tokenStore,
   );
+  late final TeacherCatalogSource _catalog = TeacherCatalogSource(
+    apiClient: _apiClient,
+    authRepository: _authRepository,
+  );
   late final GoRouter _router = buildRouter(
     authListenable: _authRepository.signedIn,
   );
@@ -67,32 +71,37 @@ class _SkoolStarAppState extends State<SkoolStarApp> {
       providers: [
         RepositoryProvider<AuthRepository>.value(value: _authRepository),
         RepositoryProvider<InstituteRepository>(
-          create: (_) => InstituteRepositoryImpl(_dataSource),
+          create: (_) => InstituteRepositoryImpl(_authRepository),
         ),
         RepositoryProvider<UserRepository>(
-          create: (_) => UserRepositoryImpl(_dataSource),
+          create: (_) => UserRepositoryImpl(
+            apiClient: _apiClient,
+            authRepository: _authRepository,
+          ),
         ),
         RepositoryProvider<SessionRepository>(
-          create: (_) => SessionRepositoryImpl(_dataSource),
+          create: (_) => SessionRepositoryImpl(
+            apiClient: _apiClient,
+            authRepository: _authRepository,
+          ),
         ),
         RepositoryProvider<ClassRepository>(
-          create: (_) => ClassRepositoryImpl(_dataSource),
+          create: (_) => ClassRepositoryImpl(_catalog),
         ),
         RepositoryProvider<SubjectRepository>(
-          create: (_) => SubjectRepositoryImpl(_dataSource),
-        ),
-        RepositoryProvider<StudentRepository>(
-          create: (_) => StudentRepositoryImpl(_dataSource),
+          create: (_) => SubjectRepositoryImpl(_catalog),
         ),
         RepositoryProvider<AttendanceRepository>(
-          create: (_) => AttendanceRepositoryImpl(_dataSource),
+          create: (_) => AttendanceRepositoryImpl(_apiClient),
         ),
         RepositoryProvider<HomeworkRepository>(
-          create: (_) => HomeworkRepositoryImpl(_dataSource),
+          create: (_) => HomeworkRepositoryImpl(_apiClient),
         ),
         RepositoryProvider<FeedbackRepository>(
-          create: (_) => FeedbackRepositoryImpl(_dataSource),
+          create: (_) => FeedbackRepositoryImpl(_apiClient),
         ),
+        // Chat and notifications have no backend yet: they keep using the
+        // bundled mock JSON.
         RepositoryProvider<ChatRepository>(
           create: (_) => ChatRepositoryImpl(_dataSource),
         ),

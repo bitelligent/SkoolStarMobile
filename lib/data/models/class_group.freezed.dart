@@ -11,7 +11,6 @@ part of 'class_group.dart';
 
 // dart format off
 T _$identity<T>(T value) => value;
-
 /// @nodoc
 mixin _$ClassGroup {
 
@@ -22,8 +21,6 @@ mixin _$ClassGroup {
 @pragma('vm:prefer-inline')
 $ClassGroupCopyWith<ClassGroup> get copyWith => _$ClassGroupCopyWithImpl<ClassGroup>(this as ClassGroup, _$identity);
 
-  /// Serializes this ClassGroup to a JSON map.
-  Map<String, dynamic> toJson();
 
 
 @override
@@ -31,7 +28,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is ClassGroup&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.studentCount, studentCount) || other.studentCount == studentCount)&&(identical(other.colorHex, colorHex) || other.colorHex == colorHex));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,id,name,studentCount,colorHex);
 
@@ -209,11 +206,11 @@ return $default(_that.id,_that.name,_that.studentCount,_that.colorHex);case _:
 }
 
 /// @nodoc
-@JsonSerializable()
+
 
 class _ClassGroup implements ClassGroup {
   const _ClassGroup({required this.id, required this.name, this.studentCount = 0, this.colorHex = '#2563EB'});
-  factory _ClassGroup.fromJson(Map<String, dynamic> json) => _$ClassGroupFromJson(json);
+  
 
 @override final  String id;
 @override final  String name;
@@ -226,17 +223,14 @@ class _ClassGroup implements ClassGroup {
 @pragma('vm:prefer-inline')
 _$ClassGroupCopyWith<_ClassGroup> get copyWith => __$ClassGroupCopyWithImpl<_ClassGroup>(this, _$identity);
 
-@override
-Map<String, dynamic> toJson() {
-  return _$ClassGroupToJson(this, );
-}
+
 
 @override
 bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is _ClassGroup&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.studentCount, studentCount) || other.studentCount == studentCount)&&(identical(other.colorHex, colorHex) || other.colorHex == colorHex));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,id,name,studentCount,colorHex);
 
