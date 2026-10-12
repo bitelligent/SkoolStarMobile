@@ -1,7 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'class_group.freezed.dart';
-part 'class_group.g.dart';
 
 /// A group of students (eg. "Class 1", "Class 2"). In the web product a
 /// Class is a cohort — NOT a subject.
@@ -13,7 +12,4 @@ abstract class ClassGroup with _$ClassGroup {
     @Default(0) int studentCount,
     @Default('#2563EB') String colorHex,
   }) = _ClassGroup;
-
-  factory ClassGroup.fromJson(Map<String, dynamic> json) =>
-      _$ClassGroupFromJson(json);
 }

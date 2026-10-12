@@ -29,8 +29,9 @@ class AttendanceTab extends StatelessWidget {
 
     final filterChips = <AppChipOption>[
       const AppChipOption(id: '', label: 'All'),
-      for (final c in state.classes
-          .where((c) => state.session.classIds.contains(c.id)))
+      for (final c in state.classes.where(
+        (c) => state.session.classIds.contains(c.id),
+      ))
         AppChipOption(
           id: c.id,
           label: c.name,
@@ -127,8 +128,7 @@ class AttendanceTab extends StatelessWidget {
                                 .firstOrNull,
                             rollNo: s.rollNo,
                             status: state.attendance[s.id] ?? 'unmarked',
-                            onStatus: (status) =>
-                                cubit.setStatus(s.id, status),
+                            onStatus: (status) => cubit.setStatus(s.id, status),
                           ),
                         ),
                       ),
@@ -154,7 +154,9 @@ class AttendanceTab extends StatelessWidget {
               if (!context.mounted) return;
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text(ok ? 'Attendance submitted' : 'Failed'),
+                  content: Text(
+                    ok ? 'Attendance submitted' : cubit.lastActionError,
+                  ),
                 ),
               );
             },

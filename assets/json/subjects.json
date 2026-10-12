@@ -1,7 +1,0 @@
-[
-  { "id": "subj_cs", "name": "Computer", "colorHex": "#8B5CF6" },
-  { "id": "subj_en", "name": "English", "colorHex": "#2563EB" },
-  { "id": "subj_ma", "name": "Math", "colorHex": "#EC4899" },
-  { "id": "subj_sc", "name": "Science", "colorHex": "#38BDF8" },
-  { "id": "subj_hi", "name": "History", "colorHex": "#F59E0B" }
-]

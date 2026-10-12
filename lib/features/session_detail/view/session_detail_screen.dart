@@ -10,7 +10,6 @@ import 'package:skoolstar_teacher_module/data/repositories/class_repository.dart
 import 'package:skoolstar_teacher_module/data/repositories/feedback_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/homework_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/session_repository.dart';
-import 'package:skoolstar_teacher_module/data/repositories/student_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/subject_repository.dart';
 import 'package:skoolstar_teacher_module/features/session_detail/cubit/session_detail_cubit.dart';
 import 'package:skoolstar_teacher_module/features/session_detail/cubit/session_detail_state.dart';
@@ -32,7 +31,6 @@ class SessionDetailScreen extends StatelessWidget {
         sessionRepository: context.read<SessionRepository>(),
         classRepository: context.read<ClassRepository>(),
         subjectRepository: context.read<SubjectRepository>(),
-        studentRepository: context.read<StudentRepository>(),
         attendanceRepository: context.read<AttendanceRepository>(),
         homeworkRepository: context.read<HomeworkRepository>(),
         feedbackRepository: context.read<FeedbackRepository>(),
@@ -68,61 +66,60 @@ class _SessionDetailViewState extends State<_SessionDetailView>
         builder: (context, state) {
           return switch (state) {
             SessionDetailInitial() ||
-            SessionDetailLoading() =>
-              const LoadingView(),
+            SessionDetailLoading() => const LoadingView(),
             SessionDetailError(:final message) => ErrorView(
-                message: message,
-                onRetry: () => context.read<SessionDetailCubit>().load(),
-              ),
+              message: message,
+              onRetry: () => context.read<SessionDetailCubit>().load(),
+            ),
             SessionDetailLoaded() => Column(
-                children: [
-                  const SizedBox(height: AppSpacing.sm),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.lg,
-                    ),
-                    child: AppPillTabs(
-                      controller: _tabs,
-                      variant: AppPillTabsVariant.dark,
-                      height: 48,
-                      items: const [
-                        AppPillTab(
-                          label: 'Session',
-                          icon: Icons.podcasts_rounded,
-                        ),
-                        AppPillTab(
-                          label: 'Attendance',
-                          icon: Icons.rule_rounded,
-                        ),
-                        AppPillTab(
-                          label: 'Homework',
-                          icon: Icons.assignment_rounded,
-                        ),
-                        AppPillTab(
-                          label: 'Feedback',
-                          icon: Icons.reviews_rounded,
-                        ),
-                      ],
-                    ),
+              children: [
+                const SizedBox(height: AppSpacing.sm),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.lg,
                   ),
-                  const SizedBox(height: AppSpacing.xs),
-                  Expanded(
-                    child: TabBarView(
-                      controller: _tabs,
-                      children: [
-                        SessionTab(
-                          state: state,
-                          onJumpToFeedback: () => _tabs.animateTo(3),
-                          onJumpToAttendance: () => _tabs.animateTo(1),
-                        ),
-                        AttendanceTab(state: state),
-                        HomeworkTab(state: state),
-                        FeedbackTab(state: state),
-                      ],
-                    ),
+                  child: AppPillTabs(
+                    controller: _tabs,
+                    variant: AppPillTabsVariant.dark,
+                    height: 48,
+                    items: const [
+                      AppPillTab(
+                        label: 'Session',
+                        icon: Icons.podcasts_rounded,
+                      ),
+                      AppPillTab(
+                        label: 'Attendance',
+                        icon: Icons.rule_rounded,
+                      ),
+                      AppPillTab(
+                        label: 'Homework',
+                        icon: Icons.assignment_rounded,
+                      ),
+                      AppPillTab(
+                        label: 'Feedback',
+                        icon: Icons.reviews_rounded,
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                Expanded(
+                  child: TabBarView(
+                    controller: _tabs,
+                    children: [
+                      SessionTab(
+                        state: state,
+                        onJumpToFeedback: () => _tabs.animateTo(3),
+                        onJumpToAttendance: () => _tabs.animateTo(1),
+                      ),
+                      AttendanceTab(state: state),
+                      HomeworkTab(state: state),
+                      FeedbackTab(state: state),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           };
         },
       ),

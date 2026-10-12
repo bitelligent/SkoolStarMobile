@@ -11,7 +11,6 @@ part of 'user_model.dart';
 
 // dart format off
 T _$identity<T>(T value) => value;
-
 /// @nodoc
 mixin _$UserModel {
 
@@ -22,8 +21,6 @@ mixin _$UserModel {
 @pragma('vm:prefer-inline')
 $UserModelCopyWith<UserModel> get copyWith => _$UserModelCopyWithImpl<UserModel>(this as UserModel, _$identity);
 
-  /// Serializes this UserModel to a JSON map.
-  Map<String, dynamic> toJson();
 
 
 @override
@@ -31,7 +28,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is UserModel&&(identical(other.id, id) || other.id == id)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&(identical(other.email, email) || other.email == email)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.hasUnreadNotifications, hasUnreadNotifications) || other.hasUnreadNotifications == hasUnreadNotifications));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,id,firstName,lastName,email,avatarUrl,hasUnreadNotifications);
 
@@ -211,11 +208,11 @@ return $default(_that.id,_that.firstName,_that.lastName,_that.email,_that.avatar
 }
 
 /// @nodoc
-@JsonSerializable()
+
 
 class _UserModel implements UserModel {
   const _UserModel({required this.id, required this.firstName, required this.lastName, required this.email, this.avatarUrl = '', this.hasUnreadNotifications = false});
-  factory _UserModel.fromJson(Map<String, dynamic> json) => _$UserModelFromJson(json);
+  
 
 @override final  String id;
 @override final  String firstName;
@@ -230,17 +227,14 @@ class _UserModel implements UserModel {
 @pragma('vm:prefer-inline')
 _$UserModelCopyWith<_UserModel> get copyWith => __$UserModelCopyWithImpl<_UserModel>(this, _$identity);
 
-@override
-Map<String, dynamic> toJson() {
-  return _$UserModelToJson(this, );
-}
+
 
 @override
 bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserModel&&(identical(other.id, id) || other.id == id)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&(identical(other.email, email) || other.email == email)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.hasUnreadNotifications, hasUnreadNotifications) || other.hasUnreadNotifications == hasUnreadNotifications));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,id,firstName,lastName,email,avatarUrl,hasUnreadNotifications);
 

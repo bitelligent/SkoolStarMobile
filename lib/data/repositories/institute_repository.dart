@@ -1,18 +1,23 @@
-import 'package:skoolstar_teacher_module/data/datasources/local_json_data_source.dart';
 import 'package:skoolstar_teacher_module/data/models/institute_model.dart';
+import 'package:skoolstar_teacher_module/data/repositories/auth_repository.dart';
 
-abstract class InstituteRepository {
+abstract interface class InstituteRepository {
   Future<InstituteInfo> getCurrent();
 }
 
+/// The institute comes from the active login context, so no extra request.
 class InstituteRepositoryImpl implements InstituteRepository {
-  const InstituteRepositoryImpl(this._dataSource);
+  const InstituteRepositoryImpl(this._auth);
 
-  final JsonDataSource _dataSource;
+  final AuthRepository _auth;
 
   @override
   Future<InstituteInfo> getCurrent() async {
-    final json = await _dataSource.readJsonObject('assets/json/institute.json');
-    return InstituteInfo.fromJson(json);
+    final context = await _auth.requireContext();
+    return InstituteInfo(
+      id: '${context.instituteId ?? ''}',
+      name: context.instituteName ?? '',
+      type: (context.instituteTypeName ?? '').toUpperCase(),
+    );
   }
 }

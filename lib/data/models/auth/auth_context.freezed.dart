@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$AuthContext {
 
- String get contextKey; String get role; int? get clientId; String? get clientName; int? get instituteId; String? get instituteName; int? get staffId; int? get studentId; int? get guardianId; String? get displayName;
+ String get contextKey; String get role; int? get clientId; String? get clientName; int? get instituteId; String? get instituteName; int? get instituteTypeId; String? get instituteTypeCode; String? get instituteTypeName; int? get staffId; int? get studentId; int? get guardianId; String? get displayName;
 /// Create a copy of AuthContext
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $AuthContextCopyWith<AuthContext> get copyWith => _$AuthContextCopyWithImpl<Auth
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthContext&&(identical(other.contextKey, contextKey) || other.contextKey == contextKey)&&(identical(other.role, role) || other.role == role)&&(identical(other.clientId, clientId) || other.clientId == clientId)&&(identical(other.clientName, clientName) || other.clientName == clientName)&&(identical(other.instituteId, instituteId) || other.instituteId == instituteId)&&(identical(other.instituteName, instituteName) || other.instituteName == instituteName)&&(identical(other.staffId, staffId) || other.staffId == staffId)&&(identical(other.studentId, studentId) || other.studentId == studentId)&&(identical(other.guardianId, guardianId) || other.guardianId == guardianId)&&(identical(other.displayName, displayName) || other.displayName == displayName));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthContext&&(identical(other.contextKey, contextKey) || other.contextKey == contextKey)&&(identical(other.role, role) || other.role == role)&&(identical(other.clientId, clientId) || other.clientId == clientId)&&(identical(other.clientName, clientName) || other.clientName == clientName)&&(identical(other.instituteId, instituteId) || other.instituteId == instituteId)&&(identical(other.instituteName, instituteName) || other.instituteName == instituteName)&&(identical(other.instituteTypeId, instituteTypeId) || other.instituteTypeId == instituteTypeId)&&(identical(other.instituteTypeCode, instituteTypeCode) || other.instituteTypeCode == instituteTypeCode)&&(identical(other.instituteTypeName, instituteTypeName) || other.instituteTypeName == instituteTypeName)&&(identical(other.staffId, staffId) || other.staffId == staffId)&&(identical(other.studentId, studentId) || other.studentId == studentId)&&(identical(other.guardianId, guardianId) || other.guardianId == guardianId)&&(identical(other.displayName, displayName) || other.displayName == displayName));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,contextKey,role,clientId,clientName,instituteId,instituteName,staffId,studentId,guardianId,displayName);
+int get hashCode => Object.hash(runtimeType,contextKey,role,clientId,clientName,instituteId,instituteName,instituteTypeId,instituteTypeCode,instituteTypeName,staffId,studentId,guardianId,displayName);
 
 @override
 String toString() {
-  return 'AuthContext(contextKey: $contextKey, role: $role, clientId: $clientId, clientName: $clientName, instituteId: $instituteId, instituteName: $instituteName, staffId: $staffId, studentId: $studentId, guardianId: $guardianId, displayName: $displayName)';
+  return 'AuthContext(contextKey: $contextKey, role: $role, clientId: $clientId, clientName: $clientName, instituteId: $instituteId, instituteName: $instituteName, instituteTypeId: $instituteTypeId, instituteTypeCode: $instituteTypeCode, instituteTypeName: $instituteTypeName, staffId: $staffId, studentId: $studentId, guardianId: $guardianId, displayName: $displayName)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $AuthContextCopyWith<$Res>  {
   factory $AuthContextCopyWith(AuthContext value, $Res Function(AuthContext) _then) = _$AuthContextCopyWithImpl;
 @useResult
 $Res call({
- String contextKey, String role, int? clientId, String? clientName, int? instituteId, String? instituteName, int? staffId, int? studentId, int? guardianId, String? displayName
+ String contextKey, String role, int? clientId, String? clientName, int? instituteId, String? instituteName, int? instituteTypeId, String? instituteTypeCode, String? instituteTypeName, int? staffId, int? studentId, int? guardianId, String? displayName
 });
 
 
@@ -65,7 +65,7 @@ class _$AuthContextCopyWithImpl<$Res>
 
 /// Create a copy of AuthContext
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? contextKey = null,Object? role = null,Object? clientId = freezed,Object? clientName = freezed,Object? instituteId = freezed,Object? instituteName = freezed,Object? staffId = freezed,Object? studentId = freezed,Object? guardianId = freezed,Object? displayName = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? contextKey = null,Object? role = null,Object? clientId = freezed,Object? clientName = freezed,Object? instituteId = freezed,Object? instituteName = freezed,Object? instituteTypeId = freezed,Object? instituteTypeCode = freezed,Object? instituteTypeName = freezed,Object? staffId = freezed,Object? studentId = freezed,Object? guardianId = freezed,Object? displayName = freezed,}) {
   return _then(_self.copyWith(
 contextKey: null == contextKey ? _self.contextKey : contextKey // ignore: cast_nullable_to_non_nullable
 as String,role: null == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
@@ -73,6 +73,9 @@ as String,clientId: freezed == clientId ? _self.clientId : clientId // ignore: c
 as int?,clientName: freezed == clientName ? _self.clientName : clientName // ignore: cast_nullable_to_non_nullable
 as String?,instituteId: freezed == instituteId ? _self.instituteId : instituteId // ignore: cast_nullable_to_non_nullable
 as int?,instituteName: freezed == instituteName ? _self.instituteName : instituteName // ignore: cast_nullable_to_non_nullable
+as String?,instituteTypeId: freezed == instituteTypeId ? _self.instituteTypeId : instituteTypeId // ignore: cast_nullable_to_non_nullable
+as int?,instituteTypeCode: freezed == instituteTypeCode ? _self.instituteTypeCode : instituteTypeCode // ignore: cast_nullable_to_non_nullable
+as String?,instituteTypeName: freezed == instituteTypeName ? _self.instituteTypeName : instituteTypeName // ignore: cast_nullable_to_non_nullable
 as String?,staffId: freezed == staffId ? _self.staffId : staffId // ignore: cast_nullable_to_non_nullable
 as int?,studentId: freezed == studentId ? _self.studentId : studentId // ignore: cast_nullable_to_non_nullable
 as int?,guardianId: freezed == guardianId ? _self.guardianId : guardianId // ignore: cast_nullable_to_non_nullable
@@ -162,10 +165,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String contextKey,  String role,  int? clientId,  String? clientName,  int? instituteId,  String? instituteName,  int? staffId,  int? studentId,  int? guardianId,  String? displayName)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String contextKey,  String role,  int? clientId,  String? clientName,  int? instituteId,  String? instituteName,  int? instituteTypeId,  String? instituteTypeCode,  String? instituteTypeName,  int? staffId,  int? studentId,  int? guardianId,  String? displayName)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _AuthContext() when $default != null:
-return $default(_that.contextKey,_that.role,_that.clientId,_that.clientName,_that.instituteId,_that.instituteName,_that.staffId,_that.studentId,_that.guardianId,_that.displayName);case _:
+return $default(_that.contextKey,_that.role,_that.clientId,_that.clientName,_that.instituteId,_that.instituteName,_that.instituteTypeId,_that.instituteTypeCode,_that.instituteTypeName,_that.staffId,_that.studentId,_that.guardianId,_that.displayName);case _:
   return orElse();
 
 }
@@ -183,10 +186,10 @@ return $default(_that.contextKey,_that.role,_that.clientId,_that.clientName,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String contextKey,  String role,  int? clientId,  String? clientName,  int? instituteId,  String? instituteName,  int? staffId,  int? studentId,  int? guardianId,  String? displayName)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String contextKey,  String role,  int? clientId,  String? clientName,  int? instituteId,  String? instituteName,  int? instituteTypeId,  String? instituteTypeCode,  String? instituteTypeName,  int? staffId,  int? studentId,  int? guardianId,  String? displayName)  $default,) {final _that = this;
 switch (_that) {
 case _AuthContext():
-return $default(_that.contextKey,_that.role,_that.clientId,_that.clientName,_that.instituteId,_that.instituteName,_that.staffId,_that.studentId,_that.guardianId,_that.displayName);case _:
+return $default(_that.contextKey,_that.role,_that.clientId,_that.clientName,_that.instituteId,_that.instituteName,_that.instituteTypeId,_that.instituteTypeCode,_that.instituteTypeName,_that.staffId,_that.studentId,_that.guardianId,_that.displayName);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -203,10 +206,10 @@ return $default(_that.contextKey,_that.role,_that.clientId,_that.clientName,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String contextKey,  String role,  int? clientId,  String? clientName,  int? instituteId,  String? instituteName,  int? staffId,  int? studentId,  int? guardianId,  String? displayName)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String contextKey,  String role,  int? clientId,  String? clientName,  int? instituteId,  String? instituteName,  int? instituteTypeId,  String? instituteTypeCode,  String? instituteTypeName,  int? staffId,  int? studentId,  int? guardianId,  String? displayName)?  $default,) {final _that = this;
 switch (_that) {
 case _AuthContext() when $default != null:
-return $default(_that.contextKey,_that.role,_that.clientId,_that.clientName,_that.instituteId,_that.instituteName,_that.staffId,_that.studentId,_that.guardianId,_that.displayName);case _:
+return $default(_that.contextKey,_that.role,_that.clientId,_that.clientName,_that.instituteId,_that.instituteName,_that.instituteTypeId,_that.instituteTypeCode,_that.instituteTypeName,_that.staffId,_that.studentId,_that.guardianId,_that.displayName);case _:
   return null;
 
 }
@@ -218,7 +221,7 @@ return $default(_that.contextKey,_that.role,_that.clientId,_that.clientName,_tha
 @JsonSerializable()
 
 class _AuthContext implements AuthContext {
-  const _AuthContext({required this.contextKey, required this.role, this.clientId, this.clientName, this.instituteId, this.instituteName, this.staffId, this.studentId, this.guardianId, this.displayName});
+  const _AuthContext({required this.contextKey, required this.role, this.clientId, this.clientName, this.instituteId, this.instituteName, this.instituteTypeId, this.instituteTypeCode, this.instituteTypeName, this.staffId, this.studentId, this.guardianId, this.displayName});
   factory _AuthContext.fromJson(Map<String, dynamic> json) => _$AuthContextFromJson(json);
 
 @override final  String contextKey;
@@ -227,6 +230,9 @@ class _AuthContext implements AuthContext {
 @override final  String? clientName;
 @override final  int? instituteId;
 @override final  String? instituteName;
+@override final  int? instituteTypeId;
+@override final  String? instituteTypeCode;
+@override final  String? instituteTypeName;
 @override final  int? staffId;
 @override final  int? studentId;
 @override final  int? guardianId;
@@ -245,16 +251,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AuthContext&&(identical(other.contextKey, contextKey) || other.contextKey == contextKey)&&(identical(other.role, role) || other.role == role)&&(identical(other.clientId, clientId) || other.clientId == clientId)&&(identical(other.clientName, clientName) || other.clientName == clientName)&&(identical(other.instituteId, instituteId) || other.instituteId == instituteId)&&(identical(other.instituteName, instituteName) || other.instituteName == instituteName)&&(identical(other.staffId, staffId) || other.staffId == staffId)&&(identical(other.studentId, studentId) || other.studentId == studentId)&&(identical(other.guardianId, guardianId) || other.guardianId == guardianId)&&(identical(other.displayName, displayName) || other.displayName == displayName));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AuthContext&&(identical(other.contextKey, contextKey) || other.contextKey == contextKey)&&(identical(other.role, role) || other.role == role)&&(identical(other.clientId, clientId) || other.clientId == clientId)&&(identical(other.clientName, clientName) || other.clientName == clientName)&&(identical(other.instituteId, instituteId) || other.instituteId == instituteId)&&(identical(other.instituteName, instituteName) || other.instituteName == instituteName)&&(identical(other.instituteTypeId, instituteTypeId) || other.instituteTypeId == instituteTypeId)&&(identical(other.instituteTypeCode, instituteTypeCode) || other.instituteTypeCode == instituteTypeCode)&&(identical(other.instituteTypeName, instituteTypeName) || other.instituteTypeName == instituteTypeName)&&(identical(other.staffId, staffId) || other.staffId == staffId)&&(identical(other.studentId, studentId) || other.studentId == studentId)&&(identical(other.guardianId, guardianId) || other.guardianId == guardianId)&&(identical(other.displayName, displayName) || other.displayName == displayName));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,contextKey,role,clientId,clientName,instituteId,instituteName,staffId,studentId,guardianId,displayName);
+int get hashCode => Object.hash(runtimeType,contextKey,role,clientId,clientName,instituteId,instituteName,instituteTypeId,instituteTypeCode,instituteTypeName,staffId,studentId,guardianId,displayName);
 
 @override
 String toString() {
-  return 'AuthContext(contextKey: $contextKey, role: $role, clientId: $clientId, clientName: $clientName, instituteId: $instituteId, instituteName: $instituteName, staffId: $staffId, studentId: $studentId, guardianId: $guardianId, displayName: $displayName)';
+  return 'AuthContext(contextKey: $contextKey, role: $role, clientId: $clientId, clientName: $clientName, instituteId: $instituteId, instituteName: $instituteName, instituteTypeId: $instituteTypeId, instituteTypeCode: $instituteTypeCode, instituteTypeName: $instituteTypeName, staffId: $staffId, studentId: $studentId, guardianId: $guardianId, displayName: $displayName)';
 }
 
 
@@ -265,7 +271,7 @@ abstract mixin class _$AuthContextCopyWith<$Res> implements $AuthContextCopyWith
   factory _$AuthContextCopyWith(_AuthContext value, $Res Function(_AuthContext) _then) = __$AuthContextCopyWithImpl;
 @override @useResult
 $Res call({
- String contextKey, String role, int? clientId, String? clientName, int? instituteId, String? instituteName, int? staffId, int? studentId, int? guardianId, String? displayName
+ String contextKey, String role, int? clientId, String? clientName, int? instituteId, String? instituteName, int? instituteTypeId, String? instituteTypeCode, String? instituteTypeName, int? staffId, int? studentId, int? guardianId, String? displayName
 });
 
 
@@ -282,7 +288,7 @@ class __$AuthContextCopyWithImpl<$Res>
 
 /// Create a copy of AuthContext
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? contextKey = null,Object? role = null,Object? clientId = freezed,Object? clientName = freezed,Object? instituteId = freezed,Object? instituteName = freezed,Object? staffId = freezed,Object? studentId = freezed,Object? guardianId = freezed,Object? displayName = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? contextKey = null,Object? role = null,Object? clientId = freezed,Object? clientName = freezed,Object? instituteId = freezed,Object? instituteName = freezed,Object? instituteTypeId = freezed,Object? instituteTypeCode = freezed,Object? instituteTypeName = freezed,Object? staffId = freezed,Object? studentId = freezed,Object? guardianId = freezed,Object? displayName = freezed,}) {
   return _then(_AuthContext(
 contextKey: null == contextKey ? _self.contextKey : contextKey // ignore: cast_nullable_to_non_nullable
 as String,role: null == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
@@ -290,6 +296,9 @@ as String,clientId: freezed == clientId ? _self.clientId : clientId // ignore: c
 as int?,clientName: freezed == clientName ? _self.clientName : clientName // ignore: cast_nullable_to_non_nullable
 as String?,instituteId: freezed == instituteId ? _self.instituteId : instituteId // ignore: cast_nullable_to_non_nullable
 as int?,instituteName: freezed == instituteName ? _self.instituteName : instituteName // ignore: cast_nullable_to_non_nullable
+as String?,instituteTypeId: freezed == instituteTypeId ? _self.instituteTypeId : instituteTypeId // ignore: cast_nullable_to_non_nullable
+as int?,instituteTypeCode: freezed == instituteTypeCode ? _self.instituteTypeCode : instituteTypeCode // ignore: cast_nullable_to_non_nullable
+as String?,instituteTypeName: freezed == instituteTypeName ? _self.instituteTypeName : instituteTypeName // ignore: cast_nullable_to_non_nullable
 as String?,staffId: freezed == staffId ? _self.staffId : staffId // ignore: cast_nullable_to_non_nullable
 as int?,studentId: freezed == studentId ? _self.studentId : studentId // ignore: cast_nullable_to_non_nullable
 as int?,guardianId: freezed == guardianId ? _self.guardianId : guardianId // ignore: cast_nullable_to_non_nullable

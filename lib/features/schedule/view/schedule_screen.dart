@@ -48,9 +48,9 @@ class _ScheduleView extends StatelessWidget {
             return switch (state) {
               ScheduleInitial() || ScheduleLoading() => const LoadingView(),
               ScheduleError(:final message) => ErrorView(
-                  message: message,
-                  onRetry: () => context.read<ScheduleCubit>().load(),
-                ),
+                message: message,
+                onRetry: () => context.read<ScheduleCubit>().load(),
+              ),
               ScheduleLoaded() => _Loaded(state: state),
             };
           },
@@ -73,7 +73,14 @@ class _Loaded extends StatelessWidget {
 
     return RefreshIndicator(
       color: AppColors.primary,
-      onRefresh: () => cubit.load(),
+      onRefresh: () async {
+        final error = await cubit.refresh();
+        if (error != null && context.mounted) {
+          ScaffoldMessenger.of(context)
+            ..hideCurrentSnackBar()
+            ..showSnackBar(SnackBar(content: Text(error)));
+        }
+      },
       child: ListView(
         padding: const EdgeInsets.only(bottom: AppSpacing.xxl),
         children: [
@@ -92,7 +99,7 @@ class _Loaded extends StatelessWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        '${items.length} sessions · ${DateFormat('MMMM y').format(anchor)}',
+                        '${items.length == 1 ? '1 session' : '${items.length} sessions'} · ${DateFormat('MMMM y').format(anchor)}',
                         style: AppTextStyles.bodySmall.copyWith(
                           color: AppColors.textSecondary,
                         ),

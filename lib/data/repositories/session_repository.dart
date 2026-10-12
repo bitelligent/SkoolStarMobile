@@ -1,104 +1,110 @@
-import 'package:skoolstar_teacher_module/data/datasources/local_json_data_source.dart';
+import 'package:skoolstar_teacher_module/core/network/api_client.dart';
+import 'package:skoolstar_teacher_module/core/network/api_endpoints.dart';
+import 'package:skoolstar_teacher_module/core/network/api_exception.dart';
+import 'package:skoolstar_teacher_module/core/utils/json_utils.dart';
+import 'package:skoolstar_teacher_module/data/mappers/session_mapper.dart';
 import 'package:skoolstar_teacher_module/data/models/session_model.dart';
+import 'package:skoolstar_teacher_module/data/repositories/auth_repository.dart';
+import 'package:skoolstar_teacher_module/data/repositories/auth_scoped_cache.dart';
 
-abstract class SessionRepository {
-  Future<List<Session>> getAll();
-  Future<Session?> getById(String id);
-  Future<Session?> getLive();
-  Future<List<Session>> getForDate(DateTime date);
-  Future<List<Session>> filter({
-    DateTime? date,
-    String? classId,
-    String? subjectId,
-    String? query,
+abstract interface class SessionRepository {
+  /// Sessions whose date is within `[from, to]` (inclusive, date-only),
+  /// sorted by date then start time. Months already fetched are served from
+  /// cache unless [refresh] is true.
+  Future<List<Session>> getBetween(
+    DateTime from,
+    DateTime to, {
+    bool refresh = false,
   });
+
+  /// A single session by its public id, or `null` if it does not exist.
+  Future<Session?> getById(String id);
 }
 
-class SessionRepositoryImpl implements SessionRepository {
-  const SessionRepositoryImpl(this._dataSource);
+class SessionRepositoryImpl extends AuthScopedCache
+    implements SessionRepository {
+  SessionRepositoryImpl({
+    required ApiClient apiClient,
+    required AuthRepository authRepository,
+  }) : _api = apiClient,
+       super(authRepository);
 
-  final JsonDataSource _dataSource;
+  final ApiClient _api;
+
+  /// `yyyy-MM` → in-flight/completed fetch. Storing the future de-duplicates
+  /// concurrent requests for the same month.
+  final Map<String, Future<List<Session>>> _months = {};
+  final Map<String, Session> _byId = {};
 
   @override
-  Future<List<Session>> getAll() async {
-    final list = await _dataSource.readJsonArray('assets/json/sessions.json');
-    return list
-        .cast<Map<String, dynamic>>()
-        .map(Session.fromJson)
+  void clearCache() {
+    _months.clear();
+    _byId.clear();
+  }
+
+  @override
+  Future<List<Session>> getBetween(
+    DateTime from,
+    DateTime to, {
+    bool refresh = false,
+  }) async {
+    if (refresh) clearCache();
+    final start = DateTime(from.year, from.month, from.day);
+    final end = DateTime(to.year, to.month, to.day);
+
+    final fetches = <Future<List<Session>>>[];
+    for (
+      var m = DateTime(start.year, start.month);
+      !m.isAfter(end);
+      m = DateTime(m.year, m.month + 1)
+    ) {
+      fetches.add(_month(m));
+    }
+
+    final all = (await Future.wait(fetches)).expand((e) => e);
+    return all
+        .where((s) => !s.date.isBefore(start) && !s.date.isAfter(end))
         .toList();
+  }
+
+  Future<List<Session>> _month(DateTime month) {
+    final key = '${month.year}-${month.month}';
+    return _months.putIfAbsent(key, () async {
+      try {
+        final staffId = await requireStaffId();
+        final json = await _api.get(
+          ApiEndpoints.teacherOccurrences(staffId),
+          query: {
+            'from': dateOnly(DateTime(month.year, month.month)),
+            'to': dateOnly(DateTime(month.year, month.month + 1, 0)),
+          },
+        );
+        final sessions = sessionsFromOccurrences(json, staffId: staffId);
+        for (final s in sessions) {
+          _byId[s.id] = s;
+        }
+        return sessions;
+      } on Object {
+        // Don't cache failures: the next call must retry.
+        _months.remove(key);
+        rethrow;
+      }
+    });
   }
 
   @override
   Future<Session?> getById(String id) async {
-    final all = await getAll();
-    for (final s in all) {
-      if (s.id == id) return s;
+    final cached = _byId[id];
+    if (cached != null) return cached;
+    try {
+      final staffId = await requireStaffId();
+      final json = await _api.get(ApiEndpoints.occurrenceByPublicId(id));
+      if (json is! Json) return null;
+      final session = sessionFromOccurrence(json, staffId: staffId);
+      if (session != null) _byId[session.id] = session;
+      return session;
+    } on NotFoundException {
+      return null;
     }
-    return null;
-  }
-
-  @override
-  Future<Session?> getLive() async {
-    final all = await getAll();
-    for (final s in all) {
-      if (s.isLive) return s;
-    }
-    return null;
-  }
-
-  @override
-  Future<List<Session>> getForDate(DateTime date) async {
-    final all = await getAll();
-    return all
-        .where(
-          (s) =>
-              s.date.year == date.year &&
-              s.date.month == date.month &&
-              s.date.day == date.day,
-        )
-        .toList();
-  }
-
-  @override
-  Future<List<Session>> filter({
-    DateTime? date,
-    String? classId,
-    String? subjectId,
-    String? query,
-  }) async {
-    var all = await getAll();
-    if (date != null) {
-      all = all
-          .where(
-            (s) =>
-                s.date.year == date.year &&
-                s.date.month == date.month &&
-                s.date.day == date.day,
-          )
-          .toList();
-    }
-    if (classId != null && classId.isNotEmpty) {
-      all = all.where((s) => s.classIds.contains(classId)).toList();
-    }
-    if (subjectId != null && subjectId.isNotEmpty) {
-      all = all.where((s) => s.subjectIds.contains(subjectId)).toList();
-    }
-    if (query != null && query.trim().isNotEmpty) {
-      final q = query.toLowerCase();
-      all = all
-          .where(
-            (s) =>
-                s.id.toLowerCase().contains(q) ||
-                s.startTime.contains(q) ||
-                s.endTime.contains(q),
-          )
-          .toList();
-    }
-    all.sort((a, b) {
-      final c = a.date.compareTo(b.date);
-      if (c != 0) return c;
-      return a.startTime.compareTo(b.startTime);
-    });
-    return all;
   }
 }

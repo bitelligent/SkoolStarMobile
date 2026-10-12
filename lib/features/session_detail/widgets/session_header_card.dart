@@ -12,7 +12,7 @@ import 'package:skoolstar_teacher_module/data/models/subject_model.dart';
 /// Compact header card used at the top of every Session Detail tab.
 ///
 /// Layout, top to bottom:
-///   1. Status badge (LIVE / TODAY / UPCOMING) + lock icon
+///   1. Status badge (LIVE / TODAY / UPCOMING / ENDED / CANCELLED) + lock icon
 ///   2. Combined date + time card in a primary-soft panel — both facts
 ///      grouped visually since they describe the same thing
 ///   3. "SUBJECTS" eyebrow + chip row
@@ -35,37 +35,43 @@ class SessionHeaderCard extends StatelessWidget {
   }
 
   ({String label, IconData icon, Color color}) _statusChip() {
-    if (session.isLive) {
-      return (
+    return switch (session.phaseAt(DateTime.now())) {
+      SessionPhase.live => (
         label: 'LIVE',
         icon: Icons.podcasts_rounded,
         color: AppColors.success,
-      );
-    }
-    final n = DateTime.now();
-    final isToday = session.date.year == n.year &&
-        session.date.month == n.month &&
-        session.date.day == n.day;
-    if (isToday) {
-      return (
+      ),
+      SessionPhase.laterToday => (
         label: 'TODAY',
         icon: Icons.today_rounded,
         color: AppColors.primary,
-      );
-    }
-    return (
-      label: 'UPCOMING',
-      icon: Icons.schedule_rounded,
-      color: AppColors.accentIndigo,
-    );
+      ),
+      SessionPhase.upcoming => (
+        label: 'UPCOMING',
+        icon: Icons.schedule_rounded,
+        color: AppColors.accentIndigo,
+      ),
+      SessionPhase.ended => (
+        label: 'ENDED',
+        icon: Icons.check_circle_outline_rounded,
+        color: AppColors.textSecondary,
+      ),
+      SessionPhase.cancelled => (
+        label: 'CANCELLED',
+        icon: Icons.block_rounded,
+        color: AppColors.danger,
+      ),
+    };
   }
 
   @override
   Widget build(BuildContext context) {
-    final sessSubjects =
-        subjects.where((s) => session.subjectIds.contains(s.id)).toList();
-    final sessClasses =
-        classes.where((c) => session.classIds.contains(c.id)).toList();
+    final sessSubjects = subjects
+        .where((s) => session.subjectIds.contains(s.id))
+        .toList();
+    final sessClasses = classes
+        .where((c) => session.classIds.contains(c.id))
+        .toList();
     final status = _statusChip();
 
     return AppCard(
@@ -84,9 +90,7 @@ class SessionHeaderCard extends StatelessWidget {
               ),
               const SizedBox(width: 6),
               Icon(
-                session.isLocked
-                    ? Icons.lock_rounded
-                    : Icons.lock_open_rounded,
+                session.isLocked ? Icons.lock_rounded : Icons.lock_open_rounded,
                 size: 14,
                 color: AppColors.iconSubtle,
               ),

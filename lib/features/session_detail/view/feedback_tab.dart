@@ -60,11 +60,23 @@ class _FeedbackTabState extends State<FeedbackTab> {
       message: _message.text.trim(),
       isPositive: _isPositive,
     );
-    final ok = await context.read<SessionDetailCubit>().sendFeedback(draft);
+    final cubit = context.read<SessionDetailCubit>();
+    final ok = await cubit.sendFeedback(draft);
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(ok ? 'Feedback sent to parent' : 'Failed')),
+      SnackBar(
+        content: Text(ok ? 'Feedback sent to parent' : cubit.lastActionError),
+      ),
     );
+    if (!ok && cubit.lastFailedStudentIds.isNotEmpty) {
+      // Keep only the students that did not receive it, so a retry cannot
+      // send duplicates to the ones that did.
+      setState(() {
+        _recipientIds
+          ..clear()
+          ..addAll(cubit.lastFailedStudentIds);
+      });
+    }
     if (ok) {
       setState(() {
         _message.clear();
@@ -83,10 +95,11 @@ class _FeedbackTabState extends State<FeedbackTab> {
       marks: marks.clamp(0, 100),
       reviewText: _review.text.trim(),
     );
-    final ok = await context.read<SessionDetailCubit>().saveReview(draft);
+    final cubit = context.read<SessionDetailCubit>();
+    final ok = await cubit.saveReview(draft);
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(ok ? 'Review saved' : 'Failed')),
+      SnackBar(content: Text(ok ? 'Review saved' : cubit.lastActionError)),
     );
     if (ok) {
       setState(() {
@@ -134,7 +147,9 @@ class _FeedbackTabState extends State<FeedbackTab> {
                         padding: const EdgeInsets.only(bottom: 6),
                         child: AppSelectableTile(
                           title: '${s.firstName} ${s.lastName}',
-                          subtitle: 'Roll ${s.rollNo}',
+                          subtitle: s.rollNo.isEmpty
+                              ? null
+                              : 'Roll ${s.rollNo}',
                           avatarName: '${s.firstName} ${s.lastName}',
                           selected: _recipientIds.contains(s.id),
                           onToggle: () => setState(() {
@@ -189,7 +204,9 @@ class _FeedbackTabState extends State<FeedbackTab> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            _isPositive ? 'Positive feedback' : 'Needs attention',
+                            _isPositive
+                                ? 'Positive feedback'
+                                : 'Needs attention',
                             style: AppTextStyles.titleSmall.copyWith(
                               color: _isPositive
                                   ? AppColors.success
@@ -221,10 +238,9 @@ class _FeedbackTabState extends State<FeedbackTab> {
               PrimaryButton(
                 label: 'Send to Parent',
                 icon: Icons.send_rounded,
-                onPressed:
-                    _recipientIds.isEmpty || _message.text.trim().isEmpty
-                        ? null
-                        : _send,
+                onPressed: _recipientIds.isEmpty || _message.text.trim().isEmpty
+                    ? null
+                    : _send,
               ),
             ],
           ),
@@ -285,7 +301,9 @@ class _FeedbackTabState extends State<FeedbackTab> {
                             label: '${s.firstName} ${s.lastName}',
                             icon: Icons.person_rounded,
                             color: AppColors.primary,
-                            subtitle: 'Roll ${s.rollNo}',
+                            subtitle: s.rollNo.isEmpty
+                                ? null
+                                : 'Roll ${s.rollNo}',
                           ),
                         )
                         .toList(),

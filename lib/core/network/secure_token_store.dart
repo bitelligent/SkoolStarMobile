@@ -11,10 +11,15 @@ class SecureTokenStore implements TokenStore {
 
   static const _accessKey = 'auth.access_token';
   static const _refreshKey = 'auth.refresh_token';
+  static const _contextKey = 'auth.context';
 
   final FlutterSecureStorage _storage;
   String? _accessToken;
   String? _refreshToken;
+  String? _contextJson;
+
+  @override
+  String? get contextJson => _contextJson;
 
   @override
   String? get accessToken => _accessToken;
@@ -28,6 +33,7 @@ class SecureTokenStore implements TokenStore {
     try {
       _accessToken = await _storage.read(key: _accessKey);
       _refreshToken = await _storage.read(key: _refreshKey);
+      _contextJson = await _storage.read(key: _contextKey);
     } on Object {
       await clear();
     }
@@ -47,10 +53,26 @@ class SecureTokenStore implements TokenStore {
   }
 
   @override
+  Future<void> saveContext(String? json) async {
+    _contextJson = json;
+    try {
+      if (json == null) {
+        await _storage.delete(key: _contextKey);
+      } else {
+        await _storage.write(key: _contextKey, value: json);
+      }
+    } on Object {
+      // Context is re-fetched from `my-contexts` if it can't be restored.
+    }
+  }
+
+  @override
   Future<void> clear() async {
     _accessToken = null;
     _refreshToken = null;
+    _contextJson = null;
     try {
+      await _storage.delete(key: _contextKey);
       await _storage.delete(key: _accessKey);
       await _storage.delete(key: _refreshKey);
     } on Object {

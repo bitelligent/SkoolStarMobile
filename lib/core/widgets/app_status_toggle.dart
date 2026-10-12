@@ -22,9 +22,27 @@ class AppAttendanceToggle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final items = <(_StatusVariant, String, String, IconData, Color)>[
-      (_StatusVariant.present, 'present', labels.present, Icons.check_rounded, AppColors.success),
-      (_StatusVariant.absent, 'absent', labels.absent, Icons.close_rounded, AppColors.danger),
-      (_StatusVariant.late, 'late', labels.late, Icons.schedule_rounded, AppColors.warning),
+      (
+        _StatusVariant.present,
+        'present',
+        labels.present,
+        Icons.check_rounded,
+        AppColors.success,
+      ),
+      (
+        _StatusVariant.absent,
+        'absent',
+        labels.absent,
+        Icons.close_rounded,
+        AppColors.danger,
+      ),
+      (
+        _StatusVariant.late,
+        'late',
+        labels.late,
+        Icons.schedule_rounded,
+        AppColors.warning,
+      ),
     ];
 
     return Container(
@@ -94,33 +112,39 @@ class _StatusSegment extends StatelessWidget {
         duration: const Duration(milliseconds: 180),
         padding: EdgeInsets.symmetric(
           vertical: compact ? 7 : 9,
-          horizontal: compact ? AppSpacing.sm + 2 : AppSpacing.md,
+          horizontal: AppSpacing.sm,
         ),
         alignment: Alignment.center,
         decoration: BoxDecoration(
           color: active ? color : Colors.transparent,
           borderRadius: BorderRadius.circular(AppRadius.pill),
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              size: compact ? 16 : 18,
-              color: active ? Colors.white : color,
-            ),
-            if (!compact) ...[
-              const SizedBox(width: 4),
-              Text(
-                label,
-                style: AppTextStyles.labelMedium.copyWith(
-                  color: active ? Colors.white : color,
-                  fontWeight: FontWeight.w700,
-                ),
+        // Scales the icon + label down when a third of the toggle is too
+        // narrow (small phones, large text) instead of overflowing.
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                size: compact ? 16 : 18,
+                color: active ? Colors.white : color,
               ),
+              if (!compact) ...[
+                const SizedBox(width: 4),
+                Text(
+                  label,
+                  maxLines: 1,
+                  style: AppTextStyles.labelMedium.copyWith(
+                    color: active ? Colors.white : color,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );

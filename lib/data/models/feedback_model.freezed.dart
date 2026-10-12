@@ -11,7 +11,6 @@ part of 'feedback_model.dart';
 
 // dart format off
 T _$identity<T>(T value) => value;
-
 /// @nodoc
 mixin _$FeedbackMessage {
 
@@ -22,8 +21,6 @@ mixin _$FeedbackMessage {
 @pragma('vm:prefer-inline')
 $FeedbackMessageCopyWith<FeedbackMessage> get copyWith => _$FeedbackMessageCopyWithImpl<FeedbackMessage>(this as FeedbackMessage, _$identity);
 
-  /// Serializes this FeedbackMessage to a JSON map.
-  Map<String, dynamic> toJson();
 
 
 @override
@@ -31,7 +28,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is FeedbackMessage&&(identical(other.id, id) || other.id == id)&&(identical(other.sessionId, sessionId) || other.sessionId == sessionId)&&const DeepCollectionEquality().equals(other.studentIds, studentIds)&&(identical(other.message, message) || other.message == message)&&(identical(other.isPositive, isPositive) || other.isPositive == isPositive)&&(identical(other.sentAt, sentAt) || other.sentAt == sentAt));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,id,sessionId,const DeepCollectionEquality().hash(studentIds),message,isPositive,sentAt);
 
@@ -211,11 +208,11 @@ return $default(_that.id,_that.sessionId,_that.studentIds,_that.message,_that.is
 }
 
 /// @nodoc
-@JsonSerializable()
+
 
 class _FeedbackMessage implements FeedbackMessage {
   const _FeedbackMessage({required this.id, required this.sessionId, required final  List<String> studentIds, required this.message, this.isPositive = true, this.sentAt}): _studentIds = studentIds;
-  factory _FeedbackMessage.fromJson(Map<String, dynamic> json) => _$FeedbackMessageFromJson(json);
+  
 
 @override final  String id;
 @override final  String sessionId;
@@ -236,17 +233,14 @@ class _FeedbackMessage implements FeedbackMessage {
 @pragma('vm:prefer-inline')
 _$FeedbackMessageCopyWith<_FeedbackMessage> get copyWith => __$FeedbackMessageCopyWithImpl<_FeedbackMessage>(this, _$identity);
 
-@override
-Map<String, dynamic> toJson() {
-  return _$FeedbackMessageToJson(this, );
-}
+
 
 @override
 bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is _FeedbackMessage&&(identical(other.id, id) || other.id == id)&&(identical(other.sessionId, sessionId) || other.sessionId == sessionId)&&const DeepCollectionEquality().equals(other._studentIds, _studentIds)&&(identical(other.message, message) || other.message == message)&&(identical(other.isPositive, isPositive) || other.isPositive == isPositive)&&(identical(other.sentAt, sentAt) || other.sentAt == sentAt));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,id,sessionId,const DeepCollectionEquality().hash(_studentIds),message,isPositive,sentAt);
 
@@ -295,7 +289,6 @@ as DateTime?,
 
 }
 
-
 /// @nodoc
 mixin _$AssignmentReview {
 
@@ -306,8 +299,6 @@ mixin _$AssignmentReview {
 @pragma('vm:prefer-inline')
 $AssignmentReviewCopyWith<AssignmentReview> get copyWith => _$AssignmentReviewCopyWithImpl<AssignmentReview>(this as AssignmentReview, _$identity);
 
-  /// Serializes this AssignmentReview to a JSON map.
-  Map<String, dynamic> toJson();
 
 
 @override
@@ -315,7 +306,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is AssignmentReview&&(identical(other.id, id) || other.id == id)&&(identical(other.sessionId, sessionId) || other.sessionId == sessionId)&&(identical(other.homeworkId, homeworkId) || other.homeworkId == homeworkId)&&(identical(other.studentId, studentId) || other.studentId == studentId)&&(identical(other.marks, marks) || other.marks == marks)&&(identical(other.reviewText, reviewText) || other.reviewText == reviewText)&&(identical(other.reviewedAt, reviewedAt) || other.reviewedAt == reviewedAt));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,id,sessionId,homeworkId,studentId,marks,reviewText,reviewedAt);
 
@@ -496,11 +487,11 @@ return $default(_that.id,_that.sessionId,_that.homeworkId,_that.studentId,_that.
 }
 
 /// @nodoc
-@JsonSerializable()
+
 
 class _AssignmentReview implements AssignmentReview {
   const _AssignmentReview({required this.id, required this.sessionId, required this.homeworkId, required this.studentId, required this.marks, required this.reviewText, this.reviewedAt});
-  factory _AssignmentReview.fromJson(Map<String, dynamic> json) => _$AssignmentReviewFromJson(json);
+  
 
 @override final  String id;
 @override final  String sessionId;
@@ -516,17 +507,14 @@ class _AssignmentReview implements AssignmentReview {
 @pragma('vm:prefer-inline')
 _$AssignmentReviewCopyWith<_AssignmentReview> get copyWith => __$AssignmentReviewCopyWithImpl<_AssignmentReview>(this, _$identity);
 
-@override
-Map<String, dynamic> toJson() {
-  return _$AssignmentReviewToJson(this, );
-}
+
 
 @override
 bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is _AssignmentReview&&(identical(other.id, id) || other.id == id)&&(identical(other.sessionId, sessionId) || other.sessionId == sessionId)&&(identical(other.homeworkId, homeworkId) || other.homeworkId == homeworkId)&&(identical(other.studentId, studentId) || other.studentId == studentId)&&(identical(other.marks, marks) || other.marks == marks)&&(identical(other.reviewText, reviewText) || other.reviewText == reviewText)&&(identical(other.reviewedAt, reviewedAt) || other.reviewedAt == reviewedAt));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,id,sessionId,homeworkId,studentId,marks,reviewText,reviewedAt);
 

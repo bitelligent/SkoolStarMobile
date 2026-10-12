@@ -42,10 +42,17 @@ class AppChip extends StatelessWidget {
           Icon(icon, size: dense ? 12 : 14, color: fg),
           const SizedBox(width: 4),
         ],
-        Text(
-          label,
-          style: (dense ? AppTextStyles.labelSmall : AppTextStyles.labelMedium)
-              .copyWith(color: fg, fontWeight: FontWeight.w600),
+        // Long names (user-entered class/subject titles) shrink with "…"
+        // instead of overflowing the chip.
+        Flexible(
+          child: Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style:
+                (dense ? AppTextStyles.labelSmall : AppTextStyles.labelMedium)
+                    .copyWith(color: fg, fontWeight: FontWeight.w600),
+          ),
         ),
         if (showCheck && selected) ...[
           const SizedBox(width: 4),

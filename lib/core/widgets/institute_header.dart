@@ -48,26 +48,32 @@ class InstitutePill extends StatelessWidget {
             ),
           ),
           const SizedBox(width: AppSpacing.sm),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'INSTITUTE',
-                style: AppTextStyles.labelSmall.copyWith(
-                  color: AppColors.textTertiary,
-                  letterSpacing: 0.8,
-                  fontSize: 10,
-                  fontWeight: FontWeight.w600,
+          // Flexible so a long institute name ellipsizes instead of pushing
+          // the type badge off screen.
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'INSTITUTE',
+                  style: AppTextStyles.labelSmall.copyWith(
+                    color: AppColors.textTertiary,
+                    letterSpacing: 0.8,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-              ),
-              Text(
-                institute.name,
-                style: AppTextStyles.titleSmall.copyWith(
-                  fontWeight: FontWeight.w700,
+                Text(
+                  institute.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.titleSmall.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
           const SizedBox(width: AppSpacing.sm),
           Container(
