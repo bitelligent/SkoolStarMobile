@@ -17,25 +17,12 @@ class LoginCubit extends Cubit<LoginState> {
     if (state is LoginLoading) return;
     emit(const LoginState.loading());
     try {
-      final res = await _repo.login(
+      await _repo.login(
         email: email,
         password: password,
         contextKey: contextKey,
       );
-      if (res.requiresContextSelection) {
-        final teacherContexts = res.availableContexts
-            .where((c) => c.role.toLowerCase() == 'teacher')
-            .toList();
-        emit(
-          teacherContexts.isEmpty
-              ? const LoginState.failure(
-                  'This app is for teachers. Please sign in with a teacher account.',
-                )
-              : LoginState.contextSelection(teacherContexts),
-        );
-      } else {
-        emit(const LoginState.success());
-      }
+      emit(const LoginState.success());
     } on UnauthorizedException {
       emit(const LoginState.failure('Incorrect email or password.'));
     } on ApiException catch (e) {

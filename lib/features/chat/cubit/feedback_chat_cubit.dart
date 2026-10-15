@@ -10,11 +10,16 @@ class FeedbackChatCubit extends Cubit<FeedbackChatState> {
   FeedbackChatCubit({
     required this.threadId,
     required ChatRepository repository,
+    this.asParent = false,
   })  : _repo = repository,
         super(const FeedbackChatState.initial());
 
   final String threadId;
   final ChatRepository _repo;
+
+  /// True in the parent module: replies are sent as the parent and read
+  /// receipts apply to the teacher's messages.
+  final bool asParent;
 
   Future<void> load() async {
     emit(const FeedbackChatState.loading());
@@ -37,7 +42,7 @@ class FeedbackChatCubit extends Cubit<FeedbackChatState> {
       // Mark the most recent as read in the background; the UI already
       // knows it's "open", we just need to persist the state.
       if (topics.isNotEmpty) {
-        unawaited(_repo.markTopicRead(topics.first.id));
+        unawaited(_repo.markTopicRead(topics.first.id, asParent: asParent));
       }
     } on Exception catch (e) {
       emit(FeedbackChatState.error(e.toString()));
@@ -100,7 +105,7 @@ class FeedbackChatCubit extends Cubit<FeedbackChatState> {
       final reply = await _repo.replyToTopic(
         topicId: topicId,
         content: content,
-        fromTeacher: true,
+        fromTeacher: !asParent,
       );
       final updated = [
         for (final t in s.topics)

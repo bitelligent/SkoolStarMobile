@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:skoolstar_teacher_module/features/chat/chat_perspective.dart';
 import 'package:intl/intl.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
@@ -64,7 +65,10 @@ class FeedbackTopicTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = _toneTheme();
-    final unread = topic.unreadFromParent;
+    final perspective = ChatPerspectiveScope.of(context);
+    final unread = perspective.isParent
+        ? topic.unreadFromTeacher
+        : topic.unreadFromParent;
 
     return Container(
       decoration: BoxDecoration(
@@ -181,11 +185,12 @@ class _Header extends StatelessWidget {
                   ),
                 ],
                 const Spacer(),
-                _TopicMenu(
-                  isResolved: topic.isResolved,
-                  onToggleResolved: onToggleResolved,
-                  onDelete: onDelete,
-                ),
+                if (ChatPerspectiveScope.of(context).canManageTopics)
+                  _TopicMenu(
+                    isResolved: topic.isResolved,
+                    onToggleResolved: onToggleResolved,
+                    onDelete: onDelete,
+                  ),
                 AnimatedRotation(
                   duration: const Duration(milliseconds: 220),
                   turns: isExpanded ? 0.5 : 0,
@@ -356,6 +361,7 @@ class _Body extends StatelessWidget {
             )
           else
             FeedbackComposer(
+              hint: ChatPerspectiveScope.of(context).composerHint,
               onSend: onReply,
               enabled: !isReplying,
             ),

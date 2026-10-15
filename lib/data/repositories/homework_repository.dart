@@ -17,6 +17,23 @@ abstract interface class HomeworkRepository {
   /// (see [uploadAttachment]); their `reference` is sent to the server.
   Future<Homework> create(Session session, Homework draft);
 
+  /// Changes the title, description and max marks of [id]. The deadline,
+  /// attachments, class, subject and students cannot be changed.
+  ///
+  /// [maxMarks] is only sent when it is greater than zero (the server
+  /// ignores anything else). Throws [ValidationException] (400: empty title /
+  /// edit window closed) or [NotFoundException] (404).
+  Future<void> update(
+    String id, {
+    required String title,
+    required String description,
+    int? maxMarks,
+  });
+
+  /// Deletes [id] (soft-delete, any time). Throws [NotFoundException] if it
+  /// no longer exists.
+  Future<void> delete(String id);
+
   /// Full URL of an attachment, or `null` when the server gave no usable
   /// reference.
   Uri? attachmentUrl(HomeworkAttachment attachment);
@@ -35,6 +52,32 @@ class HomeworkRepositoryImpl implements HomeworkRepository {
   const HomeworkRepositoryImpl(this._api);
 
   final ApiClient _api;
+
+  @override
+  Future<void> update(
+    String id, {
+    required String title,
+    required String description,
+    int? maxMarks,
+  }) async {
+    final trimmed = title.trim();
+    if (trimmed.isEmpty) {
+      throw const ValidationException('Homework title is required.');
+    }
+    await _api.put(
+      ApiEndpoints.homeworkById(id),
+      body: {
+        'title': trimmed,
+        'description': description.trim(),
+        if (maxMarks != null && maxMarks > 0) 'maxMarks': maxMarks,
+      },
+    );
+  }
+
+  @override
+  Future<void> delete(String id) async {
+    await _api.delete(ApiEndpoints.homeworkById(id));
+  }
 
   @override
   Uri? attachmentUrl(HomeworkAttachment attachment) =>

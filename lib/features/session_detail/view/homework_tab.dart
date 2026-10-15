@@ -21,6 +21,7 @@ import 'package:skoolstar_teacher_module/data/repositories/homework_repository.d
 import 'package:skoolstar_teacher_module/data/models/student_model.dart';
 import 'package:skoolstar_teacher_module/features/session_detail/cubit/session_detail_cubit.dart';
 import 'package:skoolstar_teacher_module/features/session_detail/cubit/session_detail_state.dart';
+import 'package:skoolstar_teacher_module/features/session_detail/widgets/homework_actions.dart';
 import 'package:skoolstar_teacher_module/features/session_detail/widgets/homework_detail_sheet.dart';
 import 'package:skoolstar_teacher_module/features/session_detail/widgets/session_header_card.dart';
 
@@ -552,6 +553,7 @@ class HomeworkTile extends StatelessWidget {
                 ),
               ],
             ),
+            HomeworkCardActions(homework: homework),
           ],
         ),
       ),

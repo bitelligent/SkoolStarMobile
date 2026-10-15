@@ -67,7 +67,30 @@ abstract class Homework with _$Homework {
     /// a count (`totalAssigned`) and not their ids.
     @Default(0) int assignedCount,
     @Default([]) List<HomeworkAttachment> attachments,
+
+    /// When the teacher assigned it (server `created`). `null` when the
+    /// server did not send it.
+    DateTime? createdAt,
+
+    /// Set locally once the server refused an edit because the window
+    /// closed, so the Edit action disappears without waiting for a refresh.
+    @Default(false) bool editLocked,
   }) = _Homework;
+
+  /// Whether Edit should be offered at [now].
+  ///
+  /// The backend only accepts edits until the end of the UTC day the
+  /// homework was created. When the creation time is unknown the action
+  /// stays available and the server remains the judge (its refusal is shown
+  /// and then locks the action).
+  bool canEditAt(DateTime now) {
+    if (editLocked) return false;
+    final created = createdAt;
+    if (created == null) return true;
+    final c = created.toUtc();
+    final n = now.toUtc();
+    return c.year == n.year && c.month == n.month && c.day == n.day;
+  }
 
   /// Students assigned, whichever of ids or count the server provided.
   int get studentTotal =>

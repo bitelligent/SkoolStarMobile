@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:skoolstar_teacher_module/core/router/app_routes.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
@@ -315,6 +317,14 @@ class _ViewSection extends StatelessWidget {
             child: Column(
               children: [
                 AppActionRow(
+                  icon: Icons.swap_horiz_rounded,
+                  iconColor: AppColors.primary,
+                  label: 'Switch role',
+                  subtitle: 'Use SkoolStar as a parent or another role',
+                  onTap: () => context.push(AppRoutes.selectRolePath),
+                ),
+                const Divider(height: 1),
+                AppActionRow(
                   icon: Icons.notifications_rounded,
                   iconColor: AppColors.warning,
                   label: 'Notifications',
@@ -347,7 +357,7 @@ class _ViewSection extends StatelessWidget {
           child: SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(
-              onPressed: () => _confirmLogout(context),
+              onPressed: () => confirmLogout(context),
               icon: const Icon(Icons.logout_rounded, color: AppColors.danger),
               label: Text(
                 'Log out',
@@ -370,7 +380,8 @@ class _ViewSection extends StatelessWidget {
   }
 }
 
-Future<void> _confirmLogout(BuildContext context) async {
+/// Confirms, then signs out. Shared with the parent profile.
+Future<void> confirmLogout(BuildContext context) async {
   final confirmed = await showDialog<bool>(
     context: context,
     builder: (ctx) => AlertDialog(

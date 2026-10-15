@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:skoolstar_teacher_module/core/network/api_client.dart';
 import 'package:skoolstar_teacher_module/core/network/api_exception.dart';
+import 'package:skoolstar_teacher_module/data/models/auth/auth_context.dart';
 import 'package:skoolstar_teacher_module/data/models/class_group.dart';
 import 'package:skoolstar_teacher_module/data/models/feedback_model.dart';
 import 'package:skoolstar_teacher_module/data/models/homework_model.dart';
@@ -133,6 +134,7 @@ void main() {
       build((_) => jsonResponse(fx.occurrencesOctober));
       await repo.getBetween(DateTime(2026, 10), DateTime(2026, 10, 31));
       await auth.logout();
+      auth.signInAs(AuthContext.fromJson(fx.teacherContext));
       await repo.getBetween(DateTime(2026, 10), DateTime(2026, 10, 31));
       expect(requests, hasLength(2));
     });

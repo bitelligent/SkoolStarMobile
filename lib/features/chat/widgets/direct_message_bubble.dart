@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:skoolstar_teacher_module/features/chat/chat_perspective.dart';
 import 'package:intl/intl.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
@@ -32,7 +33,9 @@ class DirectMessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isTeacher = message.fromTeacher;
+    final isTeacher = ChatPerspectiveScope.of(context).isMine(
+      fromTeacher: message.fromTeacher,
+    );
 
     final radius = BorderRadius.only(
       topLeft: const Radius.circular(AppRadius.lg),

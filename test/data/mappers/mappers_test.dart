@@ -240,6 +240,26 @@ void main() {
         )!,
     ];
 
+    test('reads the live payload: assignedStudentIds and created (+00:00)', () {
+      final hw = homeworkFromJson(
+        {
+          'id': 1018,
+          'title': 'T',
+          'totalAssigned': 1,
+          'assignedStudentIds': [2],
+          'created': '2026-10-14T09:16:43.2627868+00:00',
+        },
+        sessionId: 's',
+        classId: '23',
+        fallbackDeadline: DateTime(2026),
+      )!;
+      expect(hw.assignedStudentIds, ['2']);
+      expect(hw.studentTotal, 1);
+      expect(hw.createdAt, DateTime.utc(2026, 10, 14, 9, 16, 43, 262, 786));
+      expect(hw.canEditAt(DateTime.utc(2026, 10, 14, 23, 59)), isTrue);
+      expect(hw.canEditAt(DateTime.utc(2026, 10, 15)), isFalse);
+    });
+
     test('counts come from totalAssigned when ids are absent', () {
       expect(list.first.assignedStudentIds, isEmpty);
       expect(list.first.studentTotal, 1);

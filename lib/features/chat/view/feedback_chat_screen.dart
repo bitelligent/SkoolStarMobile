@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:skoolstar_teacher_module/features/chat/chat_perspective.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
@@ -25,6 +26,7 @@ class FeedbackChatScreen extends StatelessWidget {
       create: (context) => FeedbackChatCubit(
         threadId: threadId,
         repository: context.read<ChatRepository>(),
+        asParent: ChatPerspectiveScope.read(context).isParent,
       )..load(),
       child: const _FeedbackChatView(),
     );
@@ -39,8 +41,10 @@ class _FeedbackChatView extends StatelessWidget {
     FeedbackChatLoaded state,
   ) async {
     final cubit = context.read<FeedbackChatCubit>();
-    final draft =
-        await showNewFeedbackSheet(context, parentName: state.thread.name);
+    final draft = await showNewFeedbackSheet(
+      context,
+      parentName: state.thread.name,
+    );
     if (draft == null || !context.mounted) return;
     final ok = await cubit.createTopic(
       subject: draft.subject,
@@ -62,26 +66,27 @@ class _FeedbackChatView extends StatelessWidget {
       body: SafeArea(
         bottom: false,
         child: BlocBuilder<FeedbackChatCubit, FeedbackChatState>(
-        builder: (context, state) {
-          return switch (state) {
-            FeedbackChatInitial() ||
-            FeedbackChatLoading() =>
-              const LoadingView(),
-            FeedbackChatError(:final message) => ErrorView(
+          builder: (context, state) {
+            return switch (state) {
+              FeedbackChatInitial() ||
+              FeedbackChatLoading() => const LoadingView(),
+              FeedbackChatError(:final message) => ErrorView(
                 message: message,
                 onRetry: () => context.read<FeedbackChatCubit>().load(),
               ),
-            FeedbackChatLoaded() => _Loaded(
+              FeedbackChatLoaded() => _Loaded(
                 state: state,
                 onNewFeedback: () => _openNewFeedback(context, state),
               ),
-          };
-        },
-      ),
+            };
+          },
+        ),
       ),
       floatingActionButton: BlocBuilder<FeedbackChatCubit, FeedbackChatState>(
         builder: (context, state) {
-          if (state is! FeedbackChatLoaded || state.topics.isEmpty) {
+          if (state is! FeedbackChatLoaded ||
+              state.topics.isEmpty ||
+              !ChatPerspectiveScope.of(context).canStartFeedback) {
             return const SizedBox.shrink();
           }
           return FloatingActionButton.extended(
@@ -128,7 +133,11 @@ class _Loaded extends StatelessWidget {
         _ParentHeader(thread: state.thread, topicCount: topics.length),
         Expanded(
           child: topics.isEmpty
-              ? _EmptyFeedback(onCreate: onNewFeedback)
+              ? _EmptyFeedback(
+                  onCreate: ChatPerspectiveScope.of(context).canStartFeedback
+                      ? onNewFeedback
+                      : null,
+                )
               : RefreshIndicator(
                   color: AppColors.primary,
                   onRefresh: cubit.load,
@@ -153,8 +162,7 @@ class _Loaded extends StatelessWidget {
                         parentName: state.thread.name,
                         parentAvatarUrl: state.thread.avatarUrl,
                         onToggle: () => cubit.toggleExpanded(t.id),
-                        onReply: (content) =>
-                            cubit.replyToTopic(t.id, content),
+                        onReply: (content) => cubit.replyToTopic(t.id, content),
                         onToggleResolved: () => cubit.toggleResolved(t.id),
                         onDelete: () => cubit.deleteTopic(t.id),
                       );
@@ -332,10 +340,18 @@ class _BackButton extends StatelessWidget {
 class _EmptyFeedback extends StatelessWidget {
   const _EmptyFeedback({required this.onCreate});
 
-  final VoidCallback onCreate;
+  /// `null` when the user cannot start threads (parents).
+  final VoidCallback? onCreate;
 
   @override
   Widget build(BuildContext context) {
+    if (onCreate == null) {
+      return const AppEmptyState(
+        icon: Icons.reviews_outlined,
+        title: 'No feedback yet',
+        subtitle: 'Feedback from this teacher will appear here.',
+      );
+    }
     return AppEmptyState(
       icon: Icons.reviews_outlined,
       title: 'No feedback yet',

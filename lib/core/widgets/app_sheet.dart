@@ -158,8 +158,9 @@ class _MultiSelectBodyState<T> extends State<_MultiSelectBody<T>> {
                     vertical: AppSpacing.md - 2,
                   ),
                   decoration: BoxDecoration(
-                    color:
-                        selected ? accent.withOpacity(0.08) : Colors.transparent,
+                    color: selected
+                        ? accent.withOpacity(0.08)
+                        : Colors.transparent,
                     borderRadius: BorderRadius.circular(AppRadius.md),
                     border: Border.all(
                       color: selected ? accent : AppColors.border,

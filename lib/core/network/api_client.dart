@@ -286,6 +286,13 @@ class ApiClient {
         );
       case 404:
         return NotFoundException(problem.message ?? 'Not found.');
+      case 405:
+        // The route exists but not for this verb: the backend has not
+        // shipped this action in the environment we are talking to.
+        return const UnknownApiException(
+          "This action isn't available on the server yet.",
+          statusCode: 405,
+        );
       case >= 500:
         return ServerException(
           'Something went wrong on our side. Please try later.',

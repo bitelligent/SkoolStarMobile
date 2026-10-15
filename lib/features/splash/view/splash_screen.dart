@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:skoolstar_teacher_module/core/router/app_routes.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
-import 'package:skoolstar_teacher_module/data/repositories/auth_repository.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -29,8 +27,9 @@ class _SplashScreenState extends State<SplashScreen>
 
     Future<void>.delayed(const Duration(milliseconds: 1700), () {
       if (!mounted) return;
-      final signedIn = context.read<AuthRepository>().isSignedIn;
-      context.goNamed(signedIn ? AppRoutes.dashboard : AppRoutes.login);
+      // The router's redirect sends signed-in users to their module (or the
+      // role list) and everyone else to login.
+      context.go(AppRoutes.loginPath);
     });
   }
 
@@ -93,7 +92,7 @@ class _SplashScreenState extends State<SplashScreen>
                   ),
                   const SizedBox(height: AppSpacing.xs),
                   Text(
-                    'Teacher Module',
+                    'Teachers & Parents',
                     style: AppTextStyles.bodyMedium.copyWith(
                       color: Colors.white.withOpacity(0.85),
                       letterSpacing: 0.4,

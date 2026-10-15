@@ -45,6 +45,16 @@ class _FeedbackTabState extends State<FeedbackTab> {
   }
 
   @override
+  void didUpdateWidget(covariant FeedbackTab old) {
+    super.didUpdateWidget(old);
+    // The selected task may have been deleted from the Homework tab.
+    final ids = widget.state.homeworks.map((h) => h.id);
+    if (_taskId != null && !ids.contains(_taskId)) {
+      _taskId = widget.state.homeworks.firstOrNull?.id;
+    }
+  }
+
+  @override
   void dispose() {
     _message.dispose();
     _review.dispose();

@@ -121,10 +121,10 @@ class AppShadows {
   ];
 
   static List<BoxShadow> glow(Color color) => [
-        BoxShadow(
-          color: color.withOpacity(0.28),
-          blurRadius: 20,
-          offset: const Offset(0, 8),
-        ),
-      ];
+    BoxShadow(
+      color: color.withOpacity(0.28),
+      blurRadius: 20,
+      offset: const Offset(0, 8),
+    ),
+  ];
 }

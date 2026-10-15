@@ -37,5 +37,9 @@ class AppTextStyles {
   static TextStyle labelLarge = _base(14, FontWeight.w600);
   static TextStyle labelMedium = _base(13, FontWeight.w500);
   static TextStyle labelSmall = _base(12, FontWeight.w500);
-  static TextStyle caption = _base(11, FontWeight.w400, color: AppColors.textSecondary);
+  static TextStyle caption = _base(
+    11,
+    FontWeight.w400,
+    color: AppColors.textSecondary,
+  );
 }

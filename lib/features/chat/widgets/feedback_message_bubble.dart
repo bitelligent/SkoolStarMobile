@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:skoolstar_teacher_module/features/chat/chat_perspective.dart';
 import 'package:intl/intl.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
@@ -26,7 +27,9 @@ class FeedbackMessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isTeacher = message.fromTeacher;
+    final isTeacher = ChatPerspectiveScope.of(context).isMine(
+      fromTeacher: message.fromTeacher,
+    );
     final align = isTeacher ? CrossAxisAlignment.end : CrossAxisAlignment.start;
     final bubble = _Bubble(message: message, isTeacher: isTeacher);
     final meta = _Meta(message: message, isTeacher: isTeacher);
@@ -62,8 +65,10 @@ class FeedbackMessageBubble extends StatelessWidget {
                 color: AppColors.primary,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
-                Icons.school_rounded,
+              child: Icon(
+                ChatPerspectiveScope.of(context).isParent
+                    ? Icons.person_rounded
+                    : Icons.school_rounded,
                 color: Colors.white,
                 size: 14,
               ),
@@ -122,7 +127,11 @@ class _Meta extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final label = isTeacher ? 'You' : 'Parent';
+    // `isTeacher` means "sent by me" here (see ChatPerspective.isMine).
+    final other = ChatPerspectiveScope.of(context).isParent
+        ? 'Teacher'
+        : 'Parent';
+    final label = isTeacher ? 'You' : other;
     final time = DateFormat('MMM d, h:mm a').format(message.sentAt);
     return Row(
       mainAxisSize: MainAxisSize.min,

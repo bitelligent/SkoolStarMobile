@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:skoolstar_teacher_module/core/network/api_client.dart';
 import 'package:skoolstar_teacher_module/core/network/token_store.dart';
 import 'package:skoolstar_teacher_module/core/router/app_router.dart';
+import 'package:skoolstar_teacher_module/core/storage/key_value_store.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_theme.dart';
 import 'package:skoolstar_teacher_module/data/datasources/local_json_data_source.dart';
 import 'package:skoolstar_teacher_module/data/repositories/attendance_repository.dart';
@@ -18,7 +19,13 @@ import 'package:skoolstar_teacher_module/data/repositories/notifications_reposit
 import 'package:skoolstar_teacher_module/data/repositories/session_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/subject_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/teacher_catalog.dart';
+import 'package:skoolstar_teacher_module/data/repositories/parent/child_assignments_repository.dart';
+import 'package:skoolstar_teacher_module/data/repositories/parent/child_attendance_repository.dart';
+import 'package:skoolstar_teacher_module/data/repositories/parent/child_schedule_repository.dart';
+import 'package:skoolstar_teacher_module/data/repositories/parent/children_repository.dart';
+import 'package:skoolstar_teacher_module/data/repositories/parent/guardian_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/user_repository.dart';
+import 'package:skoolstar_teacher_module/features/parent/common/children_cubit.dart';
 
 class SkoolStarApp extends StatefulWidget {
   const SkoolStarApp({required this.tokenStore, super.key});
@@ -50,8 +57,19 @@ class _SkoolStarAppState extends State<SkoolStarApp> {
     apiClient: _apiClient,
     authRepository: _authRepository,
   );
+  // Parent module data. Chat and notifications stay on mock JSON (no backend
+  // endpoints yet): parents get their own mock inbox.
+  late final ChildrenRepository _childrenRepository = ChildrenRepositoryImpl(
+    apiClient: _apiClient,
+    authRepository: _authRepository,
+  );
+  late final ChatRepository _parentChatRepository = ChatRepositoryImpl(
+    _dataSource,
+    assetPath: 'assets/json/parent_chats.json',
+  );
   late final GoRouter _router = buildRouter(
-    authListenable: _authRepository.signedIn,
+    session: _authRepository.session,
+    parentChatRepository: _parentChatRepository,
   );
 
   @override
@@ -108,24 +126,61 @@ class _SkoolStarAppState extends State<SkoolStarApp> {
         RepositoryProvider<NotificationsRepository>(
           create: (_) => NotificationsRepositoryImpl(_dataSource),
         ),
+        // ── Parent module ──
+        RepositoryProvider<ChildrenRepository>.value(
+          value: _childrenRepository,
+        ),
+        RepositoryProvider<ChildScheduleRepository>(
+          create: (_) => ChildScheduleRepositoryImpl(
+            apiClient: _apiClient,
+            authRepository: _authRepository,
+          ),
+        ),
+        RepositoryProvider<ChildAttendanceRepository>(
+          create: (_) => ChildAttendanceRepositoryImpl(
+            apiClient: _apiClient,
+            authRepository: _authRepository,
+          ),
+        ),
+        RepositoryProvider<ChildAssignmentsRepository>(
+          create: (_) => ChildAssignmentsRepositoryImpl(
+            apiClient: _apiClient,
+            authRepository: _authRepository,
+          ),
+        ),
+        RepositoryProvider<GuardianRepository>(
+          create: (_) => GuardianRepositoryImpl(
+            apiClient: _apiClient,
+            authRepository: _authRepository,
+          ),
+        ),
       ],
-      child: MaterialApp.router(
-        title: 'SkoolStar',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.light(),
-        routerConfig: _router,
-        builder: (context, child) {
-          final mq = MediaQuery.of(context);
-          return MediaQuery(
-            data: mq.copyWith(
-              textScaler: mq.textScaler.clamp(
-                minScaleFactor: 0.85,
-                maxScaleFactor: 1.15,
+      // Above the router so the parent shell, its tabs and pushed screens
+      // all share one "selected child".
+      child: BlocProvider<ChildrenCubit>(
+        create: (_) => ChildrenCubit(
+          repository: _childrenRepository,
+          store: SecureKeyValueStore(),
+          auth: _authRepository,
+        ),
+        child: MaterialApp.router(
+          title: 'SkoolStar',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.light(),
+          routerConfig: _router,
+          builder: (context, child) {
+            final mq = MediaQuery.of(context);
+            return MediaQuery(
+              data: mq.copyWith(
+                textScaler: mq.textScaler.clamp(
+                  minScaleFactor: 0.85,
+                  maxScaleFactor: 1.15,
+                ),
               ),
-            ),
-            child: child!,
-          );
-        },
+              child: child!,
+            );
+          },
+        ),
       ),
     );
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:skoolstar_teacher_module/features/chat/chat_perspective.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
@@ -25,6 +26,7 @@ class DirectChatScreen extends StatelessWidget {
       create: (context) => DirectChatCubit(
         threadId: threadId,
         repository: context.read<ChatRepository>(),
+        asParent: ChatPerspectiveScope.read(context).isParent,
       )..load(),
       child: const _DirectChatView(),
     );
@@ -43,13 +45,11 @@ class _DirectChatView extends StatelessWidget {
         child: BlocBuilder<DirectChatCubit, DirectChatState>(
           builder: (context, state) {
             return switch (state) {
-              DirectChatInitial() ||
-              DirectChatLoading() =>
-                const LoadingView(),
+              DirectChatInitial() || DirectChatLoading() => const LoadingView(),
               DirectChatError(:final message) => ErrorView(
-                  message: message,
-                  onRetry: () => context.read<DirectChatCubit>().load(),
-                ),
+                message: message,
+                onRetry: () => context.read<DirectChatCubit>().load(),
+              ),
               DirectChatLoaded() => _Loaded(state: state),
             };
           },
@@ -177,11 +177,13 @@ class _LoadedState extends State<_Loaded> {
       final next = i < messages.length - 1 ? messages[i + 1] : null;
 
       // Group messages from the same sender back-to-back (<3 min gap).
-      final startsRun = prev == null ||
+      final startsRun =
+          prev == null ||
           prev.fromTeacher != m.fromTeacher ||
           m.sentAt.difference(prev.sentAt).inMinutes >= 3 ||
           !_isSameDay(prev.sentAt, m.sentAt);
-      final endsRun = next == null ||
+      final endsRun =
+          next == null ||
           next.fromTeacher != m.fromTeacher ||
           next.sentAt.difference(m.sentAt).inMinutes >= 3 ||
           !_isSameDay(next.sentAt, m.sentAt);

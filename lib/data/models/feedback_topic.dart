@@ -51,8 +51,7 @@ abstract class FeedbackTopic with _$FeedbackTopic {
       _$FeedbackTopicFromJson(json);
 
   /// Teacher's original feedback body — always the first message.
-  String get initialBody =>
-      messages.isEmpty ? '' : messages.first.content;
+  String get initialBody => messages.isEmpty ? '' : messages.first.content;
 
   /// Timestamp of the most recent message in the thread.
   DateTime get lastActivityAt =>
@@ -60,7 +59,10 @@ abstract class FeedbackTopic with _$FeedbackTopic {
 
   /// Count of unread messages addressed to the teacher
   /// (i.e. parent replies that haven't been read yet).
-  int get unreadFromParent => messages
-      .where((m) => !m.fromTeacher && !m.isRead)
-      .length;
+  int get unreadFromParent =>
+      messages.where((m) => !m.fromTeacher && !m.isRead).length;
+
+  /// Count of unread messages addressed to the parent (teacher messages).
+  int get unreadFromTeacher =>
+      messages.where((m) => m.fromTeacher && !m.isRead).length;
 }

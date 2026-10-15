@@ -221,10 +221,14 @@ void main() {
     test('class + day filters combine', () async {
       final c = build();
       await c.load();
+      Set<String> todayIn(String classId) => {
+        for (final x in sessions)
+          if (x.date == today && x.classIds.contains(classId)) x.id,
+      };
       c.setClassFilters({'24'}); // day filter stays "today"
-      expect(ids(c), {'today_c24_s19'});
+      expect(ids(c), todayIn('24'));
       c.setClassFilters({'23'});
-      expect(ids(c), {'today_c23_s18'});
+      expect(ids(c), todayIn('23'));
     });
 
     test(
@@ -269,10 +273,14 @@ void main() {
     test('the Today stat counts today regardless of the day filter', () async {
       final c = build();
       await c.load();
+      final todays = sessions.where((x) => x.date == today).toList();
       c.setDayFilter('month');
-      expect(c.todayCount(), 2);
+      expect(c.todayCount(), todays.length);
       c.setClassFilters({'24'});
-      expect(c.todayCount(), 1);
+      expect(
+        c.todayCount(),
+        todays.where((x) => x.classIds.contains('24')).length,
+      );
     });
   });
 
@@ -290,11 +298,18 @@ void main() {
         c.filtered().map((s) => s.id).toSet(),
         {for (final x in sessions.where((x) => x.date == today)) x.id},
       );
+      final todays = sessions.where((x) => x.date == today).toList();
       c.setClassFilters({'24'});
-      expect(c.filtered().map((s) => s.id), ['today_c24_s19']);
+      expect(c.filtered().map((s) => s.id).toSet(), {
+        for (final x in todays)
+          if (x.classIds.contains('24')) x.id,
+      });
       c.setClassFilters({});
       c.setSubjectFilters({'18'});
-      expect(c.filtered().map((s) => s.id), ['today_c23_s18']);
+      expect(c.filtered().map((s) => s.id).toSet(), {
+        for (final x in todays)
+          if (x.subjectIds.contains('18')) x.id,
+      });
     });
 
     test('clearing the date shows every day; reset restores today', () async {

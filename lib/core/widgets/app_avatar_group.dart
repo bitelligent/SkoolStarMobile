@@ -26,21 +26,22 @@ class AppAvatarGroup extends StatelessWidget {
 
     return SizedBox(
       height: size,
-      width: visible.length * (size - overlap) + overlap + (extra > 0 ? size : 0),
+      width:
+          visible.length * (size - overlap) + overlap + (extra > 0 ? size : 0),
       child: Stack(
         children: [
           ...visible.asMap().entries.map(
-                (e) => Positioned(
-                  left: e.key * (size - overlap),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: AppColors.surface, width: 2),
-                    ),
-                    child: AvatarCircle(name: e.value, size: size - 4),
-                  ),
+            (e) => Positioned(
+              left: e.key * (size - overlap),
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: AppColors.surface, width: 2),
                 ),
+                child: AvatarCircle(name: e.value, size: size - 4),
               ),
+            ),
+          ),
           if (extra > 0)
             Positioned(
               left: visible.length * (size - overlap),

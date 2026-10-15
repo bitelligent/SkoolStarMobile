@@ -9,11 +9,15 @@ class DirectChatCubit extends Cubit<DirectChatState> {
   DirectChatCubit({
     required this.threadId,
     required ChatRepository repository,
+    this.asParent = false,
   })  : _repo = repository,
         super(const DirectChatState.initial());
 
   final String threadId;
   final ChatRepository _repo;
+
+  /// True in the parent module (messages are sent as the parent).
+  final bool asParent;
 
   Future<void> load() async {
     emit(const DirectChatState.loading());
@@ -26,7 +30,7 @@ class DirectChatCubit extends Cubit<DirectChatState> {
       final messages = await _repo.getDirectMessagesFor(threadId);
       emit(DirectChatState.loaded(thread: thread, messages: messages));
       // Mark unread parent messages as read now that we've opened the thread.
-      await _repo.markDirectThreadRead(threadId);
+      await _repo.markDirectThreadRead(threadId, asParent: asParent);
     } on Exception catch (e) {
       emit(DirectChatState.error(e.toString()));
     }
@@ -43,7 +47,7 @@ class DirectChatCubit extends Cubit<DirectChatState> {
       final msg = await _repo.sendDirectMessage(
         threadId: threadId,
         content: content,
-        fromTeacher: true,
+        fromTeacher: !asParent,
       );
       emit(s.copyWith(messages: [...s.messages, msg], isSending: false));
       return true;

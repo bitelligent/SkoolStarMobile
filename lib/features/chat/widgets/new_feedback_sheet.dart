@@ -8,11 +8,12 @@ import 'package:skoolstar_teacher_module/core/widgets/app_sheet.dart';
 import 'package:skoolstar_teacher_module/core/widgets/primary_button.dart';
 import 'package:skoolstar_teacher_module/data/models/feedback_topic.dart';
 
-typedef FeedbackSubmit = Future<bool> Function({
-  required String subject,
-  required FeedbackTone tone,
-  required String message,
-});
+typedef FeedbackSubmit =
+    Future<bool> Function({
+      required String subject,
+      required FeedbackTone tone,
+      required String message,
+    });
 
 /// Draft returned to the caller — the sheet pops this value when the
 /// user hits "Send". Null means the sheet was dismissed.
@@ -111,12 +112,12 @@ class _NewFeedbackBodyState extends State<_NewFeedbackBody> {
             icon: Icons.send_rounded,
             onPressed: _canSend
                 ? () => widget.onSubmit(
-                      NewFeedbackDraft(
-                        subject: _subject.text,
-                        tone: _tone,
-                        message: _message.text,
-                      ),
-                    )
+                    NewFeedbackDraft(
+                      subject: _subject.text,
+                      tone: _tone,
+                      message: _message.text,
+                    ),
+                  )
                 : null,
           ),
           const SizedBox(height: 2),

@@ -166,6 +166,17 @@ class FakeHomeworkRepo implements HomeworkRepository {
   Future<Homework> create(Session session, Homework draft) async => draft;
 
   @override
+  Future<void> update(
+    String id, {
+    required String title,
+    required String description,
+    int? maxMarks,
+  }) async {}
+
+  @override
+  Future<void> delete(String id) async {}
+
+  @override
   Future<HomeworkAttachment> uploadAttachment({
     required String fileName,
     required List<int> bytes,

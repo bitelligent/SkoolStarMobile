@@ -9,7 +9,19 @@ class ApiEndpoints {
   // Auth / account
   static const String enhancedLogin = '$_users/enhanced-login';
   static const String myContexts = '$_users/my-contexts';
+  static const String selectContext = '$_users/select-context';
   static const String myProfile = '$_users/me/profile';
+
+  static const String manageInfo = '$_users/manage/info';
+  static const String myChildren = '$_users/my-children';
+
+  // Parent module
+  static const String childAttendance = '$_teacher/children/attendance';
+  static const String childAssignments = '$_teacher/children/assignments';
+  static String studentOccurrences(String studentId) =>
+      '$_schedules/occurrences/student/$studentId';
+  static String studentContactPersons(String studentId) =>
+      '/api/StudentContactPersons/by-student/$studentId';
 
   // Staff
   static String staff(int id) => '/api/Staff/$id';
@@ -30,6 +42,9 @@ class ApiEndpoints {
   static const String homework = '$_teacher/homework';
   static const String uploadHomeworkAttachment =
       '$_teacher/homework/upload-attachment';
+
+  /// `PUT` edits (title / description / max marks), `DELETE` removes.
+  static String homeworkById(String id) => '$_teacher/homework/$id';
   static String homeworkForClass(int classId) =>
       '$_teacher/homework/class/$classId';
   static String reviewSubmission(String taskId) =>

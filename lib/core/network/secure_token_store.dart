@@ -12,14 +12,19 @@ class SecureTokenStore implements TokenStore {
   static const _accessKey = 'auth.access_token';
   static const _refreshKey = 'auth.refresh_token';
   static const _contextKey = 'auth.context';
+  static const _contextsKey = 'auth.contexts';
 
   final FlutterSecureStorage _storage;
   String? _accessToken;
   String? _refreshToken;
   String? _contextJson;
+  String? _contextsJson;
 
   @override
   String? get contextJson => _contextJson;
+
+  @override
+  String? get contextsJson => _contextsJson;
 
   @override
   String? get accessToken => _accessToken;
@@ -34,6 +39,7 @@ class SecureTokenStore implements TokenStore {
       _accessToken = await _storage.read(key: _accessKey);
       _refreshToken = await _storage.read(key: _refreshKey);
       _contextJson = await _storage.read(key: _contextKey);
+      _contextsJson = await _storage.read(key: _contextsKey);
     } on Object {
       await clear();
     }
@@ -67,12 +73,28 @@ class SecureTokenStore implements TokenStore {
   }
 
   @override
+  Future<void> saveContexts(String? json) async {
+    _contextsJson = json;
+    try {
+      if (json == null) {
+        await _storage.delete(key: _contextsKey);
+      } else {
+        await _storage.write(key: _contextsKey, value: json);
+      }
+    } on Object {
+      // Re-fetched from `my-contexts` when needed.
+    }
+  }
+
+  @override
   Future<void> clear() async {
     _accessToken = null;
     _refreshToken = null;
     _contextJson = null;
+    _contextsJson = null;
     try {
       await _storage.delete(key: _contextKey);
+      await _storage.delete(key: _contextsKey);
       await _storage.delete(key: _accessKey);
       await _storage.delete(key: _refreshKey);
     } on Object {

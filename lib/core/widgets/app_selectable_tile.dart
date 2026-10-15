@@ -104,8 +104,11 @@ class AppSelectableTile extends StatelessWidget {
                 borderRadius: BorderRadius.circular(6),
               ),
               child: selected
-                  ? const Icon(Icons.check_rounded,
-                      color: Colors.white, size: 14)
+                  ? const Icon(
+                      Icons.check_rounded,
+                      color: Colors.white,
+                      size: 14,
+                    )
                   : null,
             ),
           ],

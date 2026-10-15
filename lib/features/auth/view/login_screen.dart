@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
-import 'package:skoolstar_teacher_module/core/router/app_routes.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_form_field.dart';
 import 'package:skoolstar_teacher_module/core/widgets/primary_button.dart';
-import 'package:skoolstar_teacher_module/data/models/auth/auth_context.dart';
 import 'package:skoolstar_teacher_module/data/repositories/auth_repository.dart';
 import 'package:skoolstar_teacher_module/features/auth/cubit/login_cubit.dart';
 import 'package:skoolstar_teacher_module/features/auth/cubit/login_state.dart';
@@ -55,29 +52,6 @@ class _LoginViewState extends State<_LoginView> {
     );
   }
 
-  Future<void> _pickContext(List<AuthContext> contexts) async {
-    final picked = await showModalBottomSheet<AuthContext>(
-      context: context,
-      showDragHandle: true,
-      builder: (_) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text('Choose an account', style: AppTextStyles.titleLarge),
-            const SizedBox(height: AppSpacing.sm),
-            for (final c in contexts)
-              ListTile(
-                title: Text(c.displayName ?? c.contextKey),
-                subtitle: c.instituteName == null ? null : Text(c.role),
-                onTap: () => Navigator.of(context).pop(c),
-              ),
-          ],
-        ),
-      ),
-    );
-    if (picked != null && mounted) _submit(contextKey: picked.contextKey);
-  }
-
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.sizeOf(context).height;
@@ -86,9 +60,9 @@ class _LoginViewState extends State<_LoginView> {
       listener: (context, state) {
         switch (state) {
           case LoginSuccess():
-            context.goNamed(AppRoutes.dashboard);
-          case LoginContextSelection(:final contexts):
-            _pickContext(contexts);
+            // Nothing to do: the router sees the new session and moves the
+            // user to the role list, teacher or parent module.
+            break;
           case LoginFailure(:final message):
             ScaffoldMessenger.of(context)
               ..hideCurrentSnackBar()
@@ -173,7 +147,7 @@ class _LoginViewState extends State<_LoginView> {
               Text('Welcome back', style: AppTextStyles.headingLarge),
               const SizedBox(height: AppSpacing.xs),
               Text(
-                'Sign in to manage your classes and sessions.',
+                'Sign in to your SkoolStar account.',
                 style: AppTextStyles.bodyMedium.copyWith(
                   color: AppColors.textSecondary,
                 ),
@@ -404,7 +378,7 @@ class _Brand extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.xxs),
         Text(
-          'Teacher Module',
+          'Teachers & Parents',
           style: AppTextStyles.bodyMedium.copyWith(
             color: Colors.white.withValues(alpha: 0.85),
             letterSpacing: 0.4,

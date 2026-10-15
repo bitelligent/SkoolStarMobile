@@ -93,7 +93,9 @@ class AccentCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Container(width: stripeWidth, color: accentColor),
-            Expanded(child: Padding(padding: padding, child: child)),
+            Expanded(
+              child: Padding(padding: padding, child: child),
+            ),
           ],
         ),
       ),
@@ -139,8 +141,8 @@ class AppSectionTitle extends StatelessWidget {
           child: Text(
             title,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ),
         if (trailing != null) trailing!,

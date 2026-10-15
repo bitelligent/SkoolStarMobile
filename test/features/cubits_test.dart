@@ -151,6 +151,17 @@ class _Homework implements HomeworkRepository {
       draft.copyWith(id: 'hw1');
 
   @override
+  Future<void> update(
+    String id, {
+    required String title,
+    required String description,
+    int? maxMarks,
+  }) async {}
+
+  @override
+  Future<void> delete(String id) async {}
+
+  @override
   Future<HomeworkAttachment> uploadAttachment({
     required String fileName,
     required List<int> bytes,

@@ -121,9 +121,9 @@ class AppTextField extends StatelessWidget {
   }
 
   OutlineInputBorder _border(Color c, {double width = 1}) => OutlineInputBorder(
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        borderSide: BorderSide(color: c, width: width),
-      );
+    borderRadius: BorderRadius.circular(AppRadius.md),
+    borderSide: BorderSide(color: c, width: width),
+  );
 }
 
 /// Compact rounded search field (used in Dashboard filter card, Session

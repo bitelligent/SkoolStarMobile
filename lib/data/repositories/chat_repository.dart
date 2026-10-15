@@ -22,7 +22,7 @@ abstract class ChatRepository {
   });
   Future<FeedbackTopic> toggleResolved(String topicId);
   Future<void> deleteTopic(String topicId);
-  Future<void> markTopicRead(String topicId);
+  Future<void> markTopicRead(String topicId, {bool asParent = false});
 
   Future<List<DirectMessage>> getDirectMessagesFor(String threadId);
   Future<DirectMessage> sendDirectMessage({
@@ -30,13 +30,20 @@ abstract class ChatRepository {
     required String content,
     required bool fromTeacher,
   });
-  Future<void> markDirectThreadRead(String threadId);
+  Future<void> markDirectThreadRead(String threadId, {bool asParent = false});
 }
 
 class ChatRepositoryImpl implements ChatRepository {
-  ChatRepositoryImpl(this._dataSource);
+  ChatRepositoryImpl(
+    this._dataSource, {
+    this.assetPath = 'assets/json/chats.json',
+  });
 
   final JsonDataSource _dataSource;
+
+  /// Mock data file: teacher inbox by default, `parent_chats.json` for the
+  /// parent module.
+  final String assetPath;
 
   // ─── In-memory cache ────────────────────────────────────────────────
   // Seeded on first access and then mutated locally — simulates a real
@@ -49,7 +56,7 @@ class ChatRepositoryImpl implements ChatRepository {
 
   Future<void> _seed() async {
     if (_seeded) return;
-    final data = await _dataSource.readJsonObject('assets/json/chats.json');
+    final data = await _dataSource.readJsonObject(assetPath);
 
     final rawThreads = (data['threads'] as List<dynamic>? ?? const [])
         .cast<Map<String, dynamic>>();
@@ -194,14 +201,18 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
-  Future<void> markTopicRead(String topicId) async {
+  Future<void> markTopicRead(String topicId, {bool asParent = false}) async {
     await _seed();
     final (list, idx) = _findTopic(topicId);
     if (list == null || idx == null) return;
     final topic = list[idx];
     final updatedMessages = [
       for (final m in topic.messages)
-        if (m.fromTeacher || m.isRead) m else m.copyWith(isRead: true),
+        // Read receipts are for messages from the *other* side.
+        if (m.fromTeacher != asParent || m.isRead)
+          m
+        else
+          m.copyWith(isRead: true),
     ];
     list[idx] = topic.copyWith(messages: updatedMessages);
   }
@@ -237,13 +248,16 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
-  Future<void> markDirectThreadRead(String threadId) async {
+  Future<void> markDirectThreadRead(
+    String threadId, {
+    bool asParent = false,
+  }) async {
     await _seed();
     final list = _directCache[threadId];
     if (list == null) return;
     for (var i = 0; i < list.length; i++) {
       final m = list[i];
-      if (!m.fromTeacher && !m.isRead) {
+      if (m.fromTeacher == asParent && !m.isRead) {
         list[i] = m.copyWith(isRead: true);
       }
     }

@@ -5,6 +5,29 @@ part 'session_model.freezed.dart';
 /// Where a session is in time. `cancelled` covers any non-scheduled status.
 enum SessionPhase { upcoming, laterToday, live, ended, cancelled }
 
+/// A teacher on a session slot.
+class SessionTeacher {
+  const SessionTeacher({
+    required this.id,
+    required this.name,
+    this.subjectIds = const [],
+  });
+
+  final String id;
+  final String name;
+  final List<String> subjectIds;
+
+  @override
+  bool operator ==(Object other) =>
+      other is SessionTeacher &&
+      other.id == id &&
+      other.name == name &&
+      other.subjectIds.join(',') == subjectIds.join(',');
+
+  @override
+  int get hashCode => Object.hash(id, name, subjectIds.join(','));
+}
+
 /// One scheduled occurrence of a class slot (a single teaching session).
 @freezed
 abstract class Session with _$Session {
@@ -30,6 +53,10 @@ abstract class Session with _$Session {
     @Default(0) int occurrenceId,
     @Default(0) int scheduleId,
     int? sectionId,
+
+    /// Teachers of the slot with the subjects they teach. Only filled for
+    /// the parent module (a teacher only sees their own subjects).
+    @Default(<SessionTeacher>[]) List<SessionTeacher> teachers,
   }) = _Session;
 
   DateTime get startsAt => _at(startTime);

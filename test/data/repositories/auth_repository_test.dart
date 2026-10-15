@@ -6,6 +6,7 @@ import 'package:http/testing.dart';
 import 'package:skoolstar_teacher_module/core/network/api_client.dart';
 import 'package:skoolstar_teacher_module/core/network/api_exception.dart';
 import 'package:skoolstar_teacher_module/core/network/token_store.dart';
+import 'package:skoolstar_teacher_module/data/models/auth/app_role.dart';
 import 'package:skoolstar_teacher_module/data/repositories/auth_repository.dart';
 
 import '../../fixtures/fixtures.dart' as fx;
@@ -56,47 +57,192 @@ void main() {
     },
   );
 
-  test('rejects a non-teacher account and keeps nothing', () async {
-    final parent = {
+  group('roles', () {
+    final parentContext = {
       ...fx.teacherContext,
-      'contextKey': 'Guardian:9',
-      'role': 'Guardian',
+      'contextKey': 'Parent:8',
+      'role': 'Parent',
       'staffId': null,
+      'studentId': 2,
+      'guardianId': 2,
     };
-    final repo = build(
-      MockClient(
-        (_) async => _json({
-          ...fx.loginResponse,
-          'availableContexts': [parent],
-          'activeContextKey': 'Guardian:9',
+    final adminContext = {
+      ...fx.teacherContext,
+      'contextKey': 'ClientAdmin:2',
+      'role': 'ClientAdmin',
+      'staffId': null,
+      'instituteName': 'test',
+    };
+
+    test(
+      'a single parent role signs in straight to the parent module',
+      () async {
+        final repo = build(
+          MockClient(
+            (_) async => _json({
+              ...fx.loginResponse,
+              'availableContexts': [parentContext],
+              'activeContextKey': 'Parent:8',
+            }),
+          ),
+        );
+        await repo.login(email: 'a@b.com', password: 'pw');
+
+        final s = repo.session.value;
+        expect(s.role, AppRole.parent);
+        expect(s.needsRoleSelection, isFalse);
+        expect(tokens.accessToken, 'at');
+      },
+    );
+
+    test(
+      'several roles: token stored, no role active, role list ready',
+      () async {
+        final repo = build(
+          MockClient(
+            (_) async => _json({
+              'accessToken': 'pre',
+              'refreshToken': 'rt',
+              'requiresContextSelection': true,
+              'activeContextKey': null,
+              'availableContexts': [adminContext, parentContext],
+            }),
+          ),
+        );
+        await repo.login(email: 'a@b.com', password: 'pw');
+
+        final s = repo.session.value;
+        expect(s.signedIn, isTrue);
+        expect(s.context, isNull);
+        expect(s.needsRoleSelection, isTrue);
+        expect(s.contexts.map((c) => c.contextKey), [
+          'ClientAdmin:2',
+          'Parent:8',
+        ]);
+        expect(tokens.accessToken, 'pre'); // needed to call select-context
+        expect(tokens.contextJson, isNull);
+        expect(tokens.contextsJson, isNotNull);
+      },
+    );
+
+    test('an account whose only role is unsupported must pick/leave', () async {
+      final repo = build(
+        MockClient(
+          (_) async => _json({
+            ...fx.loginResponse,
+            'availableContexts': [adminContext],
+            'activeContextKey': 'ClientAdmin:2',
+          }),
+        ),
+      );
+      await repo.login(email: 'a@b.com', password: 'pw');
+
+      final s = repo.session.value;
+      expect(s.role, isNull); // unsupported → no module
+      expect(s.needsRoleSelection, isTrue);
+    });
+
+    test('selectContext exchanges the token and activates the role', () async {
+      late http.Request captured;
+      var call = 0;
+      final repo = build(
+        MockClient((r) async {
+          call++;
+          if (call == 1) {
+            return _json({
+              'accessToken': 'pre',
+              'requiresContextSelection': true,
+              'availableContexts': [adminContext, parentContext],
+            });
+          }
+          captured = r;
+          return _json({
+            'accessToken': 'parent-token',
+            'refreshToken': 'rt2',
+            'requiresContextSelection': false,
+            'activeContextKey': 'Parent:8',
+            'availableContexts': [adminContext, parentContext],
+          });
         }),
-      ),
-    );
+      );
+      await repo.login(email: 'a@b.com', password: 'pw');
+      final changes = <String?>[];
+      repo.session.addListener(
+        () => changes.add(repo.session.value.contextKey),
+      );
 
-    await expectLater(
-      repo.login(email: 'a@b.com', password: 'pw'),
-      throwsA(isA<ForbiddenException>()),
-    );
-    expect(tokens.accessToken, isNull);
-    expect(repo.isSignedIn, isFalse);
-  });
+      final active = await repo.selectContext('Parent:8');
 
-  test('does not store a token when context selection is required', () async {
-    final repo = build(
-      MockClient(
-        (_) async => _json({
-          'requiresContextSelection': true,
-          'availableContexts': [fx.teacherContext],
+      expect(captured.url.path, '/api/Users/select-context');
+      expect(captured.headers['Authorization'], 'Bearer pre');
+      expect(jsonDecode(captured.body), {'contextKey': 'Parent:8'});
+      expect(active.appRole, AppRole.parent);
+      expect(tokens.accessToken, 'parent-token');
+      expect(repo.session.value.role, AppRole.parent);
+      expect(changes, ['Parent:8']);
+    });
+
+    test('selectContext failure keeps the previous session', () async {
+      var call = 0;
+      final repo = build(
+        MockClient((_) async {
+          call++;
+          if (call == 1) {
+            return _json({
+              ...fx.loginResponse,
+              'availableContexts': [fx.teacherContext, parentContext],
+            });
+          }
+          return http.Response('', 500);
         }),
-      ),
-    );
+      );
+      await repo.login(email: 'a@b.com', password: 'pw');
 
-    final res = await repo.login(email: 'a@b.com', password: 'pw');
+      await expectLater(
+        repo.selectContext('Parent:8'),
+        throwsA(isA<ServerException>()),
+      );
+      expect(repo.session.value.role, AppRole.teacher);
+      expect(tokens.accessToken, 'at');
+    });
 
-    expect(res.requiresContextSelection, isTrue);
-    expect(res.availableContexts, hasLength(1));
-    expect(tokens.accessToken, isNull);
-    expect(repo.isSignedIn, isFalse);
+    test('the role list survives an app restart', () async {
+      final store = InMemoryTokenStore();
+      final first = build(
+        MockClient(
+          (_) async => _json({
+            ...fx.loginResponse,
+            'availableContexts': [fx.teacherContext, parentContext],
+          }),
+        ),
+        store: store,
+      );
+      await first.login(email: 'a@b.com', password: 'pw');
+
+      final second = build(
+        MockClient((_) async => throw StateError('no network expected')),
+        store: store,
+      );
+      expect(second.session.value.signedIn, isTrue);
+      expect(second.session.value.role, AppRole.teacher);
+      expect(second.availableContexts, hasLength(2));
+    });
+
+    test('an account with no roles cannot sign in', () async {
+      final repo = build(
+        MockClient(
+          (_) async => _json({
+            'accessToken': 'x',
+            'availableContexts': <Object>[],
+          }),
+        ),
+      );
+      await expectLater(
+        repo.login(email: 'a@b.com', password: 'pw'),
+        throwsA(isA<ForbiddenException>()),
+      );
+      expect(repo.isSignedIn, isFalse);
+    });
   });
 
   test('wrong credentials surface as UnauthorizedException', () async {

@@ -55,14 +55,13 @@ extension LoginStatePatterns on LoginState {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( LoginInitial value)?  initial,TResult Function( LoginLoading value)?  loading,TResult Function( LoginSuccess value)?  success,TResult Function( LoginContextSelection value)?  contextSelection,TResult Function( LoginFailure value)?  failure,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( LoginInitial value)?  initial,TResult Function( LoginLoading value)?  loading,TResult Function( LoginSuccess value)?  success,TResult Function( LoginFailure value)?  failure,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case LoginInitial() when initial != null:
 return initial(_that);case LoginLoading() when loading != null:
 return loading(_that);case LoginSuccess() when success != null:
-return success(_that);case LoginContextSelection() when contextSelection != null:
-return contextSelection(_that);case LoginFailure() when failure != null:
+return success(_that);case LoginFailure() when failure != null:
 return failure(_that);case _:
   return orElse();
 
@@ -81,14 +80,13 @@ return failure(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( LoginInitial value)  initial,required TResult Function( LoginLoading value)  loading,required TResult Function( LoginSuccess value)  success,required TResult Function( LoginContextSelection value)  contextSelection,required TResult Function( LoginFailure value)  failure,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( LoginInitial value)  initial,required TResult Function( LoginLoading value)  loading,required TResult Function( LoginSuccess value)  success,required TResult Function( LoginFailure value)  failure,}){
 final _that = this;
 switch (_that) {
 case LoginInitial():
 return initial(_that);case LoginLoading():
 return loading(_that);case LoginSuccess():
-return success(_that);case LoginContextSelection():
-return contextSelection(_that);case LoginFailure():
+return success(_that);case LoginFailure():
 return failure(_that);}
 }
 /// A variant of `map` that fallback to returning `null`.
@@ -103,14 +101,13 @@ return failure(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( LoginInitial value)?  initial,TResult? Function( LoginLoading value)?  loading,TResult? Function( LoginSuccess value)?  success,TResult? Function( LoginContextSelection value)?  contextSelection,TResult? Function( LoginFailure value)?  failure,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( LoginInitial value)?  initial,TResult? Function( LoginLoading value)?  loading,TResult? Function( LoginSuccess value)?  success,TResult? Function( LoginFailure value)?  failure,}){
 final _that = this;
 switch (_that) {
 case LoginInitial() when initial != null:
 return initial(_that);case LoginLoading() when loading != null:
 return loading(_that);case LoginSuccess() when success != null:
-return success(_that);case LoginContextSelection() when contextSelection != null:
-return contextSelection(_that);case LoginFailure() when failure != null:
+return success(_that);case LoginFailure() when failure != null:
 return failure(_that);case _:
   return null;
 
@@ -128,13 +125,12 @@ return failure(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function()?  success,TResult Function( List<AuthContext> contexts)?  contextSelection,TResult Function( String message)?  failure,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function()?  success,TResult Function( String message)?  failure,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case LoginInitial() when initial != null:
 return initial();case LoginLoading() when loading != null:
 return loading();case LoginSuccess() when success != null:
-return success();case LoginContextSelection() when contextSelection != null:
-return contextSelection(_that.contexts);case LoginFailure() when failure != null:
+return success();case LoginFailure() when failure != null:
 return failure(_that.message);case _:
   return orElse();
 
@@ -153,13 +149,12 @@ return failure(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function()  success,required TResult Function( List<AuthContext> contexts)  contextSelection,required TResult Function( String message)  failure,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function()  success,required TResult Function( String message)  failure,}) {final _that = this;
 switch (_that) {
 case LoginInitial():
 return initial();case LoginLoading():
 return loading();case LoginSuccess():
-return success();case LoginContextSelection():
-return contextSelection(_that.contexts);case LoginFailure():
+return success();case LoginFailure():
 return failure(_that.message);}
 }
 /// A variant of `when` that fallback to returning `null`
@@ -174,13 +169,12 @@ return failure(_that.message);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function()?  success,TResult? Function( List<AuthContext> contexts)?  contextSelection,TResult? Function( String message)?  failure,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function()?  success,TResult? Function( String message)?  failure,}) {final _that = this;
 switch (_that) {
 case LoginInitial() when initial != null:
 return initial();case LoginLoading() when loading != null:
 return loading();case LoginSuccess() when success != null:
-return success();case LoginContextSelection() when contextSelection != null:
-return contextSelection(_that.contexts);case LoginFailure() when failure != null:
+return success();case LoginFailure() when failure != null:
 return failure(_that.message);case _:
   return null;
 
@@ -284,78 +278,6 @@ String toString() {
 
 
 
-
-/// @nodoc
-
-
-class LoginContextSelection implements LoginState {
-  const LoginContextSelection(final  List<AuthContext> contexts): _contexts = contexts;
-  
-
- final  List<AuthContext> _contexts;
- List<AuthContext> get contexts {
-  if (_contexts is EqualUnmodifiableListView) return _contexts;
-  // ignore: implicit_dynamic_type
-  return EqualUnmodifiableListView(_contexts);
-}
-
-
-/// Create a copy of LoginState
-/// with the given fields replaced by the non-null parameter values.
-@JsonKey(includeFromJson: false, includeToJson: false)
-@pragma('vm:prefer-inline')
-$LoginContextSelectionCopyWith<LoginContextSelection> get copyWith => _$LoginContextSelectionCopyWithImpl<LoginContextSelection>(this, _$identity);
-
-
-
-@override
-bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is LoginContextSelection&&const DeepCollectionEquality().equals(other._contexts, _contexts));
-}
-
-
-@override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_contexts));
-
-@override
-String toString() {
-  return 'LoginState.contextSelection(contexts: $contexts)';
-}
-
-
-}
-
-/// @nodoc
-abstract mixin class $LoginContextSelectionCopyWith<$Res> implements $LoginStateCopyWith<$Res> {
-  factory $LoginContextSelectionCopyWith(LoginContextSelection value, $Res Function(LoginContextSelection) _then) = _$LoginContextSelectionCopyWithImpl;
-@useResult
-$Res call({
- List<AuthContext> contexts
-});
-
-
-
-
-}
-/// @nodoc
-class _$LoginContextSelectionCopyWithImpl<$Res>
-    implements $LoginContextSelectionCopyWith<$Res> {
-  _$LoginContextSelectionCopyWithImpl(this._self, this._then);
-
-  final LoginContextSelection _self;
-  final $Res Function(LoginContextSelection) _then;
-
-/// Create a copy of LoginState
-/// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? contexts = null,}) {
-  return _then(LoginContextSelection(
-null == contexts ? _self._contexts : contexts // ignore: cast_nullable_to_non_nullable
-as List<AuthContext>,
-  ));
-}
-
-
-}
 
 /// @nodoc
 

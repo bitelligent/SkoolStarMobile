@@ -135,8 +135,10 @@ class _AppPillTabsState extends State<AppPillTabs> {
     return LayoutBuilder(
       builder: (context, c) {
         final totalSpacing = spacing * (n - 1);
-        final activeWidth = (c.maxWidth * widget.activeWidthRatio)
-            .clamp(widget.activeMinWidth, widget.activeMaxWidth);
+        final activeWidth = (c.maxWidth * widget.activeWidthRatio).clamp(
+          widget.activeMinWidth,
+          widget.activeMaxWidth,
+        );
         final inactiveWidth =
             (c.maxWidth - activeWidth - totalSpacing) / (n - 1);
 

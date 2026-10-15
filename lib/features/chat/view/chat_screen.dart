@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:skoolstar_teacher_module/features/chat/chat_perspective.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:skoolstar_teacher_module/core/router/app_routes.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
@@ -205,9 +205,11 @@ class _Loaded extends StatelessWidget {
                       return ChatThreadTile(
                         thread: t,
                         onTap: () {
+                          final perspective =
+                              ChatPerspectiveScope.of(context);
                           final route = t.category == ChatCategory.feedback
-                              ? AppRoutes.feedbackChat
-                              : AppRoutes.directChat;
+                              ? perspective.feedbackRouteName
+                              : perspective.directRouteName;
                           context.pushNamed(
                             route,
                             pathParameters: {'id': t.id},
@@ -241,16 +243,21 @@ class _EmptyChats extends StatelessWidget {
         subtitle: 'Try a different name or keyword.',
       );
     }
+    final parent = ChatPerspectiveScope.of(context).isParent;
     return AppEmptyState(
       icon: activeTab == ChatCategory.feedback
           ? Icons.reviews_outlined
           : Icons.chat_bubble_outline_rounded,
       title: activeTab == ChatCategory.feedback
-          ? 'No parent feedback yet'
+          ? (parent ? 'No teacher feedback yet' : 'No parent feedback yet')
           : 'No conversations yet',
       subtitle: activeTab == ChatCategory.feedback
-          ? 'Feedback threads from parents will appear here.'
-          : 'Start a chat with a colleague or admin.',
+          ? (parent
+                ? "Feedback from your child's teachers will appear here."
+                : 'Feedback threads from parents will appear here.')
+          : (parent
+                ? 'Messages with teachers will appear here.'
+                : 'Start a chat with a colleague or admin.'),
     );
   }
 }
