@@ -5,11 +5,13 @@ import 'package:skoolstar_teacher_module/core/router/app_routes.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_action_row.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_card.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_gradient_hero.dart';
 import 'package:skoolstar_teacher_module/core/widgets/avatar_circle.dart';
 import 'package:skoolstar_teacher_module/data/repositories/auth_repository.dart';
+import 'package:skoolstar_teacher_module/features/branding/brand_context.dart';
 import 'package:skoolstar_teacher_module/features/parent/profile/parent_profile_cubit.dart';
 import 'package:skoolstar_teacher_module/features/profile/view/profile_screen.dart'
     show confirmLogout;
@@ -43,7 +45,7 @@ class ParentProfileScreen extends StatelessWidget {
                     name: name,
                     size: 60,
                     background: Colors.white,
-                    foreground: AppColors.primary,
+                    foreground: context.brand.primary,
                   ),
                   const SizedBox(width: AppSpacing.md),
                   Expanded(
@@ -107,9 +109,10 @@ class ParentProfileScreen extends StatelessWidget {
                 children: [
                   AppActionRow(
                     icon: Icons.swap_horiz_rounded,
-                    iconColor: AppColors.primary,
+                    iconColor: context.brand.primary,
                     label: 'Switch role',
-                    subtitle: 'Use SkoolStar as a teacher or another role',
+                    subtitle:
+                        'Use ${context.appName} as a teacher or another role',
                     onTap: () => context.push(AppRoutes.selectRolePath),
                   ),
                   const Divider(height: 1),

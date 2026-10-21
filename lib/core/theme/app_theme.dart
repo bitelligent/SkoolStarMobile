@@ -2,15 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 
 /// Builds the application-wide [ThemeData].
 class AppTheme {
   AppTheme._();
 
-  static ThemeData light() {
+  static ThemeData light([BrandColors brand = BrandColors.fallback]) {
     final colorScheme = ColorScheme.fromSeed(
-      seedColor: AppColors.primary,
-      primary: AppColors.primary,
+      seedColor: brand.primary,
+      primary: brand.primary,
+      onPrimary: brand.onPrimary,
+      secondary: brand.secondary,
+      onSecondary: brand.onSecondary,
       surface: AppColors.surface,
       error: AppColors.danger,
     );
@@ -18,6 +22,7 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       colorScheme: colorScheme,
+      extensions: [brand],
       scaffoldBackgroundColor: AppColors.background,
       splashFactory: InkRipple.splashFactory,
       visualDensity: VisualDensity.adaptivePlatformDensity,

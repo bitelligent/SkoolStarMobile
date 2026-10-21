@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 
 /// Dashed-border upload card used for homework attachments and anywhere
 /// else the user picks files. Keeps dashed stroke painting in one place.
@@ -25,12 +26,12 @@ class AppUploadBox extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(AppRadius.md),
       child: CustomPaint(
-        painter: _DashedBorderPainter(),
+        painter: _DashedBorderPainter(context.brand.primary),
         child: Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
           decoration: BoxDecoration(
-            color: AppColors.primarySoft,
+            color: context.brand.primarySoft,
             borderRadius: BorderRadius.circular(AppRadius.md),
           ),
           child: Column(
@@ -44,13 +45,13 @@ class AppUploadBox extends StatelessWidget {
                   shape: BoxShape.circle,
                   boxShadow: AppShadows.cardSoft,
                 ),
-                child: Icon(icon, color: AppColors.primary, size: 20),
+                child: Icon(icon, color: context.brand.primary, size: 20),
               ),
               const SizedBox(height: AppSpacing.sm),
               Text(
                 title,
                 style: AppTextStyles.titleSmall.copyWith(
-                  color: AppColors.primary,
+                  color: context.brand.primary,
                 ),
               ),
               const SizedBox(height: 2),
@@ -70,10 +71,14 @@ class AppUploadBox extends StatelessWidget {
 }
 
 class _DashedBorderPainter extends CustomPainter {
+  _DashedBorderPainter(this.color);
+
+  final Color color;
+
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = AppColors.primary.withOpacity(0.4)
+      ..color = color.withOpacity(0.4)
       ..strokeWidth = 1.4
       ..style = PaintingStyle.stroke;
     final r = RRect.fromRectAndRadius(
@@ -97,7 +102,8 @@ class _DashedBorderPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant _DashedBorderPainter oldDelegate) =>
+      oldDelegate.color != color;
 }
 
 /// Row showing a single uploaded file (icon, name, size, remove button).

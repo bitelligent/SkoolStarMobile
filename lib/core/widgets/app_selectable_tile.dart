@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 import 'package:skoolstar_teacher_module/core/widgets/avatar_circle.dart';
 
 /// Tappable row with avatar/initials + title/subtitle + selection check.
@@ -17,7 +18,7 @@ class AppSelectableTile extends StatelessWidget {
     this.avatarUrl,
     this.leadingIcon,
     this.leadingColor,
-    this.accent = AppColors.primary,
+    this.accent,
     super.key,
   });
 
@@ -27,12 +28,13 @@ class AppSelectableTile extends StatelessWidget {
   final String? avatarUrl;
   final IconData? leadingIcon;
   final Color? leadingColor;
-  final Color accent;
+  final Color? accent;
   final bool selected;
   final VoidCallback onToggle;
 
   @override
   Widget build(BuildContext context) {
+    final accent = this.accent ?? context.brand.primary;
     return InkWell(
       onTap: onToggle,
       borderRadius: BorderRadius.circular(AppRadius.md),

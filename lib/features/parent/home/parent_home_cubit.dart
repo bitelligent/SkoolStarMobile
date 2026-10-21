@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:skoolstar_teacher_module/core/network/error_message.dart';
 import 'package:skoolstar_teacher_module/core/utils/day_filter.dart';
 import 'package:skoolstar_teacher_module/data/models/parent/child.dart';
+import 'package:skoolstar_teacher_module/data/models/parent/child_assignment.dart';
+import 'package:skoolstar_teacher_module/data/models/parent/child_attendance_record.dart';
 import 'package:skoolstar_teacher_module/data/models/session_model.dart';
 import 'package:skoolstar_teacher_module/data/repositories/parent/child_assignments_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/parent/child_attendance_repository.dart';
@@ -10,6 +12,7 @@ import 'package:skoolstar_teacher_module/data/repositories/parent/child_schedule
 import 'package:skoolstar_teacher_module/features/parent/common/child_scoped_cubit.dart';
 import 'package:skoolstar_teacher_module/features/parent/common/children_cubit.dart';
 import 'package:skoolstar_teacher_module/features/parent/home/parent_home_state.dart';
+import 'package:skoolstar_teacher_module/features/parent/progress/progress_stats.dart';
 
 class ParentHomeCubit extends ChildScopedCubit<ParentHomeState> {
   ParentHomeCubit({
@@ -71,9 +74,9 @@ class ParentHomeCubit extends ChildScopedCubit<ParentHomeState> {
           sessions: fresh.sessions,
           subjects: fresh.subjects,
           classes: fresh.classes,
-          pendingAssignments: fresh.pendingAssignments,
-          presentCount: fresh.presentCount,
-          attendanceTotal: fresh.attendanceTotal,
+          attendanceStat: fresh.attendanceStat,
+          homeworkStat: fresh.homeworkStat,
+          scoreStat: fresh.scoreStat,
         ),
       );
       return null;
@@ -99,21 +102,17 @@ class ParentHomeCubit extends ChildScopedCubit<ParentHomeState> {
     );
     final assignmentsFuture = _assignments
         .getForChild(c.id, refresh: refresh)
-        .then<int?>((list) => list.where((a) => !a.isCompleted).length)
-        .catchError((Object _) => null as int?);
+        .then<List<ChildAssignment>?>((list) => list)
+        .catchError((Object _) => null as List<ChildAssignment>?);
     final attendanceFuture = _attendance
         .getForChild(c.id, refresh: refresh)
-        .then<({int present, int total})?>(
-          (list) => (
-            present: list.where((r) => r.status == 'present').length,
-            total: list.length,
-          ),
-        )
-        .catchError((Object _) => null as ({int present, int total})?);
+        .then<List<ChildAttendanceRecord>?>((list) => list)
+        .catchError((Object _) => null as List<ChildAttendanceRecord>?);
 
     final schedule = (await scheduleFuture).withClass(c.className);
-    final pending = await assignmentsFuture;
-    final att = await attendanceFuture;
+    final assignments = await assignmentsFuture;
+    final attendance = await attendanceFuture;
+    final now = _now();
     _loadedFrom = from;
     _loadedTo = to;
 
@@ -123,9 +122,15 @@ class ParentHomeCubit extends ChildScopedCubit<ParentHomeState> {
       subjects: schedule.subjects,
       classes: schedule.classes,
       focusDate: around,
-      pendingAssignments: pending,
-      presentCount: att?.present,
-      attendanceTotal: att?.total,
+      attendanceStat: attendance == null
+          ? null
+          : ProgressStats.attendance(attendance, now: now),
+      homeworkStat: assignments == null
+          ? null
+          : ProgressStats.homework(assignments, now: now),
+      scoreStat: assignments == null
+          ? null
+          : ProgressStats.score(assignments, now: now),
     );
   }
 
@@ -310,6 +315,22 @@ class ParentHomeCubit extends ChildScopedCubit<ParentHomeState> {
         final c = a.date.compareTo(b.date);
         return c != 0 ? c : a.startTime.compareTo(b.startTime);
       });
+  }
+
+  /// The next classes that have not finished yet (ignores the filters: this
+  /// is "what's coming", whatever the schedule below is showing), soonest
+  /// first. A class already in progress is shown by the live banner instead.
+  List<Session> upcomingSessions({int limit = 4}) {
+    final s = _loaded;
+    if (s == null) return const [];
+    final now = _now();
+    final upcoming = [
+      for (final x in s.sessions)
+        if (x.phaseAt(now) == SessionPhase.upcoming ||
+            x.phaseAt(now) == SessionPhase.laterToday)
+          x,
+    ]..sort((a, b) => a.startsAt.compareTo(b.startsAt));
+    return upcoming.take(limit).toList();
   }
 
   int todayCount() {

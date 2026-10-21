@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 import 'package:skoolstar_teacher_module/features/chat/chat_perspective.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
@@ -8,10 +9,10 @@ import 'package:skoolstar_teacher_module/core/widgets/app_empty_state.dart';
 import 'package:skoolstar_teacher_module/core/widgets/avatar_circle.dart';
 import 'package:skoolstar_teacher_module/core/widgets/loading_view.dart';
 import 'package:skoolstar_teacher_module/data/models/chat_thread.dart';
-import 'package:skoolstar_teacher_module/data/models/feedback_topic.dart';
 import 'package:skoolstar_teacher_module/data/repositories/chat_repository.dart';
 import 'package:skoolstar_teacher_module/features/chat/cubit/feedback_chat_cubit.dart';
 import 'package:skoolstar_teacher_module/features/chat/cubit/feedback_chat_state.dart';
+import 'package:skoolstar_teacher_module/features/chat/widgets/connection_banner.dart';
 import 'package:skoolstar_teacher_module/features/chat/widgets/feedback_topic_tile.dart';
 import 'package:skoolstar_teacher_module/features/chat/widgets/new_feedback_sheet.dart';
 
@@ -38,12 +39,14 @@ class _FeedbackChatView extends StatelessWidget {
 
   Future<void> _openNewFeedback(
     BuildContext context,
-    FeedbackChatLoaded state,
-  ) async {
+    FeedbackChatLoaded state, {
+    NewFeedbackDraft? initial,
+  }) async {
     final cubit = context.read<FeedbackChatCubit>();
     final draft = await showNewFeedbackSheet(
       context,
       parentName: state.thread.name,
+      initial: initial,
     );
     if (draft == null || !context.mounted) return;
     final ok = await cubit.createTopic(
@@ -52,9 +55,20 @@ class _FeedbackChatView extends StatelessWidget {
       message: draft.message,
     );
     if (!context.mounted) return;
+    final current = cubit.state;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(ok ? 'Feedback sent' : 'Could not send — try again'),
+        // Keep what the teacher wrote: reopen the sheet pre-filled.
+        action: ok || current is! FeedbackChatLoaded
+            ? null
+            : SnackBarAction(
+                label: 'Edit & retry',
+                onPressed: () {
+                  if (!context.mounted) return;
+                  _openNewFeedback(context, current, initial: draft);
+                },
+              ),
       ),
     );
   }
@@ -93,7 +107,7 @@ class _FeedbackChatView extends StatelessWidget {
             onPressed: state.creatingTopic
                 ? null
                 : () => _openNewFeedback(context, state),
-            backgroundColor: AppColors.primary,
+            backgroundColor: context.brand.primary,
             foregroundColor: Colors.white,
             elevation: 6,
             icon: state.creatingTopic
@@ -131,6 +145,7 @@ class _Loaded extends StatelessWidget {
     return Column(
       children: [
         _ParentHeader(thread: state.thread, topicCount: topics.length),
+        if (!state.isLive) const ConnectionBanner(),
         Expanded(
           child: topics.isEmpty
               ? _EmptyFeedback(
@@ -139,7 +154,7 @@ class _Loaded extends StatelessWidget {
                       : null,
                 )
               : RefreshIndicator(
-                  color: AppColors.primary,
+                  color: context.brand.primary,
                   onRefresh: cubit.load,
                   child: ListView.separated(
                     padding: const EdgeInsets.fromLTRB(
@@ -163,6 +178,8 @@ class _Loaded extends StatelessWidget {
                         parentAvatarUrl: state.thread.avatarUrl,
                         onToggle: () => cubit.toggleExpanded(t.id),
                         onReply: (content) => cubit.replyToTopic(t.id, content),
+                        onRetryReply: (id) => cubit.retryReply(t.id, id),
+                        onDiscardReply: (id) => cubit.discardReply(t.id, id),
                         onToggleResolved: () => cubit.toggleResolved(t.id),
                         onDelete: () => cubit.deleteTopic(t.id),
                       );
@@ -248,7 +265,7 @@ class _ParentHeader extends StatelessWidget {
               Text(
                 '$topicCount',
                 style: AppTextStyles.titleMedium.copyWith(
-                  color: AppColors.primary,
+                  color: context.brand.primary,
                   fontWeight: FontWeight.w800,
                 ),
               ),
@@ -286,13 +303,13 @@ class _CountRow extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
           decoration: BoxDecoration(
-            color: AppColors.primarySoft,
+            color: context.brand.primarySoft,
             borderRadius: BorderRadius.circular(AppRadius.pill),
           ),
           child: Text(
             '$count',
             style: AppTextStyles.labelSmall.copyWith(
-              color: AppColors.primary,
+              color: context.brand.primary,
               fontWeight: FontWeight.w800,
             ),
           ),
@@ -361,7 +378,7 @@ class _EmptyFeedback extends StatelessWidget {
         icon: const Icon(Icons.add_rounded),
         label: const Text('New feedback'),
         style: FilledButton.styleFrom(
-          backgroundColor: AppColors.primary,
+          backgroundColor: context.brand.primary,
           padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.lg,
             vertical: 14,

@@ -5,6 +5,7 @@ class ApiEndpoints {
   static const String _users = '/api/Users';
   static const String _teacher = '/api/TeacherModule';
   static const String _schedules = '/api/Schedules';
+  static const String _schools = '/api/Schools';
 
   // Auth / account
   static const String enhancedLogin = '$_users/enhanced-login';
@@ -22,6 +23,10 @@ class ApiEndpoints {
       '$_schedules/occurrences/student/$studentId';
   static String studentContactPersons(String studentId) =>
       '/api/StudentContactPersons/by-student/$studentId';
+
+  // Institute branding (white label)
+  static String instituteBranding(int instituteId) =>
+      '$_schools/$instituteId/branding';
 
   // Staff
   static String staff(int id) => '/api/Staff/$id';
@@ -54,4 +59,21 @@ class ApiEndpoints {
   static const String feedbackConversations =
       '$_teacher/feedback/conversations';
   static const String sendFeedback = '$_teacher/feedback/send';
+  static const String feedbackHistory = '$_teacher/feedback/history';
+
+  /// `PUT` edits, `DELETE` soft-deletes.
+  static String feedbackById(String id) => '$_teacher/feedback/$id';
+  static String feedbackMessages(String id) =>
+      '$_teacher/feedback/$id/messages';
+  static String feedbackReply(String id) => '$_teacher/feedback/$id/reply';
+  static String feedbackResolve(String id) => '$_teacher/feedback/$id/resolve';
+  static String feedbackUnresolve(String id) =>
+      '$_teacher/feedback/$id/unresolve';
+  static String feedbackRead(String id) => '$_teacher/feedback/$id/read';
+
+  // Direct (1-to-1) chat
+  static const String chatThreads = '/api/Chat/threads';
+  static String chatMessages(int threadId) =>
+      '/api/Chat/threads/$threadId/messages';
+  static String chatRead(int threadId) => '/api/Chat/threads/$threadId/read';
 }

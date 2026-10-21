@@ -23,6 +23,9 @@ sealed class FeedbackChatState with _$FeedbackChatState {
 
     /// True while a new feedback topic is being created from the sheet.
     @Default(false) bool creatingTopic,
+
+    /// Realtime link is up.
+    @Default(true) bool isLive,
   }) = FeedbackChatLoaded;
   const factory FeedbackChatState.error(String message) = FeedbackChatError;
 }

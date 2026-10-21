@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_card.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_chip.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_empty_state.dart';
@@ -68,7 +69,7 @@ class _Loaded extends StatelessWidget {
     final items = cubit.visible();
 
     return RefreshIndicator(
-      color: AppColors.primary,
+      color: context.brand.primary,
       onRefresh: () async {
         final error = await cubit.refresh();
         if (error != null && context.mounted) {
@@ -97,7 +98,7 @@ class _Loaded extends StatelessWidget {
                   icon: Icons.assignment_rounded,
                   value: '${counts.total}',
                   label: 'Total',
-                  color: AppColors.primary,
+                  color: context.brand.primary,
                   onTap: () => cubit.setFilter(AssignmentFilter.all),
                 ),
               ),

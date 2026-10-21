@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_gradient_hero.dart';
 import 'package:skoolstar_teacher_module/data/models/class_group.dart';
 import 'package:skoolstar_teacher_module/data/models/session_model.dart';
@@ -37,7 +38,7 @@ class LiveNowBanner extends StatelessWidget {
         .join(' · ');
 
     return AppGradientHero(
-      gradient: AppGradients.live,
+      gradient: context.brand.liveGradient,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -91,8 +92,7 @@ class _LivePill extends StatefulWidget {
   State<_LivePill> createState() => _LivePillState();
 }
 
-class _LivePillState extends State<_LivePill>
-    with TickerProviderStateMixin {
+class _LivePillState extends State<_LivePill> with TickerProviderStateMixin {
   static const Color _liveGreen = Color(0xFF34D399);
 
   late final AnimationController _ripple = AnimationController(

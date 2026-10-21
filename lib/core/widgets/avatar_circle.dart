@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 
 /// Circular avatar that falls back to coloured initials if no image is given
 /// or the network image fails to load.
@@ -30,8 +30,8 @@ class AvatarCircle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bg = background ?? AppColors.primaryLight;
-    final fg = foreground ?? AppColors.primary;
+    final bg = background ?? context.brand.primaryLight;
+    final fg = foreground ?? context.brand.primary;
 
     final fallback = Container(
       width: size,

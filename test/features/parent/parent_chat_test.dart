@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:skoolstar_teacher_module/data/datasources/local_json_data_source.dart';
 import 'package:skoolstar_teacher_module/data/repositories/chat_repository.dart';
+import 'package:skoolstar_teacher_module/data/repositories/mock_chat_repository.dart';
 import 'package:skoolstar_teacher_module/features/chat/chat_perspective.dart';
 import 'package:skoolstar_teacher_module/features/chat/view/direct_chat_screen.dart';
 import 'package:skoolstar_teacher_module/features/chat/view/feedback_chat_screen.dart';
@@ -36,7 +37,7 @@ Future<void> _settle(WidgetTester tester) async {
 Widget _app(ChatPerspective perspective, Widget child) {
   return MaterialApp(
     home: RepositoryProvider<ChatRepository>(
-      create: (_) => ChatRepositoryImpl(
+      create: (_) => MockChatRepository(
         const _FileJsonDataSource(),
         assetPath: perspective.isParent
             ? 'assets/json/parent_chats.json'
@@ -93,7 +94,7 @@ void main() {
     });
 
     test('replying as a parent stores a parent message', () async {
-      final repo = ChatRepositoryImpl(
+      final repo = MockChatRepository(
         const _FileJsonDataSource(),
         assetPath: 'assets/json/parent_chats.json',
       );

@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_chip.dart';
 import 'package:skoolstar_teacher_module/data/models/parent/child_assignment.dart';
 import 'package:skoolstar_teacher_module/features/parent/assignments/parent_assignments_screen.dart';
@@ -73,7 +74,7 @@ class _Detail extends StatelessWidget {
             if (a.className.isNotEmpty)
               AppChip(
                 label: a.className,
-                color: AppColors.primary,
+                color: context.brand.primary,
                 dense: true,
               ),
             if (a.subjectName.isNotEmpty)

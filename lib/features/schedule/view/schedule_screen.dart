@@ -6,6 +6,7 @@ import 'package:skoolstar_teacher_module/core/router/app_routes.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_card.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_empty_state.dart';
 import 'package:skoolstar_teacher_module/core/widgets/loading_view.dart';
@@ -72,7 +73,7 @@ class _Loaded extends StatelessWidget {
     final anchor = state.dateFilter ?? DateTime.now();
 
     return RefreshIndicator(
-      color: AppColors.primary,
+      color: context.brand.primary,
       onRefresh: () async {
         final error = await cubit.refresh();
         if (error != null && context.mounted) {
@@ -193,9 +194,9 @@ class _TodayPill extends StatelessWidget {
           vertical: 8,
         ),
         decoration: BoxDecoration(
-          color: AppColors.primary,
+          color: context.brand.primary,
           borderRadius: BorderRadius.circular(AppRadius.pill),
-          boxShadow: AppShadows.glow(AppColors.primary),
+          boxShadow: AppShadows.glow(context.brand.primary),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,

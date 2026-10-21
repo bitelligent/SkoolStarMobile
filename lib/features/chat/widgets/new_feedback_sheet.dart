@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:skoolstar_teacher_module/core/speech/dictation_controller.dart';
+import 'package:skoolstar_teacher_module/core/speech/dictation_scope.dart';
+import 'package:skoolstar_teacher_module/core/widgets/dictation_button.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
@@ -33,30 +37,39 @@ class NewFeedbackDraft {
 Future<NewFeedbackDraft?> showNewFeedbackSheet(
   BuildContext context, {
   required String parentName,
+  NewFeedbackDraft? initial,
 }) {
   return showAppSheet<NewFeedbackDraft>(
     context,
     title: 'New feedback  ·  $parentName',
     isScrollControlled: true,
     builder: (sheetContext) => _NewFeedbackBody(
+      initial: initial,
       onSubmit: (draft) => Navigator.of(sheetContext).pop(draft),
     ),
   );
 }
 
 class _NewFeedbackBody extends StatefulWidget {
-  const _NewFeedbackBody({required this.onSubmit});
+  const _NewFeedbackBody({required this.onSubmit, this.initial});
 
   final ValueChanged<NewFeedbackDraft> onSubmit;
+  final NewFeedbackDraft? initial;
 
   @override
   State<_NewFeedbackBody> createState() => _NewFeedbackBodyState();
 }
 
 class _NewFeedbackBodyState extends State<_NewFeedbackBody> {
-  final _subject = TextEditingController();
-  final _message = TextEditingController();
-  FeedbackTone _tone = FeedbackTone.positive;
+  late final _subject = TextEditingController(text: widget.initial?.subject);
+  late final _message = TextEditingController(text: widget.initial?.message);
+  late FeedbackTone _tone = widget.initial?.tone ?? FeedbackTone.positive;
+
+  /// Server limits for the message.
+  static const _min = 2;
+  static const _max = 1000;
+
+  DictationController? _dictation;
 
   @override
   void initState() {
@@ -65,13 +78,23 @@ class _NewFeedbackBodyState extends State<_NewFeedbackBody> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final engine = DictationScope.maybeOf(context);
+    if (_dictation == null && engine != null) {
+      _dictation = DictationController(engine: engine, text: _message);
+    }
+  }
+
+  @override
   void dispose() {
+    _dictation?.dispose();
     _subject.dispose();
     _message.dispose();
     super.dispose();
   }
 
-  bool get _canSend => _message.text.trim().isNotEmpty;
+  bool get _canSend => _message.text.trim().length >= _min;
 
   @override
   Widget build(BuildContext context) {
@@ -104,6 +127,10 @@ class _NewFeedbackBodyState extends State<_NewFeedbackBody> {
               controller: _message,
               hint: 'Share the feedback you want to send to the parent…',
               maxLines: 5,
+              inputFormatters: [LengthLimitingTextInputFormatter(_max)],
+              suffix: _dictation == null
+                  ? null
+                  : DictationButton(controller: _dictation!),
             ),
           ),
           const SizedBox(height: AppSpacing.lg),

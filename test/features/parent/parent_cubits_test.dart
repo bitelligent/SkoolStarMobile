@@ -17,6 +17,7 @@ import 'package:skoolstar_teacher_module/data/repositories/parent/child_schedule
 import 'package:skoolstar_teacher_module/data/repositories/parent/children_repository.dart';
 import 'package:skoolstar_teacher_module/features/parent/assignments/parent_assignments_cubit.dart';
 import 'package:skoolstar_teacher_module/features/parent/attendance/parent_attendance_cubit.dart';
+import 'package:skoolstar_teacher_module/features/parent/progress/progress_stats.dart';
 import 'package:skoolstar_teacher_module/features/parent/common/children_cubit.dart';
 import 'package:skoolstar_teacher_module/features/parent/home/parent_home_cubit.dart';
 import 'package:skoolstar_teacher_module/features/parent/home/parent_home_state.dart';
@@ -383,9 +384,9 @@ void main() {
       expect(s.dayFilter, 'today');
       expect(s.view, ParentHomeView.agenda);
       expect(s.child.id, '3');
-      expect(s.pendingAssignments, 2);
-      expect(s.presentCount, 2);
-      expect(s.attendanceTotal, 3);
+      expect(s.attendanceStat, const RatioStat(3, 3));
+      expect(s.homeworkStat, const RatioStat(0, 2));
+      expect(s.scoreStat, const RatioStat(89, 100));
       expect(cubit.filteredSessions().map((x) => x.id), [
         'today',
         'other_teacher',
@@ -474,8 +475,10 @@ void main() {
         );
         await failingAssignments.load();
         final s = failingAssignments.state as ParentHomeLoaded;
-        expect(s.pendingAssignments, isNull); // tiles hidden, screen fine
-        expect(s.presentCount, isNull);
+        // Tiles show "Unavailable"; the screen itself is fine.
+        expect(s.attendanceStat, isNull);
+        expect(s.homeworkStat, isNull);
+        expect(s.scoreStat, isNull);
         await cubit.close();
         await failingAssignments.close();
       },

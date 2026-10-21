@@ -5,6 +5,7 @@ import 'package:skoolstar_teacher_module/core/config/attendance_status_config.da
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_card.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_chip.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_empty_state.dart';
@@ -74,7 +75,7 @@ class _Loaded extends StatelessWidget {
     final records = cubit.visible();
 
     return RefreshIndicator(
-      color: AppColors.primary,
+      color: context.brand.primary,
       onRefresh: () async {
         final error = await cubit.refresh();
         if (error != null && context.mounted) {
@@ -103,7 +104,7 @@ class _Loaded extends StatelessWidget {
                   icon: Icons.list_alt_rounded,
                   value: '${counts.total}',
                   label: 'Total',
-                  color: AppColors.primary,
+                  color: context.brand.primary,
                 ),
               ),
               const SizedBox(width: AppSpacing.sm),

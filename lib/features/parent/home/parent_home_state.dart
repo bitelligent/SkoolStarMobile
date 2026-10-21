@@ -4,6 +4,7 @@ import 'package:skoolstar_teacher_module/data/models/class_group.dart';
 import 'package:skoolstar_teacher_module/data/models/parent/child.dart';
 import 'package:skoolstar_teacher_module/data/models/session_model.dart';
 import 'package:skoolstar_teacher_module/data/models/subject_model.dart';
+import 'package:skoolstar_teacher_module/features/parent/progress/progress_stats.dart';
 
 part 'parent_home_state.freezed.dart';
 
@@ -22,11 +23,12 @@ sealed class ParentHomeState with _$ParentHomeState {
     required List<ClassGroup> classes,
     required DateTime focusDate,
 
-    /// Assignments not completed / attendance counts for the stat tiles.
-    /// `null` when that part failed to load (the tile is hidden).
-    int? pendingAssignments,
-    int? presentCount,
-    int? attendanceTotal,
+    /// Progress figures for the stat tiles over the last 30 days. `null`
+    /// when that part failed to load; [RatioStat.empty] when there is
+    /// nothing to measure yet.
+    RatioStat? attendanceStat,
+    RatioStat? homeworkStat,
+    RatioStat? scoreStat,
     DateTime? selectedDate,
     @Default('') String query,
     @Default(defaultDayFilter) String dayFilter,

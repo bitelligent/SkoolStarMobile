@@ -55,6 +55,9 @@ class AppRoutes {
   static const String parentChat = 'parentChat';
   static const String parentChatPath = '/parent/chat';
 
+  static const String parentProgress = 'parentProgress';
+  static const String parentProgressPath = '/parent/progress';
+
   static const String parentProfile = 'parentProfile';
   static const String parentProfilePath = '/parent/profile';
 

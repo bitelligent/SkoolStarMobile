@@ -125,12 +125,12 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( ChatThread thread,  List<FeedbackTopic> topics,  Set<String> expandedTopicIds,  String? sendingReplyTopicId,  bool creatingTopic)?  loaded,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( ChatThread thread,  List<FeedbackTopic> topics,  Set<String> expandedTopicIds,  String? sendingReplyTopicId,  bool creatingTopic,  bool isLive)?  loaded,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case FeedbackChatInitial() when initial != null:
 return initial();case FeedbackChatLoading() when loading != null:
 return loading();case FeedbackChatLoaded() when loaded != null:
-return loaded(_that.thread,_that.topics,_that.expandedTopicIds,_that.sendingReplyTopicId,_that.creatingTopic);case FeedbackChatError() when error != null:
+return loaded(_that.thread,_that.topics,_that.expandedTopicIds,_that.sendingReplyTopicId,_that.creatingTopic,_that.isLive);case FeedbackChatError() when error != null:
 return error(_that.message);case _:
   return orElse();
 
@@ -149,12 +149,12 @@ return error(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( ChatThread thread,  List<FeedbackTopic> topics,  Set<String> expandedTopicIds,  String? sendingReplyTopicId,  bool creatingTopic)  loaded,required TResult Function( String message)  error,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( ChatThread thread,  List<FeedbackTopic> topics,  Set<String> expandedTopicIds,  String? sendingReplyTopicId,  bool creatingTopic,  bool isLive)  loaded,required TResult Function( String message)  error,}) {final _that = this;
 switch (_that) {
 case FeedbackChatInitial():
 return initial();case FeedbackChatLoading():
 return loading();case FeedbackChatLoaded():
-return loaded(_that.thread,_that.topics,_that.expandedTopicIds,_that.sendingReplyTopicId,_that.creatingTopic);case FeedbackChatError():
+return loaded(_that.thread,_that.topics,_that.expandedTopicIds,_that.sendingReplyTopicId,_that.creatingTopic,_that.isLive);case FeedbackChatError():
 return error(_that.message);}
 }
 /// A variant of `when` that fallback to returning `null`
@@ -169,12 +169,12 @@ return error(_that.message);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( ChatThread thread,  List<FeedbackTopic> topics,  Set<String> expandedTopicIds,  String? sendingReplyTopicId,  bool creatingTopic)?  loaded,TResult? Function( String message)?  error,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( ChatThread thread,  List<FeedbackTopic> topics,  Set<String> expandedTopicIds,  String? sendingReplyTopicId,  bool creatingTopic,  bool isLive)?  loaded,TResult? Function( String message)?  error,}) {final _that = this;
 switch (_that) {
 case FeedbackChatInitial() when initial != null:
 return initial();case FeedbackChatLoading() when loading != null:
 return loading();case FeedbackChatLoaded() when loaded != null:
-return loaded(_that.thread,_that.topics,_that.expandedTopicIds,_that.sendingReplyTopicId,_that.creatingTopic);case FeedbackChatError() when error != null:
+return loaded(_that.thread,_that.topics,_that.expandedTopicIds,_that.sendingReplyTopicId,_that.creatingTopic,_that.isLive);case FeedbackChatError() when error != null:
 return error(_that.message);case _:
   return null;
 
@@ -251,7 +251,7 @@ String toString() {
 
 
 class FeedbackChatLoaded implements FeedbackChatState {
-  const FeedbackChatLoaded({required this.thread, required final  List<FeedbackTopic> topics, final  Set<String> expandedTopicIds = const <String>{}, this.sendingReplyTopicId, this.creatingTopic = false}): _topics = topics,_expandedTopicIds = expandedTopicIds;
+  const FeedbackChatLoaded({required this.thread, required final  List<FeedbackTopic> topics, final  Set<String> expandedTopicIds = const <String>{}, this.sendingReplyTopicId, this.creatingTopic = false, this.isLive = true}): _topics = topics,_expandedTopicIds = expandedTopicIds;
   
 
  final  ChatThread thread;
@@ -280,6 +280,8 @@ class FeedbackChatLoaded implements FeedbackChatState {
  final  String? sendingReplyTopicId;
 /// True while a new feedback topic is being created from the sheet.
 @JsonKey() final  bool creatingTopic;
+/// Realtime link is up.
+@JsonKey() final  bool isLive;
 
 /// Create a copy of FeedbackChatState
 /// with the given fields replaced by the non-null parameter values.
@@ -291,16 +293,16 @@ $FeedbackChatLoadedCopyWith<FeedbackChatLoaded> get copyWith => _$FeedbackChatLo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is FeedbackChatLoaded&&(identical(other.thread, thread) || other.thread == thread)&&const DeepCollectionEquality().equals(other._topics, _topics)&&const DeepCollectionEquality().equals(other._expandedTopicIds, _expandedTopicIds)&&(identical(other.sendingReplyTopicId, sendingReplyTopicId) || other.sendingReplyTopicId == sendingReplyTopicId)&&(identical(other.creatingTopic, creatingTopic) || other.creatingTopic == creatingTopic));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FeedbackChatLoaded&&(identical(other.thread, thread) || other.thread == thread)&&const DeepCollectionEquality().equals(other._topics, _topics)&&const DeepCollectionEquality().equals(other._expandedTopicIds, _expandedTopicIds)&&(identical(other.sendingReplyTopicId, sendingReplyTopicId) || other.sendingReplyTopicId == sendingReplyTopicId)&&(identical(other.creatingTopic, creatingTopic) || other.creatingTopic == creatingTopic)&&(identical(other.isLive, isLive) || other.isLive == isLive));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,thread,const DeepCollectionEquality().hash(_topics),const DeepCollectionEquality().hash(_expandedTopicIds),sendingReplyTopicId,creatingTopic);
+int get hashCode => Object.hash(runtimeType,thread,const DeepCollectionEquality().hash(_topics),const DeepCollectionEquality().hash(_expandedTopicIds),sendingReplyTopicId,creatingTopic,isLive);
 
 @override
 String toString() {
-  return 'FeedbackChatState.loaded(thread: $thread, topics: $topics, expandedTopicIds: $expandedTopicIds, sendingReplyTopicId: $sendingReplyTopicId, creatingTopic: $creatingTopic)';
+  return 'FeedbackChatState.loaded(thread: $thread, topics: $topics, expandedTopicIds: $expandedTopicIds, sendingReplyTopicId: $sendingReplyTopicId, creatingTopic: $creatingTopic, isLive: $isLive)';
 }
 
 
@@ -311,7 +313,7 @@ abstract mixin class $FeedbackChatLoadedCopyWith<$Res> implements $FeedbackChatS
   factory $FeedbackChatLoadedCopyWith(FeedbackChatLoaded value, $Res Function(FeedbackChatLoaded) _then) = _$FeedbackChatLoadedCopyWithImpl;
 @useResult
 $Res call({
- ChatThread thread, List<FeedbackTopic> topics, Set<String> expandedTopicIds, String? sendingReplyTopicId, bool creatingTopic
+ ChatThread thread, List<FeedbackTopic> topics, Set<String> expandedTopicIds, String? sendingReplyTopicId, bool creatingTopic, bool isLive
 });
 
 
@@ -328,13 +330,14 @@ class _$FeedbackChatLoadedCopyWithImpl<$Res>
 
 /// Create a copy of FeedbackChatState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? thread = null,Object? topics = null,Object? expandedTopicIds = null,Object? sendingReplyTopicId = freezed,Object? creatingTopic = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? thread = null,Object? topics = null,Object? expandedTopicIds = null,Object? sendingReplyTopicId = freezed,Object? creatingTopic = null,Object? isLive = null,}) {
   return _then(FeedbackChatLoaded(
 thread: null == thread ? _self.thread : thread // ignore: cast_nullable_to_non_nullable
 as ChatThread,topics: null == topics ? _self._topics : topics // ignore: cast_nullable_to_non_nullable
 as List<FeedbackTopic>,expandedTopicIds: null == expandedTopicIds ? _self._expandedTopicIds : expandedTopicIds // ignore: cast_nullable_to_non_nullable
 as Set<String>,sendingReplyTopicId: freezed == sendingReplyTopicId ? _self.sendingReplyTopicId : sendingReplyTopicId // ignore: cast_nullable_to_non_nullable
 as String?,creatingTopic: null == creatingTopic ? _self.creatingTopic : creatingTopic // ignore: cast_nullable_to_non_nullable
+as bool,isLive: null == isLive ? _self.isLive : isLive // ignore: cast_nullable_to_non_nullable
 as bool,
   ));
 }

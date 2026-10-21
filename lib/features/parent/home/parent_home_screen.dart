@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -6,6 +8,7 @@ import 'package:skoolstar_teacher_module/core/router/app_routes.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 import 'package:skoolstar_teacher_module/core/utils/day_filter.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_card.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_empty_state.dart';
@@ -14,11 +17,13 @@ import 'package:skoolstar_teacher_module/core/widgets/app_pill_tabs.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_stat_tile.dart';
 import 'package:skoolstar_teacher_module/core/widgets/loading_view.dart';
 import 'package:skoolstar_teacher_module/data/models/session_model.dart';
+import 'package:skoolstar_teacher_module/data/models/subject_model.dart';
 import 'package:skoolstar_teacher_module/features/dashboard/widgets/filter_chip_row.dart';
 import 'package:skoolstar_teacher_module/features/dashboard/widgets/month_calendar.dart';
 import 'package:skoolstar_teacher_module/features/dashboard/widgets/session_card.dart';
 import 'package:skoolstar_teacher_module/features/parent/home/parent_home_cubit.dart';
 import 'package:skoolstar_teacher_module/features/parent/home/parent_home_state.dart';
+import 'package:skoolstar_teacher_module/features/parent/progress/progress_stats.dart';
 
 /// Parent "Dashboard": the selected child's schedule with Month / Agenda
 /// views and Day / Subject / Teacher filters, plus quick stats.
@@ -106,9 +111,10 @@ class _LoadedState extends State<_Loaded> with SingleTickerProviderStateMixin {
     final cubit = context.read<ParentHomeCubit>();
     final sessions = cubit.filteredSessions();
     final live = s.sessions.where((x) => x.isLive).firstOrNull;
+    final upcoming = cubit.upcomingSessions();
 
     return RefreshIndicator(
-      color: AppColors.primary,
+      color: context.brand.primary,
       onRefresh: _refresh,
       child: ListView(
         // Always scrollable so pull-to-refresh works on short content.
@@ -128,41 +134,83 @@ class _LoadedState extends State<_Loaded> with SingleTickerProviderStateMixin {
           if (live != null) const SizedBox(height: AppSpacing.md),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-            child: Row(
-              children: [
-                Expanded(
-                  child: AppStatTile(
-                    icon: Icons.event_available_rounded,
-                    value: '${cubit.todayCount()}',
-                    label: 'Today',
-                    color: AppColors.primary,
-                  ),
+            child: InkWell(
+              onTap: () => context.pushNamed(AppRoutes.parentProgress),
+              borderRadius: BorderRadius.circular(AppRadius.sm),
+              child: AppSectionTitle(
+                title: 'Progress',
+                icon: Icons.trending_up_rounded,
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Last 30 days',
+                      style: AppTextStyles.labelMedium.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(width: 2),
+                    const Icon(
+                      Icons.chevron_right_rounded,
+                      size: 18,
+                      color: AppColors.textSecondary,
+                    ),
+                  ],
                 ),
-                if (s.pendingAssignments != null) ...[
-                  const SizedBox(width: AppSpacing.sm),
-                  Expanded(
-                    child: AppStatTile(
-                      icon: Icons.assignment_late_rounded,
-                      value: '${s.pendingAssignments}',
-                      label: 'Pending',
-                      color: AppColors.accentOrange,
-                    ),
-                  ),
-                ],
-                if (s.presentCount != null && s.attendanceTotal != null) ...[
-                  const SizedBox(width: AppSpacing.sm),
-                  Expanded(
-                    child: AppStatTile(
-                      icon: Icons.check_circle_rounded,
-                      value: '${s.presentCount}/${s.attendanceTotal}',
-                      label: 'Present',
-                      color: AppColors.success,
-                    ),
-                  ),
-                ],
-              ],
+              ),
             ),
           ),
+          const SizedBox(height: AppSpacing.sm),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+            child: IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(
+                    child: _ProgressTile(
+                      icon: Icons.how_to_reg_rounded,
+                      label: 'Attendance',
+                      stat: s.attendanceStat,
+                      detail: (r) => '${r.part} of ${r.whole} classes',
+                      onTap: () => context.pushNamed(AppRoutes.parentProgress),
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(
+                    child: _ProgressTile(
+                      icon: Icons.assignment_turned_in_rounded,
+                      label: 'Homework',
+                      stat: s.homeworkStat,
+                      detail: (r) => '${r.part} of ${r.whole} done',
+                      onTap: () => context.pushNamed(AppRoutes.parentProgress),
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(
+                    child: _ProgressTile(
+                      icon: Icons.grade_rounded,
+                      label: 'Avg. score',
+                      stat: s.scoreStat,
+                      detail: (r) => '${r.part} / ${r.whole} marks',
+                      onTap: () => context.pushNamed(AppRoutes.parentProgress),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          if (upcoming.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.lg),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+              child: _UpNext(
+                sessions: upcoming,
+                state: s,
+                onOpen: (id) => _open(context, id),
+              ),
+            ),
+          ],
           const SizedBox(height: AppSpacing.lg),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
@@ -256,13 +304,13 @@ class _CountBadge extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 2),
     decoration: BoxDecoration(
-      color: AppColors.primarySoft,
+      color: context.brand.primarySoft,
       borderRadius: BorderRadius.circular(AppRadius.pill),
     ),
     child: Text(
       '$count',
       style: AppTextStyles.labelMedium.copyWith(
-        color: AppColors.primary,
+        color: context.brand.primary,
         fontWeight: FontWeight.w700,
       ),
     ),
@@ -375,8 +423,8 @@ class _Agenda extends StatelessWidget {
                   Container(
                     width: 6,
                     height: 6,
-                    decoration: const BoxDecoration(
-                      color: AppColors.primary,
+                    decoration: BoxDecoration(
+                      color: context.brand.primary,
                       shape: BoxShape.circle,
                     ),
                   ),
@@ -424,15 +472,15 @@ class _DateBanner extends StatelessWidget {
         AppSpacing.xs,
       ),
       decoration: BoxDecoration(
-        color: AppColors.primarySoft,
+        color: context.brand.primarySoft,
         borderRadius: BorderRadius.circular(AppRadius.md),
       ),
       child: Row(
         children: [
-          const Icon(
+          Icon(
             Icons.event_available_rounded,
             size: 16,
-            color: AppColors.primary,
+            color: context.brand.primary,
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -440,7 +488,7 @@ class _DateBanner extends StatelessWidget {
               'Showing ${DateFormat('EEE, MMM d, y').format(date)}',
               overflow: TextOverflow.ellipsis,
               style: AppTextStyles.labelMedium.copyWith(
-                color: AppColors.primary,
+                color: context.brand.primary,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -450,4 +498,217 @@ class _DateBanner extends StatelessWidget {
       ),
     );
   }
+}
+
+/// One progress figure as a percentage, with what it measures spelled out.
+class _ProgressTile extends StatelessWidget {
+  const _ProgressTile({
+    required this.icon,
+    required this.label,
+    required this.stat,
+    required this.detail,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+
+  /// `null` = could not be loaded; empty = nothing to measure yet.
+  final RatioStat? stat;
+  final String Function(RatioStat) detail;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final percent = stat?.percent;
+    final color = switch (StatBand.of(percent)) {
+      StatBand.good => AppColors.success,
+      StatBand.fair => AppColors.warning,
+      StatBand.poor => AppColors.danger,
+      StatBand.none => AppColors.textTertiary,
+    };
+    final caption = stat == null
+        ? 'Unavailable'
+        : percent == null
+        ? 'No data yet'
+        : detail(stat!);
+    return Semantics(
+      label:
+          '$label ${percent == null ? caption : '$percent percent, $caption'}',
+      button: true,
+      excludeSemantics: true,
+      child: AppStatTile(
+        icon: icon,
+        value: percent == null ? '—' : '$percent%',
+        label: label,
+        caption: caption,
+        color: color,
+        onTap: onTap,
+      ),
+    );
+  }
+}
+
+/// The next few classes as compact rows (the agenda below has the full
+/// cards), each with a live "starts in" label.
+class _UpNext extends StatelessWidget {
+  const _UpNext({
+    required this.sessions,
+    required this.state,
+    required this.onOpen,
+  });
+
+  final List<Session> sessions;
+  final ParentHomeLoaded state;
+  final ValueChanged<String> onOpen;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const AppSectionTitle(title: 'Up next', icon: Icons.upcoming_rounded),
+        const SizedBox(height: AppSpacing.sm),
+        AppCard(
+          padding: EdgeInsets.zero,
+          child: Column(
+            children: [
+              for (var i = 0; i < sessions.length; i++) ...[
+                if (i > 0) const Divider(height: 1),
+                _UpNextRow(
+                  session: sessions[i],
+                  subjects: state.subjects,
+                  onTap: () => onOpen(sessions[i].id),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _UpNextRow extends StatelessWidget {
+  const _UpNextRow({
+    required this.session,
+    required this.subjects,
+    required this.onTap,
+  });
+
+  final Session session;
+  final List<Subject> subjects;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final names = {
+      for (final s in subjects)
+        if (session.subjectIds.contains(s.id)) s.name,
+    }.join(', ');
+    final title = names.isEmpty ? 'Class' : names;
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.md,
+          vertical: AppSpacing.md,
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 4,
+              height: 36,
+              decoration: BoxDecoration(
+                color: context.brand.primary,
+                borderRadius: BorderRadius.circular(AppRadius.pill),
+              ),
+            ),
+            const SizedBox(width: AppSpacing.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.titleSmall,
+                  ),
+                  Text(
+                    '${DateFormat('EEE, MMM d').format(session.date)}'
+                    '  ·  ${session.startTime} – ${session.endTime}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.labelMedium.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: AppSpacing.sm),
+            _StartsIn(session: session),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// "Starts in 2 h 15 min" / "Tomorrow, 14:30", refreshed every 30 s.
+class _StartsIn extends StatefulWidget {
+  const _StartsIn({required this.session});
+
+  final Session session;
+
+  @override
+  State<_StartsIn> createState() => _StartsInState();
+}
+
+class _StartsInState extends State<_StartsIn> {
+  Timer? _tick;
+
+  @override
+  void initState() {
+    super.initState();
+    _tick = Timer.periodic(const Duration(seconds: 30), (_) {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _tick?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => Text(
+    startsInLabel(widget.session.startsAt, DateTime.now()),
+    style: AppTextStyles.labelMedium.copyWith(
+      color: context.brand.primary,
+      fontWeight: FontWeight.w700,
+    ),
+  );
+}
+
+/// Human wording for when a class starts, relative to [now].
+String startsInLabel(DateTime start, DateTime now) {
+  final diff = start.difference(now);
+  if (diff.isNegative) return 'Starting now';
+  if (diff.inMinutes < 1) return 'Starting now';
+  if (diff.inMinutes < 60) return 'Starts in ${diff.inMinutes} min';
+  final today = DateTime(now.year, now.month, now.day);
+  final day = DateTime(start.year, start.month, start.day);
+  final days = day.difference(today).inDays;
+  final time = DateFormat('h:mm a').format(start);
+  if (days == 0) {
+    final h = diff.inHours;
+    final m = diff.inMinutes % 60;
+    return m == 0 ? 'Starts in $h h' : 'Starts in $h h $m min';
+  }
+  if (days == 1) return 'Tomorrow, $time';
+  if (days < 7) return '${DateFormat('EEEE').format(start)}, $time';
+  return '${DateFormat('MMM d').format(start)}, $time';
 }

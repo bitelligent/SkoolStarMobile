@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 
 /// Edge-to-edge bottom navigation. All three tabs always show icon + label
 /// — the only difference between active and inactive is colour + a soft
@@ -169,7 +170,9 @@ class _NavButton extends StatelessWidget {
                   vertical: 4,
                 ),
                 decoration: BoxDecoration(
-                  color: active ? AppColors.primarySoft : Colors.transparent,
+                  color: active
+                      ? context.brand.primarySoft
+                      : Colors.transparent,
                   borderRadius: BorderRadius.circular(AppRadius.pill),
                 ),
                 child: AnimatedSwitcher(
@@ -180,7 +183,9 @@ class _NavButton extends StatelessWidget {
                     active ? item.activeIcon : item.icon,
                     key: ValueKey(active),
                     size: 22,
-                    color: active ? AppColors.primary : AppColors.textSecondary,
+                    color: active
+                        ? context.brand.primary
+                        : AppColors.textSecondary,
                   ),
                 ),
               ),
@@ -188,7 +193,9 @@ class _NavButton extends StatelessWidget {
               AnimatedDefaultTextStyle(
                 duration: const Duration(milliseconds: 220),
                 style: AppTextStyles.labelSmall.copyWith(
-                  color: active ? AppColors.primary : AppColors.textSecondary,
+                  color: active
+                      ? context.brand.primary
+                      : AppColors.textSecondary,
                   fontWeight: active ? FontWeight.w700 : FontWeight.w500,
                 ),
                 child: Text(item.label, maxLines: 1),
@@ -238,7 +245,9 @@ class _CompactNavButton extends StatelessWidget {
                 height: 44,
                 padding: EdgeInsets.symmetric(horizontal: active ? 10 : 8),
                 decoration: BoxDecoration(
-                  color: active ? AppColors.primarySoft : Colors.transparent,
+                  color: active
+                      ? context.brand.primarySoft
+                      : Colors.transparent,
                   borderRadius: BorderRadius.circular(AppRadius.pill),
                 ),
                 // Scales down instead of overflowing on very narrow screens
@@ -252,7 +261,7 @@ class _CompactNavButton extends StatelessWidget {
                         active ? item.activeIcon : item.icon,
                         size: 24,
                         color: active
-                            ? AppColors.primary
+                            ? context.brand.primary
                             : AppColors.textSecondary,
                       ),
                       if (active) ...[
@@ -261,7 +270,7 @@ class _CompactNavButton extends StatelessWidget {
                           item.label,
                           maxLines: 1,
                           style: AppTextStyles.labelMedium.copyWith(
-                            color: AppColors.primary,
+                            color: context.brand.primary,
                             fontWeight: FontWeight.w700,
                           ),
                         ),

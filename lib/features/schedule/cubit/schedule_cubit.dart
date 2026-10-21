@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:skoolstar_teacher_module/core/bloc/safe_cubit.dart';
 import 'package:skoolstar_teacher_module/core/network/error_message.dart';
 import 'package:skoolstar_teacher_module/data/models/class_group.dart';
 import 'package:skoolstar_teacher_module/data/models/session_model.dart';
@@ -8,7 +9,7 @@ import 'package:skoolstar_teacher_module/data/repositories/session_repository.da
 import 'package:skoolstar_teacher_module/data/repositories/subject_repository.dart';
 import 'package:skoolstar_teacher_module/features/schedule/cubit/schedule_state.dart';
 
-class ScheduleCubit extends Cubit<ScheduleState> {
+class ScheduleCubit extends SafeCubit<ScheduleState> {
   ScheduleCubit({
     required SessionRepository sessionRepository,
     required ClassRepository classRepository,

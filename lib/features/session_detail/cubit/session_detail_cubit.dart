@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:skoolstar_teacher_module/core/bloc/safe_cubit.dart';
 import 'package:skoolstar_teacher_module/core/config/attendance_status_config.dart';
 import 'package:skoolstar_teacher_module/core/network/api_exception.dart';
 import 'package:skoolstar_teacher_module/core/network/error_message.dart';
@@ -39,7 +40,7 @@ class HomeworkActionOutcome {
   bool get ok => result == HomeworkActionResult.success;
 }
 
-class SessionDetailCubit extends Cubit<SessionDetailState> {
+class SessionDetailCubit extends SafeCubit<SessionDetailState> {
   SessionDetailCubit({
     required this.sessionId,
     required SessionRepository sessionRepository,

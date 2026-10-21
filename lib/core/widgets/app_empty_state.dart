@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 
 /// Illustration-style empty state. Pass [action] to show a CTA below.
 class AppEmptyState extends StatelessWidget {
@@ -35,13 +36,13 @@ class AppEmptyState extends StatelessWidget {
             height: compact ? 56 : 72,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: AppColors.primarySoft,
+              color: context.brand.primarySoft,
               borderRadius: BorderRadius.circular(AppRadius.xl),
             ),
             child: Icon(
               icon,
               size: compact ? 28 : 36,
-              color: AppColors.primary,
+              color: context.brand.primary,
             ),
           ),
           const SizedBox(height: AppSpacing.md),

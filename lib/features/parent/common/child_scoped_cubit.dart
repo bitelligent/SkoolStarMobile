@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:skoolstar_teacher_module/core/bloc/safe_cubit.dart';
 import 'package:skoolstar_teacher_module/data/models/parent/child.dart';
 import 'package:skoolstar_teacher_module/features/parent/common/children_cubit.dart';
 
@@ -10,7 +11,7 @@ import 'package:skoolstar_teacher_module/features/parent/common/children_cubit.d
 /// When the parent switches child (from the always-visible header) [load]
 /// runs again for the new child. Responses that arrive after the selection
 /// changed again are discarded via [beginLoad] / [isCurrent].
-abstract class ChildScopedCubit<S> extends Cubit<S> {
+abstract class ChildScopedCubit<S> extends SafeCubit<S> {
   ChildScopedCubit(super.initialState, this.children) {
     _lastChildId = children.state.selectedChild?.id;
     _sub = children.stream.listen(_onChildrenChanged);

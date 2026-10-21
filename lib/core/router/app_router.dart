@@ -24,6 +24,8 @@ import 'package:skoolstar_teacher_module/features/parent/common/children_cubit.d
 import 'package:skoolstar_teacher_module/features/parent/home/parent_home_cubit.dart';
 import 'package:skoolstar_teacher_module/features/parent/home/parent_home_screen.dart';
 import 'package:skoolstar_teacher_module/features/parent/profile/parent_profile_cubit.dart';
+import 'package:skoolstar_teacher_module/features/parent/progress/parent_progress_cubit.dart';
+import 'package:skoolstar_teacher_module/features/parent/progress/parent_progress_screen.dart';
 import 'package:skoolstar_teacher_module/features/parent/profile/parent_profile_screen.dart';
 import 'package:skoolstar_teacher_module/features/parent/session_detail/parent_session_detail_screen.dart';
 import 'package:skoolstar_teacher_module/features/parent/shell/parent_shell.dart';
@@ -116,6 +118,22 @@ GoRouter buildRouter({
         name: AppRoutes.parentNotifications,
         parentNavigatorKey: _rootKey,
         builder: (_, __) => const NotificationsScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.parentProgressPath,
+        name: AppRoutes.parentProgress,
+        parentNavigatorKey: _rootKey,
+        builder: (context, _) => parentChat(
+          BlocProvider(
+            create: (ctx) => ParentProgressCubit(
+              children: ctx.read<ChildrenCubit>(),
+              attendance: ctx.read<ChildAttendanceRepository>(),
+              assignments: ctx.read<ChildAssignmentsRepository>(),
+              chat: ctx.read<ChatRepository>(),
+            )..load(),
+            child: const ParentProgressScreen(),
+          ),
+        ),
       ),
       GoRoute(
         path: AppRoutes.parentSessionDetailPath,

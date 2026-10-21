@@ -6,6 +6,7 @@ import 'package:skoolstar_teacher_module/core/router/app_routes.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_card.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_empty_state.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_pill_tabs.dart';
@@ -133,7 +134,7 @@ class _LoadedState extends State<_Loaded> with SingleTickerProviderStateMixin {
     final todayCount = cubit.todayCount();
 
     return RefreshIndicator(
-      color: AppColors.primary,
+      color: context.brand.primary,
       onRefresh: () async {
         final error = await cubit.refresh();
         if (error != null && context.mounted) {
@@ -174,7 +175,7 @@ class _LoadedState extends State<_Loaded> with SingleTickerProviderStateMixin {
                     icon: Icons.event_available_rounded,
                     value: '$todayCount',
                     label: 'Today',
-                    color: AppColors.primary,
+                    color: context.brand.primary,
                   ),
                 ),
                 const SizedBox(width: AppSpacing.sm),
@@ -210,13 +211,13 @@ class _LoadedState extends State<_Loaded> with SingleTickerProviderStateMixin {
                   vertical: 2,
                 ),
                 decoration: BoxDecoration(
-                  color: AppColors.primarySoft,
+                  color: context.brand.primarySoft,
                   borderRadius: BorderRadius.circular(AppRadius.pill),
                 ),
                 child: Text(
                   '${filtered.length}',
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                    color: AppColors.primary,
+                    color: context.brand.primary,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -332,8 +333,8 @@ class _AgendaList extends StatelessWidget {
                 Container(
                   width: 6,
                   height: 6,
-                  decoration: const BoxDecoration(
-                    color: AppColors.primary,
+                  decoration: BoxDecoration(
+                    color: context.brand.primary,
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -385,16 +386,16 @@ class _SelectedDateBanner extends StatelessWidget {
         AppSpacing.sm,
       ),
       decoration: BoxDecoration(
-        color: AppColors.primarySoft,
+        color: context.brand.primarySoft,
         borderRadius: BorderRadius.circular(AppRadius.md),
-        border: Border.all(color: AppColors.primary.withOpacity(0.2)),
+        border: Border.all(color: context.brand.primary.withOpacity(0.2)),
       ),
       child: Row(
         children: [
-          const Icon(
+          Icon(
             Icons.event_available_rounded,
             size: 16,
-            color: AppColors.primary,
+            color: context.brand.primary,
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -409,7 +410,7 @@ class _SelectedDateBanner extends StatelessWidget {
                   TextSpan(
                     text: DateFormat('EEE, MMM d, y').format(date),
                     style: AppTextStyles.labelMedium.copyWith(
-                      color: AppColors.primary,
+                      color: context.brand.primary,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
@@ -428,16 +429,16 @@ class _SelectedDateBanner extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.close_rounded,
                     size: 14,
-                    color: AppColors.primary,
+                    color: context.brand.primary,
                   ),
                   const SizedBox(width: 2),
                   Text(
                     'Clear',
                     style: AppTextStyles.labelMedium.copyWith(
-                      color: AppColors.primary,
+                      color: context.brand.primary,
                       fontWeight: FontWeight.w700,
                     ),
                   ),

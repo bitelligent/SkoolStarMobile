@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 import 'package:skoolstar_teacher_module/data/models/institute_model.dart';
 
 /// Pill-shaped institute badge shown at the top-center of main screens.
@@ -41,10 +42,10 @@ class InstitutePill extends StatelessWidget {
               color: AppColors.surfaceMuted,
               borderRadius: BorderRadius.circular(AppRadius.sm),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.account_balance_outlined,
               size: 18,
-              color: AppColors.primary,
+              color: context.brand.primary,
             ),
           ),
           const SizedBox(width: AppSpacing.sm),
@@ -79,13 +80,13 @@ class InstitutePill extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-              color: AppColors.primarySoft,
+              color: context.brand.primarySoft,
               borderRadius: BorderRadius.circular(AppRadius.pill),
             ),
             child: Text(
               institute.type,
               style: AppTextStyles.labelSmall.copyWith(
-                color: AppColors.primary,
+                color: context.brand.primary,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 0.4,
                 fontSize: 10,

@@ -125,13 +125,13 @@ return loaded(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( String message)?  error,TResult Function( Child child,  List<Session> sessions,  List<Subject> subjects,  List<ClassGroup> classes,  DateTime focusDate,  int? pendingAssignments,  int? presentCount,  int? attendanceTotal,  DateTime? selectedDate,  String query,  String dayFilter,  Set<String> subjectFilterIds,  Set<String> teacherFilterIds,  ParentHomeView view)?  loaded,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( String message)?  error,TResult Function( Child child,  List<Session> sessions,  List<Subject> subjects,  List<ClassGroup> classes,  DateTime focusDate,  RatioStat? attendanceStat,  RatioStat? homeworkStat,  RatioStat? scoreStat,  DateTime? selectedDate,  String query,  String dayFilter,  Set<String> subjectFilterIds,  Set<String> teacherFilterIds,  ParentHomeView view)?  loaded,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case ParentHomeInitial() when initial != null:
 return initial();case ParentHomeLoading() when loading != null:
 return loading();case ParentHomeError() when error != null:
 return error(_that.message);case ParentHomeLoaded() when loaded != null:
-return loaded(_that.child,_that.sessions,_that.subjects,_that.classes,_that.focusDate,_that.pendingAssignments,_that.presentCount,_that.attendanceTotal,_that.selectedDate,_that.query,_that.dayFilter,_that.subjectFilterIds,_that.teacherFilterIds,_that.view);case _:
+return loaded(_that.child,_that.sessions,_that.subjects,_that.classes,_that.focusDate,_that.attendanceStat,_that.homeworkStat,_that.scoreStat,_that.selectedDate,_that.query,_that.dayFilter,_that.subjectFilterIds,_that.teacherFilterIds,_that.view);case _:
   return orElse();
 
 }
@@ -149,13 +149,13 @@ return loaded(_that.child,_that.sessions,_that.subjects,_that.classes,_that.focu
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( String message)  error,required TResult Function( Child child,  List<Session> sessions,  List<Subject> subjects,  List<ClassGroup> classes,  DateTime focusDate,  int? pendingAssignments,  int? presentCount,  int? attendanceTotal,  DateTime? selectedDate,  String query,  String dayFilter,  Set<String> subjectFilterIds,  Set<String> teacherFilterIds,  ParentHomeView view)  loaded,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( String message)  error,required TResult Function( Child child,  List<Session> sessions,  List<Subject> subjects,  List<ClassGroup> classes,  DateTime focusDate,  RatioStat? attendanceStat,  RatioStat? homeworkStat,  RatioStat? scoreStat,  DateTime? selectedDate,  String query,  String dayFilter,  Set<String> subjectFilterIds,  Set<String> teacherFilterIds,  ParentHomeView view)  loaded,}) {final _that = this;
 switch (_that) {
 case ParentHomeInitial():
 return initial();case ParentHomeLoading():
 return loading();case ParentHomeError():
 return error(_that.message);case ParentHomeLoaded():
-return loaded(_that.child,_that.sessions,_that.subjects,_that.classes,_that.focusDate,_that.pendingAssignments,_that.presentCount,_that.attendanceTotal,_that.selectedDate,_that.query,_that.dayFilter,_that.subjectFilterIds,_that.teacherFilterIds,_that.view);}
+return loaded(_that.child,_that.sessions,_that.subjects,_that.classes,_that.focusDate,_that.attendanceStat,_that.homeworkStat,_that.scoreStat,_that.selectedDate,_that.query,_that.dayFilter,_that.subjectFilterIds,_that.teacherFilterIds,_that.view);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -169,13 +169,13 @@ return loaded(_that.child,_that.sessions,_that.subjects,_that.classes,_that.focu
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( String message)?  error,TResult? Function( Child child,  List<Session> sessions,  List<Subject> subjects,  List<ClassGroup> classes,  DateTime focusDate,  int? pendingAssignments,  int? presentCount,  int? attendanceTotal,  DateTime? selectedDate,  String query,  String dayFilter,  Set<String> subjectFilterIds,  Set<String> teacherFilterIds,  ParentHomeView view)?  loaded,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( String message)?  error,TResult? Function( Child child,  List<Session> sessions,  List<Subject> subjects,  List<ClassGroup> classes,  DateTime focusDate,  RatioStat? attendanceStat,  RatioStat? homeworkStat,  RatioStat? scoreStat,  DateTime? selectedDate,  String query,  String dayFilter,  Set<String> subjectFilterIds,  Set<String> teacherFilterIds,  ParentHomeView view)?  loaded,}) {final _that = this;
 switch (_that) {
 case ParentHomeInitial() when initial != null:
 return initial();case ParentHomeLoading() when loading != null:
 return loading();case ParentHomeError() when error != null:
 return error(_that.message);case ParentHomeLoaded() when loaded != null:
-return loaded(_that.child,_that.sessions,_that.subjects,_that.classes,_that.focusDate,_that.pendingAssignments,_that.presentCount,_that.attendanceTotal,_that.selectedDate,_that.query,_that.dayFilter,_that.subjectFilterIds,_that.teacherFilterIds,_that.view);case _:
+return loaded(_that.child,_that.sessions,_that.subjects,_that.classes,_that.focusDate,_that.attendanceStat,_that.homeworkStat,_that.scoreStat,_that.selectedDate,_that.query,_that.dayFilter,_that.subjectFilterIds,_that.teacherFilterIds,_that.view);case _:
   return null;
 
 }
@@ -317,7 +317,7 @@ as String,
 
 
 class ParentHomeLoaded implements ParentHomeState {
-  const ParentHomeLoaded({required this.child, required final  List<Session> sessions, required final  List<Subject> subjects, required final  List<ClassGroup> classes, required this.focusDate, this.pendingAssignments, this.presentCount, this.attendanceTotal, this.selectedDate, this.query = '', this.dayFilter = defaultDayFilter, final  Set<String> subjectFilterIds = const <String>{}, final  Set<String> teacherFilterIds = const <String>{}, this.view = ParentHomeView.agenda}): _sessions = sessions,_subjects = subjects,_classes = classes,_subjectFilterIds = subjectFilterIds,_teacherFilterIds = teacherFilterIds;
+  const ParentHomeLoaded({required this.child, required final  List<Session> sessions, required final  List<Subject> subjects, required final  List<ClassGroup> classes, required this.focusDate, this.attendanceStat, this.homeworkStat, this.scoreStat, this.selectedDate, this.query = '', this.dayFilter = defaultDayFilter, final  Set<String> subjectFilterIds = const <String>{}, final  Set<String> teacherFilterIds = const <String>{}, this.view = ParentHomeView.agenda}): _sessions = sessions,_subjects = subjects,_classes = classes,_subjectFilterIds = subjectFilterIds,_teacherFilterIds = teacherFilterIds;
   
 
  final  Child child;
@@ -343,11 +343,12 @@ class ParentHomeLoaded implements ParentHomeState {
 }
 
  final  DateTime focusDate;
-/// Assignments not completed / attendance counts for the stat tiles.
-/// `null` when that part failed to load (the tile is hidden).
- final  int? pendingAssignments;
- final  int? presentCount;
- final  int? attendanceTotal;
+/// Progress figures for the stat tiles over the last 30 days. `null`
+/// when that part failed to load; [RatioStat.empty] when there is
+/// nothing to measure yet.
+ final  RatioStat? attendanceStat;
+ final  RatioStat? homeworkStat;
+ final  RatioStat? scoreStat;
  final  DateTime? selectedDate;
 @JsonKey() final  String query;
 @JsonKey() final  String dayFilter;
@@ -377,16 +378,16 @@ $ParentHomeLoadedCopyWith<ParentHomeLoaded> get copyWith => _$ParentHomeLoadedCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ParentHomeLoaded&&(identical(other.child, child) || other.child == child)&&const DeepCollectionEquality().equals(other._sessions, _sessions)&&const DeepCollectionEquality().equals(other._subjects, _subjects)&&const DeepCollectionEquality().equals(other._classes, _classes)&&(identical(other.focusDate, focusDate) || other.focusDate == focusDate)&&(identical(other.pendingAssignments, pendingAssignments) || other.pendingAssignments == pendingAssignments)&&(identical(other.presentCount, presentCount) || other.presentCount == presentCount)&&(identical(other.attendanceTotal, attendanceTotal) || other.attendanceTotal == attendanceTotal)&&(identical(other.selectedDate, selectedDate) || other.selectedDate == selectedDate)&&(identical(other.query, query) || other.query == query)&&(identical(other.dayFilter, dayFilter) || other.dayFilter == dayFilter)&&const DeepCollectionEquality().equals(other._subjectFilterIds, _subjectFilterIds)&&const DeepCollectionEquality().equals(other._teacherFilterIds, _teacherFilterIds)&&(identical(other.view, view) || other.view == view));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ParentHomeLoaded&&(identical(other.child, child) || other.child == child)&&const DeepCollectionEquality().equals(other._sessions, _sessions)&&const DeepCollectionEquality().equals(other._subjects, _subjects)&&const DeepCollectionEquality().equals(other._classes, _classes)&&(identical(other.focusDate, focusDate) || other.focusDate == focusDate)&&(identical(other.attendanceStat, attendanceStat) || other.attendanceStat == attendanceStat)&&(identical(other.homeworkStat, homeworkStat) || other.homeworkStat == homeworkStat)&&(identical(other.scoreStat, scoreStat) || other.scoreStat == scoreStat)&&(identical(other.selectedDate, selectedDate) || other.selectedDate == selectedDate)&&(identical(other.query, query) || other.query == query)&&(identical(other.dayFilter, dayFilter) || other.dayFilter == dayFilter)&&const DeepCollectionEquality().equals(other._subjectFilterIds, _subjectFilterIds)&&const DeepCollectionEquality().equals(other._teacherFilterIds, _teacherFilterIds)&&(identical(other.view, view) || other.view == view));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,child,const DeepCollectionEquality().hash(_sessions),const DeepCollectionEquality().hash(_subjects),const DeepCollectionEquality().hash(_classes),focusDate,pendingAssignments,presentCount,attendanceTotal,selectedDate,query,dayFilter,const DeepCollectionEquality().hash(_subjectFilterIds),const DeepCollectionEquality().hash(_teacherFilterIds),view);
+int get hashCode => Object.hash(runtimeType,child,const DeepCollectionEquality().hash(_sessions),const DeepCollectionEquality().hash(_subjects),const DeepCollectionEquality().hash(_classes),focusDate,attendanceStat,homeworkStat,scoreStat,selectedDate,query,dayFilter,const DeepCollectionEquality().hash(_subjectFilterIds),const DeepCollectionEquality().hash(_teacherFilterIds),view);
 
 @override
 String toString() {
-  return 'ParentHomeState.loaded(child: $child, sessions: $sessions, subjects: $subjects, classes: $classes, focusDate: $focusDate, pendingAssignments: $pendingAssignments, presentCount: $presentCount, attendanceTotal: $attendanceTotal, selectedDate: $selectedDate, query: $query, dayFilter: $dayFilter, subjectFilterIds: $subjectFilterIds, teacherFilterIds: $teacherFilterIds, view: $view)';
+  return 'ParentHomeState.loaded(child: $child, sessions: $sessions, subjects: $subjects, classes: $classes, focusDate: $focusDate, attendanceStat: $attendanceStat, homeworkStat: $homeworkStat, scoreStat: $scoreStat, selectedDate: $selectedDate, query: $query, dayFilter: $dayFilter, subjectFilterIds: $subjectFilterIds, teacherFilterIds: $teacherFilterIds, view: $view)';
 }
 
 
@@ -397,7 +398,7 @@ abstract mixin class $ParentHomeLoadedCopyWith<$Res> implements $ParentHomeState
   factory $ParentHomeLoadedCopyWith(ParentHomeLoaded value, $Res Function(ParentHomeLoaded) _then) = _$ParentHomeLoadedCopyWithImpl;
 @useResult
 $Res call({
- Child child, List<Session> sessions, List<Subject> subjects, List<ClassGroup> classes, DateTime focusDate, int? pendingAssignments, int? presentCount, int? attendanceTotal, DateTime? selectedDate, String query, String dayFilter, Set<String> subjectFilterIds, Set<String> teacherFilterIds, ParentHomeView view
+ Child child, List<Session> sessions, List<Subject> subjects, List<ClassGroup> classes, DateTime focusDate, RatioStat? attendanceStat, RatioStat? homeworkStat, RatioStat? scoreStat, DateTime? selectedDate, String query, String dayFilter, Set<String> subjectFilterIds, Set<String> teacherFilterIds, ParentHomeView view
 });
 
 
@@ -414,17 +415,17 @@ class _$ParentHomeLoadedCopyWithImpl<$Res>
 
 /// Create a copy of ParentHomeState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? child = null,Object? sessions = null,Object? subjects = null,Object? classes = null,Object? focusDate = null,Object? pendingAssignments = freezed,Object? presentCount = freezed,Object? attendanceTotal = freezed,Object? selectedDate = freezed,Object? query = null,Object? dayFilter = null,Object? subjectFilterIds = null,Object? teacherFilterIds = null,Object? view = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? child = null,Object? sessions = null,Object? subjects = null,Object? classes = null,Object? focusDate = null,Object? attendanceStat = freezed,Object? homeworkStat = freezed,Object? scoreStat = freezed,Object? selectedDate = freezed,Object? query = null,Object? dayFilter = null,Object? subjectFilterIds = null,Object? teacherFilterIds = null,Object? view = null,}) {
   return _then(ParentHomeLoaded(
 child: null == child ? _self.child : child // ignore: cast_nullable_to_non_nullable
 as Child,sessions: null == sessions ? _self._sessions : sessions // ignore: cast_nullable_to_non_nullable
 as List<Session>,subjects: null == subjects ? _self._subjects : subjects // ignore: cast_nullable_to_non_nullable
 as List<Subject>,classes: null == classes ? _self._classes : classes // ignore: cast_nullable_to_non_nullable
 as List<ClassGroup>,focusDate: null == focusDate ? _self.focusDate : focusDate // ignore: cast_nullable_to_non_nullable
-as DateTime,pendingAssignments: freezed == pendingAssignments ? _self.pendingAssignments : pendingAssignments // ignore: cast_nullable_to_non_nullable
-as int?,presentCount: freezed == presentCount ? _self.presentCount : presentCount // ignore: cast_nullable_to_non_nullable
-as int?,attendanceTotal: freezed == attendanceTotal ? _self.attendanceTotal : attendanceTotal // ignore: cast_nullable_to_non_nullable
-as int?,selectedDate: freezed == selectedDate ? _self.selectedDate : selectedDate // ignore: cast_nullable_to_non_nullable
+as DateTime,attendanceStat: freezed == attendanceStat ? _self.attendanceStat : attendanceStat // ignore: cast_nullable_to_non_nullable
+as RatioStat?,homeworkStat: freezed == homeworkStat ? _self.homeworkStat : homeworkStat // ignore: cast_nullable_to_non_nullable
+as RatioStat?,scoreStat: freezed == scoreStat ? _self.scoreStat : scoreStat // ignore: cast_nullable_to_non_nullable
+as RatioStat?,selectedDate: freezed == selectedDate ? _self.selectedDate : selectedDate // ignore: cast_nullable_to_non_nullable
 as DateTime?,query: null == query ? _self.query : query // ignore: cast_nullable_to_non_nullable
 as String,dayFilter: null == dayFilter ? _self.dayFilter : dayFilter // ignore: cast_nullable_to_non_nullable
 as String,subjectFilterIds: null == subjectFilterIds ? _self._subjectFilterIds : subjectFilterIds // ignore: cast_nullable_to_non_nullable

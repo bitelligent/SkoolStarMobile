@@ -4,11 +4,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_form_field.dart';
 import 'package:skoolstar_teacher_module/core/widgets/primary_button.dart';
 import 'package:skoolstar_teacher_module/data/repositories/auth_repository.dart';
 import 'package:skoolstar_teacher_module/features/auth/cubit/login_cubit.dart';
 import 'package:skoolstar_teacher_module/features/auth/cubit/login_state.dart';
+import 'package:skoolstar_teacher_module/features/branding/brand_context.dart';
+import 'package:skoolstar_teacher_module/features/branding/widgets/brand_logo.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -132,7 +135,7 @@ class _LoginViewState extends State<_LoginView> {
         borderRadius: BorderRadius.circular(AppRadius.xxl),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.14),
+            color: context.brand.primary.withValues(alpha: 0.14),
             blurRadius: 32,
             offset: const Offset(0, 14),
           ),
@@ -147,7 +150,7 @@ class _LoginViewState extends State<_LoginView> {
               Text('Welcome back', style: AppTextStyles.headingLarge),
               const SizedBox(height: AppSpacing.xs),
               Text(
-                'Sign in to your SkoolStar account.',
+                'Sign in to your ${context.appName} account.',
                 style: AppTextStyles.bodyMedium.copyWith(
                   color: AppColors.textSecondary,
                 ),
@@ -252,7 +255,7 @@ class _LoginViewState extends State<_LoginView> {
           vertical: AppSpacing.lg,
         ),
         enabledBorder: border(AppColors.border),
-        focusedBorder: border(AppColors.primary, 1.6),
+        focusedBorder: border(context.brand.primary, 1.6),
         errorBorder: border(AppColors.danger),
         focusedErrorBorder: border(AppColors.danger, 1.6),
       ),
@@ -275,7 +278,7 @@ class _HeroBackground extends StatelessWidget {
         child: Container(
           height: height,
           width: double.infinity,
-          decoration: const BoxDecoration(gradient: AppGradients.primary),
+          decoration: BoxDecoration(gradient: context.brand.gradient),
           child: Stack(
             children: [
               const Positioned(
@@ -347,29 +350,10 @@ class _Brand extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Container(
-          width: 72,
-          height: 72,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(AppRadius.xl),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.16),
-                blurRadius: 24,
-                offset: const Offset(0, 8),
-              ),
-            ],
-          ),
-          child: const Icon(
-            Icons.school_rounded,
-            size: 40,
-            color: AppColors.primary,
-          ),
-        ),
+        const BrandLogo(),
         const SizedBox(height: AppSpacing.lg),
         Text(
-          'SkoolStar',
+          context.appName,
           style: AppTextStyles.displayLarge.copyWith(
             color: Colors.white,
             fontWeight: FontWeight.w800,

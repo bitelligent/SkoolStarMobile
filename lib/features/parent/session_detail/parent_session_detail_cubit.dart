@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:skoolstar_teacher_module/core/bloc/safe_cubit.dart';
 import 'package:skoolstar_teacher_module/core/network/error_message.dart';
 import 'package:skoolstar_teacher_module/data/models/class_group.dart';
 import 'package:skoolstar_teacher_module/data/models/parent/child.dart';
@@ -33,7 +34,7 @@ sealed class ParentSessionDetailState with _$ParentSessionDetailState {
 
 /// Read-only detail of one session of one child. The child is fixed for the
 /// lifetime of the screen (the switcher lives on the tab screens).
-class ParentSessionDetailCubit extends Cubit<ParentSessionDetailState> {
+class ParentSessionDetailCubit extends SafeCubit<ParentSessionDetailState> {
   ParentSessionDetailCubit({
     required this.child,
     required this.sessionId,

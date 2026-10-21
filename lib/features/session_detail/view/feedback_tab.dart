@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_card.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_dropdown.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_empty_state.dart';
@@ -143,7 +144,7 @@ class _FeedbackTabState extends State<FeedbackTab> {
               AppSectionTitle(
                 title: 'General Feedback',
                 icon: Icons.mail_outline_rounded,
-                iconColor: AppColors.primary,
+                iconColor: context.brand.primary,
               ),
               const SizedBox(height: AppSpacing.md),
               AppFormField(
@@ -310,7 +311,7 @@ class _FeedbackTabState extends State<FeedbackTab> {
                             id: s.id,
                             label: '${s.firstName} ${s.lastName}',
                             icon: Icons.person_rounded,
-                            color: AppColors.primary,
+                            color: context.brand.primary,
                             subtitle: s.rollNo.isEmpty
                                 ? null
                                 : 'Roll ${s.rollNo}',

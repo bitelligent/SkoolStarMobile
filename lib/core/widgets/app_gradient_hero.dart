@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 
 /// Rounded gradient card for hero/featured content (greeting banner,
 /// LIVE NOW, promotional callouts). Keeps every gradient card consistent.
@@ -22,7 +23,7 @@ class AppGradientHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final g = gradient ?? AppGradients.primary;
+    final g = gradient ?? context.brand.gradient;
     return Container(
       width: double.infinity,
       padding: padding,

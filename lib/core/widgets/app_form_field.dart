@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 
 /// A label-on-top wrapper for any form input. Keeps spacing + typography
 /// consistent across every form in the app.
@@ -114,7 +115,7 @@ class AppTextField extends StatelessWidget {
         prefixIcon: prefix,
         suffixIcon: suffix,
         enabledBorder: _border(AppColors.border),
-        focusedBorder: _border(AppColors.primary, width: 1.4),
+        focusedBorder: _border(context.brand.primary, width: 1.4),
         disabledBorder: _border(AppColors.border),
       ),
     );

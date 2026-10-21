@@ -11,6 +11,7 @@ class AppStatTile extends StatelessWidget {
     required this.value,
     required this.label,
     required this.color,
+    this.caption,
     this.onTap,
     super.key,
   });
@@ -19,6 +20,9 @@ class AppStatTile extends StatelessWidget {
   final String value;
   final String label;
   final Color color;
+
+  /// Small supporting line under the label, e.g. "11 of 12 classes".
+  final String? caption;
   final VoidCallback? onTap;
 
   @override
@@ -64,9 +68,19 @@ class AppStatTile extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.textSecondary,
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w700,
               ),
             ),
+            if (caption != null)
+              Text(
+                caption!,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.labelSmall.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              ),
           ],
         ),
       ),

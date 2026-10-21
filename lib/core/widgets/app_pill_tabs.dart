@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 
 /// A pill tab item.
 class AppPillTab {
@@ -89,7 +90,7 @@ class _AppPillTabsState extends State<AppPillTabs> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = _PillTheme.of(widget.variant);
+    final theme = _PillTheme.of(widget.variant, context.brand);
     return Container(
       padding: const EdgeInsets.all(5),
       decoration: BoxDecoration(
@@ -184,12 +185,12 @@ class _PillTheme {
   final List<BoxShadow>? activeShadow;
   final List<BoxShadow>? containerShadow;
 
-  static _PillTheme of(AppPillTabsVariant v) {
+  static _PillTheme of(AppPillTabsVariant v, BrandColors brand) {
     switch (v) {
       case AppPillTabsVariant.light:
         return _PillTheme(
           containerColor: AppColors.surfaceMuted,
-          activeBg: AppColors.primary,
+          activeBg: brand.primary,
           activeIconColor: Colors.white,
           activeLabelColor: Colors.white,
           inactiveFg: AppColors.textSecondary,
@@ -197,16 +198,16 @@ class _PillTheme {
         );
       case AppPillTabsVariant.dark:
         return _PillTheme(
-          containerColor: AppColors.primaryDark,
+          containerColor: brand.primaryDark,
           activeBg: Colors.white,
-          activeIconColor: AppColors.primary,
+          activeIconColor: brand.primary,
           activeLabelColor: AppColors.textPrimary,
-          inactiveFg: AppColors.primaryLight,
-          activeShadow: const [
+          inactiveFg: brand.primaryLight,
+          activeShadow: [
             BoxShadow(
-              color: Color(0x332563EB),
+              color: brand.primary.withValues(alpha: 0.2),
               blurRadius: 8,
-              offset: Offset(0, 2),
+              offset: const Offset(0, 2),
             ),
           ],
           containerShadow: AppShadows.cardSoft,

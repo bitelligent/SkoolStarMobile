@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 import 'package:skoolstar_teacher_module/core/widgets/avatar_circle.dart';
 
 /// Overlapping avatar stack with an optional "+N" counter at the end.
@@ -50,14 +51,14 @@ class AppAvatarGroup extends StatelessWidget {
                 height: size,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: AppColors.primarySoft,
+                  color: context.brand.primarySoft,
                   shape: BoxShape.circle,
                   border: Border.all(color: AppColors.surface, width: 2),
                 ),
                 child: Text(
                   '+$extra',
                   style: AppTextStyles.labelSmall.copyWith(
-                    color: AppColors.primary,
+                    color: context.brand.primary,
                     fontWeight: FontWeight.w700,
                   ),
                 ),

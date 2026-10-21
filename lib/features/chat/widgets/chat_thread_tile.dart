@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 import 'package:skoolstar_teacher_module/core/widgets/avatar_circle.dart';
 import 'package:skoolstar_teacher_module/data/models/chat_thread.dart';
 
@@ -167,10 +168,10 @@ class _MessagePreview extends StatelessWidget {
     return Row(
       children: [
         if (thread.outgoingLast) ...[
-          const Icon(
+          Icon(
             Icons.done_all_rounded,
             size: 14,
-            color: AppColors.primary,
+            color: context.brand.primary,
           ),
           const SizedBox(width: 4),
         ],
@@ -216,7 +217,7 @@ class _TrailingMeta extends StatelessWidget {
         Text(
           _formatTime(thread.lastMessageAt),
           style: AppTextStyles.labelSmall.copyWith(
-            color: hasUnread ? AppColors.primary : AppColors.textTertiary,
+            color: hasUnread ? context.brand.primary : AppColors.textTertiary,
             fontWeight: hasUnread ? FontWeight.w700 : FontWeight.w500,
           ),
         ),
@@ -226,7 +227,7 @@ class _TrailingMeta extends StatelessWidget {
             constraints: const BoxConstraints(minWidth: 20),
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
             decoration: BoxDecoration(
-              color: AppColors.primary,
+              color: context.brand.primary,
               borderRadius: BorderRadius.circular(AppRadius.pill),
             ),
             child: Text(

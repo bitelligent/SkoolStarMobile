@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_sheet.dart';
 import 'package:skoolstar_teacher_module/data/models/class_group.dart';
 import 'package:skoolstar_teacher_module/data/models/session_model.dart';
@@ -140,7 +141,7 @@ class FilterChipRow extends StatelessWidget {
               icon: Icons.calendar_today_rounded,
               active: _dayActive,
               count: 0,
-              color: AppColors.primary,
+              color: context.brand.primary,
               onTap: () => _pickDay(context),
             ),
             const SizedBox(width: 8),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 
 /// Universal pill-shaped chip. Use for subject tags, class filters, status
 /// badges, selectable options — anywhere a small coloured label is needed.
@@ -12,7 +12,7 @@ class AppChip extends StatelessWidget {
   const AppChip({
     required this.label,
     this.icon,
-    this.color = AppColors.primary,
+    this.color,
     this.selected = false,
     this.onTap,
     this.dense = false,
@@ -22,7 +22,7 @@ class AppChip extends StatelessWidget {
 
   final String label;
   final IconData? icon;
-  final Color color;
+  final Color? color;
   final bool selected;
   final VoidCallback? onTap;
   final bool dense;
@@ -30,6 +30,7 @@ class AppChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final color = this.color ?? context.brand.primary;
     final bg = selected ? color : color.withOpacity(0.12);
     final fg = selected ? Colors.white : color;
     final padH = dense ? AppSpacing.sm : AppSpacing.md;
@@ -113,7 +114,7 @@ class AppChipRow extends StatelessWidget {
           return AppChip(
             label: o.label,
             icon: o.icon,
-            color: o.color ?? AppColors.primary,
+            color: o.color ?? context.brand.primary,
             selected: selectedId == o.id,
             onTap: () => onSelect(o.id),
           );

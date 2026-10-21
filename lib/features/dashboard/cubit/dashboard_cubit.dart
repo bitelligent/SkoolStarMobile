@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:skoolstar_teacher_module/core/bloc/safe_cubit.dart';
 import 'package:skoolstar_teacher_module/core/utils/day_filter.dart';
 import 'package:skoolstar_teacher_module/core/network/error_message.dart';
 import 'package:skoolstar_teacher_module/data/models/class_group.dart';
@@ -13,7 +14,7 @@ import 'package:skoolstar_teacher_module/data/repositories/subject_repository.da
 import 'package:skoolstar_teacher_module/data/repositories/user_repository.dart';
 import 'package:skoolstar_teacher_module/features/dashboard/cubit/dashboard_state.dart';
 
-class DashboardCubit extends Cubit<DashboardState> {
+class DashboardCubit extends SafeCubit<DashboardState> {
   DashboardCubit({
     required InstituteRepository instituteRepository,
     required UserRepository userRepository,

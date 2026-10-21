@@ -29,6 +29,10 @@ abstract class ChatThread with _$ChatThread {
     @Default(false) bool isPinned,
     @Default(false) bool isTyping,
     @Default(false) bool outgoingLast,
+
+    /// Chat user id of the other person (1-to-1 threads); used to map
+    /// presence and to tell own messages from the peer's.
+    @Default('') String peerUserId,
   }) = _ChatThread;
 
   factory ChatThread.fromJson(Map<String, dynamic> json) =>

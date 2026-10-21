@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_chip.dart';
 import 'package:skoolstar_teacher_module/data/models/homework_model.dart';
 import 'package:skoolstar_teacher_module/features/session_detail/cubit/session_detail_cubit.dart';
@@ -145,7 +146,11 @@ class _HomeworkDetail extends StatelessWidget {
               dense: true,
             ),
             if (className != null)
-              AppChip(label: className, color: AppColors.primary, dense: true),
+              AppChip(
+                label: className,
+                color: context.brand.primary,
+                dense: true,
+              ),
             if (subjectName != null)
               AppChip(
                 label: subjectName,
@@ -379,7 +384,7 @@ class _AttachmentRow extends StatelessWidget {
         ? (Icons.image_rounded, AppColors.accentTeal)
         : attachment.isPdf
         ? (Icons.picture_as_pdf_rounded, AppColors.danger)
-        : (Icons.description_rounded, AppColors.primary);
+        : (Icons.description_rounded, context.brand.primary);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),

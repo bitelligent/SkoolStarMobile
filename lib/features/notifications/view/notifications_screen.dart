@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:skoolstar_teacher_module/core/bloc/safe_cubit.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_empty_state.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_top_bar.dart';
 import 'package:skoolstar_teacher_module/core/widgets/icon_tile.dart';
@@ -28,18 +30,24 @@ class NotificationsScreen extends StatelessWidget {
 class _NotificationsView extends StatelessWidget {
   const _NotificationsView();
 
-  ({IconData icon, Color color}) _styleFor(String type) {
+  ({IconData icon, Color color}) _styleFor(BuildContext context, String type) {
     switch (type) {
       case 'submission':
-        return (icon: Icons.assignment_turned_in_rounded, color: AppColors.success);
+        return (
+          icon: Icons.assignment_turned_in_rounded,
+          color: AppColors.success,
+        );
       case 'reminder':
-        return (icon: Icons.event_rounded, color: AppColors.primary);
+        return (icon: Icons.event_rounded, color: context.brand.primary);
       case 'message':
         return (icon: Icons.chat_bubble_rounded, color: AppColors.accentPurple);
       case 'attendance':
         return (icon: Icons.rule_rounded, color: AppColors.warning);
       default:
-        return (icon: Icons.notifications_rounded, color: AppColors.accentIndigo);
+        return (
+          icon: Icons.notifications_rounded,
+          color: AppColors.accentIndigo,
+        );
     }
   }
 
@@ -101,7 +109,7 @@ class _NotificationsView extends StatelessWidget {
               ),
               const SizedBox(height: AppSpacing.sm),
               ...items.map((n) {
-                final style = _styleFor(n.type);
+                final style = _styleFor(context, n.type);
                 return Padding(
                   padding: const EdgeInsets.only(bottom: AppSpacing.sm),
                   child: _NotificationCard(

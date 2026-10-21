@@ -1,12 +1,60 @@
-import 'package:skoolstar_teacher_module/data/datasources/local_json_data_source.dart';
+import 'package:flutter/foundation.dart';
 import 'package:skoolstar_teacher_module/data/models/chat_thread.dart';
 import 'package:skoolstar_teacher_module/data/models/direct_message.dart';
 import 'package:skoolstar_teacher_module/data/models/feedback_topic.dart';
 
+/// Something that changed on the server, already mapped to UI models.
+sealed class ChatEvent {
+  const ChatEvent();
+}
+
+class DirectMessageReceived extends ChatEvent {
+  const DirectMessageReceived(this.threadId, this.message);
+  final String threadId;
+  final DirectMessage message;
+}
+
+/// Read state / last message of a 1-to-1 thread changed (or the thread is
+/// not known locally yet).
+class DirectThreadChanged extends ChatEvent {
+  const DirectThreadChanged(this.threadId);
+  final String threadId;
+}
+
+class PeerPresenceChanged extends ChatEvent {
+  const PeerPresenceChanged(this.peerUserId, {required this.online});
+  final String peerUserId;
+  final bool online;
+}
+
+class FeedbackMessageReceived extends ChatEvent {
+  const FeedbackMessageReceived(this.topicId, this.message);
+  final String topicId;
+  final FeedbackMessage message;
+}
+
+/// A feedback thread was created / changed somewhere; re-fetch lists.
+class FeedbackListChanged extends ChatEvent {
+  const FeedbackListChanged();
+}
+
+/// The realtime link was re-established: anything sent while it was down
+/// was missed, so re-fetch what is on screen.
+class ChatResync extends ChatEvent {
+  const ChatResync();
+}
+
 abstract class ChatRepository {
+  /// Messages loaded per page in a 1-to-1 chat.
+  static const int pageSize = 30;
+
   Future<List<ChatThread>> getThreads();
   Future<List<ChatThread>> getByCategory(ChatCategory category);
   Future<ChatThread?> getThreadById(String id);
+
+  /// Re-reads one thread from the server (read state, last message,
+  /// presence). Falls back to the cached copy when offline.
+  Future<ChatThread?> refreshThread(String id) => getThreadById(id);
 
   Future<List<FeedbackTopic>> getFeedbackTopicsFor(String threadId);
   Future<FeedbackTopic> createFeedbackTopic({
@@ -24,252 +72,36 @@ abstract class ChatRepository {
   Future<void> deleteTopic(String topicId);
   Future<void> markTopicRead(String topicId, {bool asParent = false});
 
+  /// Latest [pageSize] messages, oldest first.
   Future<List<DirectMessage>> getDirectMessagesFor(String threadId);
+
+  /// The page of messages older than [beforeMessageId], oldest first.
+  Future<List<DirectMessage>> getOlderDirectMessages(
+    String threadId, {
+    required String beforeMessageId,
+  }) async => const [];
+
   Future<DirectMessage> sendDirectMessage({
     required String threadId,
     required String content,
     required bool fromTeacher,
   });
   Future<void> markDirectThreadRead(String threadId, {bool asParent = false});
+
+  // ─── Realtime (no-ops for offline / mock repositories) ──────────────
+
+  /// Server-pushed changes. Never errors; a dropped link shows up in
+  /// [isLive] and ends with a [ChatResync].
+  Stream<ChatEvent> get events => const Stream.empty();
+
+  /// `true` while the realtime link is up.
+  ValueListenable<bool> get isLive => _alwaysLive;
+
+  /// Start receiving messages for one 1-to-1 thread / these feedback topics.
+  Future<void> watchDirectThread(String threadId) async {}
+  Future<void> unwatchDirectThread(String threadId) async {}
+  Future<void> watchFeedbackTopics(Iterable<String> topicIds) async {}
+  Future<void> unwatchFeedbackTopics(Iterable<String> topicIds) async {}
 }
 
-class ChatRepositoryImpl implements ChatRepository {
-  ChatRepositoryImpl(
-    this._dataSource, {
-    this.assetPath = 'assets/json/chats.json',
-  });
-
-  final JsonDataSource _dataSource;
-
-  /// Mock data file: teacher inbox by default, `parent_chats.json` for the
-  /// parent module.
-  final String assetPath;
-
-  // ─── In-memory cache ────────────────────────────────────────────────
-  // Seeded on first access and then mutated locally — simulates a real
-  // backend so the UI gets instant feedback without re-reading the asset.
-
-  List<ChatThread>? _threadsCache;
-  final Map<String, List<FeedbackTopic>> _topicsCache = {};
-  final Map<String, List<DirectMessage>> _directCache = {};
-  bool _seeded = false;
-
-  Future<void> _seed() async {
-    if (_seeded) return;
-    final data = await _dataSource.readJsonObject(assetPath);
-
-    final rawThreads = (data['threads'] as List<dynamic>? ?? const [])
-        .cast<Map<String, dynamic>>();
-    _threadsCache = rawThreads.map(ChatThread.fromJson).toList()
-      ..sort((a, b) {
-        if (a.isPinned != b.isPinned) return a.isPinned ? -1 : 1;
-        return b.lastMessageAt.compareTo(a.lastMessageAt);
-      });
-
-    final rawTopics = (data['feedbackTopics'] as List<dynamic>? ?? const [])
-        .cast<Map<String, dynamic>>();
-    for (final json in rawTopics) {
-      final topic = FeedbackTopic.fromJson(json);
-      _topicsCache.putIfAbsent(topic.threadId, () => []).add(topic);
-    }
-    for (final list in _topicsCache.values) {
-      list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-    }
-
-    final rawDirect = (data['directMessages'] as List<dynamic>? ?? const [])
-        .cast<Map<String, dynamic>>();
-    for (final json in rawDirect) {
-      final m = DirectMessage.fromJson(json);
-      _directCache.putIfAbsent(m.threadId, () => []).add(m);
-    }
-    for (final list in _directCache.values) {
-      list.sort((a, b) => a.sentAt.compareTo(b.sentAt));
-    }
-
-    _seeded = true;
-  }
-
-  // ─── Threads ────────────────────────────────────────────────────────
-
-  @override
-  Future<List<ChatThread>> getThreads() async {
-    await _seed();
-    return List.unmodifiable(_threadsCache ?? const []);
-  }
-
-  @override
-  Future<List<ChatThread>> getByCategory(ChatCategory category) async {
-    final all = await getThreads();
-    return all.where((t) => t.category == category).toList();
-  }
-
-  @override
-  Future<ChatThread?> getThreadById(String id) async {
-    final all = await getThreads();
-    for (final t in all) {
-      if (t.id == id) return t;
-    }
-    return null;
-  }
-
-  // ─── Feedback topics ────────────────────────────────────────────────
-
-  @override
-  Future<List<FeedbackTopic>> getFeedbackTopicsFor(String threadId) async {
-    await _seed();
-    final list = _topicsCache[threadId] ?? const <FeedbackTopic>[];
-    return List.unmodifiable(list);
-  }
-
-  @override
-  Future<FeedbackTopic> createFeedbackTopic({
-    required String threadId,
-    required String subject,
-    required FeedbackTone tone,
-    required String message,
-  }) async {
-    await _seed();
-    await Future<void>.delayed(const Duration(milliseconds: 350));
-
-    final now = DateTime.now();
-    final topic = FeedbackTopic(
-      id: 'ft_${now.microsecondsSinceEpoch}',
-      threadId: threadId,
-      subject: subject.trim().isEmpty ? 'Feedback' : subject.trim(),
-      tone: tone,
-      createdAt: now,
-      messages: [
-        FeedbackMessage(
-          id: 'fm_${now.microsecondsSinceEpoch}',
-          fromTeacher: true,
-          content: message.trim(),
-          sentAt: now,
-          isRead: true,
-        ),
-      ],
-    );
-
-    final list = _topicsCache.putIfAbsent(threadId, () => <FeedbackTopic>[]);
-    list.insert(0, topic); // newest on top
-    return topic;
-  }
-
-  @override
-  Future<FeedbackMessage> replyToTopic({
-    required String topicId,
-    required String content,
-    required bool fromTeacher,
-  }) async {
-    await _seed();
-    await Future<void>.delayed(const Duration(milliseconds: 250));
-
-    final (list, idx) = _findTopic(topicId);
-    if (list == null || idx == null) {
-      throw StateError('Topic $topicId not found');
-    }
-    final topic = list[idx];
-    final now = DateTime.now();
-    final reply = FeedbackMessage(
-      id: 'fm_${now.microsecondsSinceEpoch}',
-      fromTeacher: fromTeacher,
-      content: content.trim(),
-      sentAt: now,
-      isRead: true,
-    );
-    list[idx] = topic.copyWith(messages: [...topic.messages, reply]);
-    return reply;
-  }
-
-  @override
-  Future<FeedbackTopic> toggleResolved(String topicId) async {
-    await _seed();
-    final (list, idx) = _findTopic(topicId);
-    if (list == null || idx == null) {
-      throw StateError('Topic $topicId not found');
-    }
-    final updated = list[idx].copyWith(isResolved: !list[idx].isResolved);
-    list[idx] = updated;
-    return updated;
-  }
-
-  @override
-  Future<void> deleteTopic(String topicId) async {
-    await _seed();
-    final (list, idx) = _findTopic(topicId);
-    if (list == null || idx == null) return;
-    list.removeAt(idx);
-  }
-
-  @override
-  Future<void> markTopicRead(String topicId, {bool asParent = false}) async {
-    await _seed();
-    final (list, idx) = _findTopic(topicId);
-    if (list == null || idx == null) return;
-    final topic = list[idx];
-    final updatedMessages = [
-      for (final m in topic.messages)
-        // Read receipts are for messages from the *other* side.
-        if (m.fromTeacher != asParent || m.isRead)
-          m
-        else
-          m.copyWith(isRead: true),
-    ];
-    list[idx] = topic.copyWith(messages: updatedMessages);
-  }
-
-  // ─── Direct (1-to-1) messages ───────────────────────────────────────
-
-  @override
-  Future<List<DirectMessage>> getDirectMessagesFor(String threadId) async {
-    await _seed();
-    final list = _directCache[threadId] ?? const <DirectMessage>[];
-    return List.unmodifiable(list);
-  }
-
-  @override
-  Future<DirectMessage> sendDirectMessage({
-    required String threadId,
-    required String content,
-    required bool fromTeacher,
-  }) async {
-    await _seed();
-    await Future<void>.delayed(const Duration(milliseconds: 250));
-    final now = DateTime.now();
-    final msg = DirectMessage(
-      id: 'dm_${now.microsecondsSinceEpoch}',
-      threadId: threadId,
-      fromTeacher: fromTeacher,
-      content: content.trim(),
-      sentAt: now,
-      isRead: true,
-    );
-    _directCache.putIfAbsent(threadId, () => <DirectMessage>[]).add(msg);
-    return msg;
-  }
-
-  @override
-  Future<void> markDirectThreadRead(
-    String threadId, {
-    bool asParent = false,
-  }) async {
-    await _seed();
-    final list = _directCache[threadId];
-    if (list == null) return;
-    for (var i = 0; i < list.length; i++) {
-      final m = list[i];
-      if (m.fromTeacher == asParent && !m.isRead) {
-        list[i] = m.copyWith(isRead: true);
-      }
-    }
-  }
-
-  // ─── Helpers ────────────────────────────────────────────────────────
-
-  (List<FeedbackTopic>?, int?) _findTopic(String id) {
-    for (final entry in _topicsCache.entries) {
-      final i = entry.value.indexWhere((t) => t.id == id);
-      if (i != -1) return (entry.value, i);
-    }
-    return (null, null);
-  }
-}
+final ValueNotifier<bool> _alwaysLive = ValueNotifier(true);

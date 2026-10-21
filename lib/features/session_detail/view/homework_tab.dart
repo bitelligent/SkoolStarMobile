@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_card.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_chip.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_dropdown.dart';
@@ -367,7 +368,7 @@ class _HomeworkTabState extends State<HomeworkTab> {
                         ? 'Clear all'
                         : 'Select all',
                     style: AppTextStyles.labelSmall.copyWith(
-                      color: AppColors.primary,
+                      color: context.brand.primary,
                       fontWeight: FontWeight.w700,
                     ),
                   ),

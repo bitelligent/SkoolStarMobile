@@ -13,6 +13,15 @@ _FeedbackMessage _$FeedbackMessageFromJson(Map<String, dynamic> json) =>
       content: json['content'] as String,
       sentAt: DateTime.parse(json['sentAt'] as String),
       isRead: json['isRead'] as bool? ?? true,
+      senderName: json['senderName'] as String? ?? '',
+      status:
+          $enumDecodeNullable(
+            _$MessageStatusEnumMap,
+            json['status'],
+            unknownValue: MessageStatus.sent,
+          ) ??
+          MessageStatus.sent,
+      clientId: json['clientId'] as String?,
     );
 
 Map<String, dynamic> _$FeedbackMessageToJson(_FeedbackMessage instance) =>
@@ -22,7 +31,16 @@ Map<String, dynamic> _$FeedbackMessageToJson(_FeedbackMessage instance) =>
       'content': instance.content,
       'sentAt': instance.sentAt.toIso8601String(),
       'isRead': instance.isRead,
+      'senderName': instance.senderName,
+      'status': _$MessageStatusEnumMap[instance.status]!,
+      'clientId': instance.clientId,
     };
+
+const _$MessageStatusEnumMap = {
+  MessageStatus.sent: 'sent',
+  MessageStatus.sending: 'sending',
+  MessageStatus.failed: 'failed',
+};
 
 _FeedbackTopic _$FeedbackTopicFromJson(Map<String, dynamic> json) =>
     _FeedbackTopic(

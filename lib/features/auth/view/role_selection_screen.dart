@@ -7,6 +7,7 @@ import 'package:skoolstar_teacher_module/core/router/app_routes.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_chip.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_empty_state.dart';
 import 'package:skoolstar_teacher_module/data/models/auth/app_role.dart';
@@ -14,6 +15,7 @@ import 'package:skoolstar_teacher_module/data/models/auth/auth_context.dart';
 import 'package:skoolstar_teacher_module/data/models/auth/auth_session.dart';
 import 'package:skoolstar_teacher_module/data/repositories/auth_repository.dart';
 import 'package:skoolstar_teacher_module/features/auth/cubit/role_selection_cubit.dart';
+import 'package:skoolstar_teacher_module/features/branding/brand_context.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// Opens [url] outside the app. Injectable so tests don't hit the platform.
@@ -155,7 +157,7 @@ class _RoleSelectionView extends StatelessWidget {
                                   right: 4,
                                 ),
                                 child: Text(
-                                  'These roles are managed on the SkoolStar '
+                                  'These roles are managed on the ${context.appName} '
                                   'web app. Tapping one opens it in your '
                                   'browser.',
                                   style: AppTextStyles.labelMedium.copyWith(
@@ -206,8 +208,8 @@ class _Header extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      decoration: const BoxDecoration(
-        gradient: AppGradients.primary,
+      decoration: BoxDecoration(
+        gradient: context.brand.gradient,
         borderRadius: BorderRadius.vertical(
           bottom: Radius.circular(AppRadius.xxl + 8),
         ),
@@ -253,9 +255,9 @@ class _Header extends StatelessWidget {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(AppRadius.lg),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.swap_horiz_rounded,
-                  color: AppColors.primary,
+                  color: context.brand.primary,
                   size: 28,
                 ),
               ),
@@ -270,7 +272,7 @@ class _Header extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 switching
-                    ? 'Use SkoolStar as a different role. Your current '
+                    ? 'Use ${context.appName} as a different role. Your current '
                           'session stays signed in.'
                     : 'This account has more than one role. Select the one '
                           'to use for this session.',
@@ -317,8 +319,11 @@ class _RoleCard extends StatelessWidget {
   final bool isCurrent;
   final VoidCallback onTap;
 
-  (IconData, Color) _style(AppRole r) => switch (r) {
-    AppRole.teacher => (Icons.cast_for_education_rounded, AppColors.primary),
+  (IconData, Color) _style(BuildContext context, AppRole r) => switch (r) {
+    AppRole.teacher => (
+      Icons.cast_for_education_rounded,
+      context.brand.primary,
+    ),
     AppRole.parent => (Icons.family_restroom_rounded, AppColors.accentTeal),
     AppRole.unsupported => (
       Icons.admin_panel_settings_rounded,
@@ -328,7 +333,7 @@ class _RoleCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (icon, color) = _style(role.appRole);
+    final (icon, color) = _style(context, role.appRole);
     final selecting = context.select<RoleSelectionCubit, bool>(
       (c) =>
           c.state is RoleSelectionSelecting &&
@@ -348,7 +353,7 @@ class _RoleCard extends StatelessWidget {
             '${role.roleLabel}${place.isEmpty ? '' : ', $place'}'
             '${role.isSupported ? '' : ', opens the web app'}',
         child: Material(
-          color: isCurrent ? AppColors.primarySoft : AppColors.surface,
+          color: isCurrent ? context.brand.primarySoft : AppColors.surface,
           borderRadius: BorderRadius.circular(AppRadius.xl),
           child: InkWell(
             onTap: busy ? null : onTap,
@@ -358,7 +363,7 @@ class _RoleCard extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(AppRadius.xl),
                 border: Border.all(
-                  color: isCurrent ? AppColors.primary : AppColors.border,
+                  color: isCurrent ? context.brand.primary : AppColors.border,
                   width: isCurrent ? 1.6 : 1,
                 ),
                 boxShadow: isCurrent ? null : AppShadows.cardSoft,
@@ -419,10 +424,10 @@ class _RoleCard extends StatelessWidget {
                       child: CircularProgressIndicator(strokeWidth: 2.4),
                     )
                   else if (isCurrent)
-                    const AppChip(
+                    AppChip(
                       label: 'Current',
                       icon: Icons.check_circle_rounded,
-                      color: AppColors.primary,
+                      color: context.brand.primary,
                       dense: true,
                     )
                   else if (role.isSupported)

@@ -15,7 +15,9 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$DirectMessage {
 
- String get id; String get threadId; bool get fromTeacher; String get content; DateTime get sentAt; bool get isRead;
+ String get id; String get threadId; bool get fromTeacher; String get content; DateTime get sentAt; bool get isRead;/// Local-only: delivery state of an optimistic message.
+@JsonKey(unknownEnumValue: MessageStatus.sent) MessageStatus get status;/// Local id of an optimistic message; lets the server copy replace it.
+ String? get clientId;
 /// Create a copy of DirectMessage
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +30,16 @@ $DirectMessageCopyWith<DirectMessage> get copyWith => _$DirectMessageCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DirectMessage&&(identical(other.id, id) || other.id == id)&&(identical(other.threadId, threadId) || other.threadId == threadId)&&(identical(other.fromTeacher, fromTeacher) || other.fromTeacher == fromTeacher)&&(identical(other.content, content) || other.content == content)&&(identical(other.sentAt, sentAt) || other.sentAt == sentAt)&&(identical(other.isRead, isRead) || other.isRead == isRead));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DirectMessage&&(identical(other.id, id) || other.id == id)&&(identical(other.threadId, threadId) || other.threadId == threadId)&&(identical(other.fromTeacher, fromTeacher) || other.fromTeacher == fromTeacher)&&(identical(other.content, content) || other.content == content)&&(identical(other.sentAt, sentAt) || other.sentAt == sentAt)&&(identical(other.isRead, isRead) || other.isRead == isRead)&&(identical(other.status, status) || other.status == status)&&(identical(other.clientId, clientId) || other.clientId == clientId));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,threadId,fromTeacher,content,sentAt,isRead);
+int get hashCode => Object.hash(runtimeType,id,threadId,fromTeacher,content,sentAt,isRead,status,clientId);
 
 @override
 String toString() {
-  return 'DirectMessage(id: $id, threadId: $threadId, fromTeacher: $fromTeacher, content: $content, sentAt: $sentAt, isRead: $isRead)';
+  return 'DirectMessage(id: $id, threadId: $threadId, fromTeacher: $fromTeacher, content: $content, sentAt: $sentAt, isRead: $isRead, status: $status, clientId: $clientId)';
 }
 
 
@@ -48,7 +50,7 @@ abstract mixin class $DirectMessageCopyWith<$Res>  {
   factory $DirectMessageCopyWith(DirectMessage value, $Res Function(DirectMessage) _then) = _$DirectMessageCopyWithImpl;
 @useResult
 $Res call({
- String id, String threadId, bool fromTeacher, String content, DateTime sentAt, bool isRead
+ String id, String threadId, bool fromTeacher, String content, DateTime sentAt, bool isRead,@JsonKey(unknownEnumValue: MessageStatus.sent) MessageStatus status, String? clientId
 });
 
 
@@ -65,7 +67,7 @@ class _$DirectMessageCopyWithImpl<$Res>
 
 /// Create a copy of DirectMessage
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? threadId = null,Object? fromTeacher = null,Object? content = null,Object? sentAt = null,Object? isRead = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? threadId = null,Object? fromTeacher = null,Object? content = null,Object? sentAt = null,Object? isRead = null,Object? status = null,Object? clientId = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,threadId: null == threadId ? _self.threadId : threadId // ignore: cast_nullable_to_non_nullable
@@ -73,7 +75,9 @@ as String,fromTeacher: null == fromTeacher ? _self.fromTeacher : fromTeacher // 
 as bool,content: null == content ? _self.content : content // ignore: cast_nullable_to_non_nullable
 as String,sentAt: null == sentAt ? _self.sentAt : sentAt // ignore: cast_nullable_to_non_nullable
 as DateTime,isRead: null == isRead ? _self.isRead : isRead // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as MessageStatus,clientId: freezed == clientId ? _self.clientId : clientId // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
@@ -158,10 +162,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String threadId,  bool fromTeacher,  String content,  DateTime sentAt,  bool isRead)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String threadId,  bool fromTeacher,  String content,  DateTime sentAt,  bool isRead, @JsonKey(unknownEnumValue: MessageStatus.sent)  MessageStatus status,  String? clientId)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _DirectMessage() when $default != null:
-return $default(_that.id,_that.threadId,_that.fromTeacher,_that.content,_that.sentAt,_that.isRead);case _:
+return $default(_that.id,_that.threadId,_that.fromTeacher,_that.content,_that.sentAt,_that.isRead,_that.status,_that.clientId);case _:
   return orElse();
 
 }
@@ -179,10 +183,10 @@ return $default(_that.id,_that.threadId,_that.fromTeacher,_that.content,_that.se
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String threadId,  bool fromTeacher,  String content,  DateTime sentAt,  bool isRead)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String threadId,  bool fromTeacher,  String content,  DateTime sentAt,  bool isRead, @JsonKey(unknownEnumValue: MessageStatus.sent)  MessageStatus status,  String? clientId)  $default,) {final _that = this;
 switch (_that) {
 case _DirectMessage():
-return $default(_that.id,_that.threadId,_that.fromTeacher,_that.content,_that.sentAt,_that.isRead);case _:
+return $default(_that.id,_that.threadId,_that.fromTeacher,_that.content,_that.sentAt,_that.isRead,_that.status,_that.clientId);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -199,10 +203,10 @@ return $default(_that.id,_that.threadId,_that.fromTeacher,_that.content,_that.se
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String threadId,  bool fromTeacher,  String content,  DateTime sentAt,  bool isRead)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String threadId,  bool fromTeacher,  String content,  DateTime sentAt,  bool isRead, @JsonKey(unknownEnumValue: MessageStatus.sent)  MessageStatus status,  String? clientId)?  $default,) {final _that = this;
 switch (_that) {
 case _DirectMessage() when $default != null:
-return $default(_that.id,_that.threadId,_that.fromTeacher,_that.content,_that.sentAt,_that.isRead);case _:
+return $default(_that.id,_that.threadId,_that.fromTeacher,_that.content,_that.sentAt,_that.isRead,_that.status,_that.clientId);case _:
   return null;
 
 }
@@ -214,7 +218,7 @@ return $default(_that.id,_that.threadId,_that.fromTeacher,_that.content,_that.se
 @JsonSerializable()
 
 class _DirectMessage implements DirectMessage {
-  const _DirectMessage({required this.id, required this.threadId, required this.fromTeacher, required this.content, required this.sentAt, this.isRead = true});
+  const _DirectMessage({required this.id, required this.threadId, required this.fromTeacher, required this.content, required this.sentAt, this.isRead = true, @JsonKey(unknownEnumValue: MessageStatus.sent) this.status = MessageStatus.sent, this.clientId});
   factory _DirectMessage.fromJson(Map<String, dynamic> json) => _$DirectMessageFromJson(json);
 
 @override final  String id;
@@ -223,6 +227,10 @@ class _DirectMessage implements DirectMessage {
 @override final  String content;
 @override final  DateTime sentAt;
 @override@JsonKey() final  bool isRead;
+/// Local-only: delivery state of an optimistic message.
+@override@JsonKey(unknownEnumValue: MessageStatus.sent) final  MessageStatus status;
+/// Local id of an optimistic message; lets the server copy replace it.
+@override final  String? clientId;
 
 /// Create a copy of DirectMessage
 /// with the given fields replaced by the non-null parameter values.
@@ -237,16 +245,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DirectMessage&&(identical(other.id, id) || other.id == id)&&(identical(other.threadId, threadId) || other.threadId == threadId)&&(identical(other.fromTeacher, fromTeacher) || other.fromTeacher == fromTeacher)&&(identical(other.content, content) || other.content == content)&&(identical(other.sentAt, sentAt) || other.sentAt == sentAt)&&(identical(other.isRead, isRead) || other.isRead == isRead));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DirectMessage&&(identical(other.id, id) || other.id == id)&&(identical(other.threadId, threadId) || other.threadId == threadId)&&(identical(other.fromTeacher, fromTeacher) || other.fromTeacher == fromTeacher)&&(identical(other.content, content) || other.content == content)&&(identical(other.sentAt, sentAt) || other.sentAt == sentAt)&&(identical(other.isRead, isRead) || other.isRead == isRead)&&(identical(other.status, status) || other.status == status)&&(identical(other.clientId, clientId) || other.clientId == clientId));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,threadId,fromTeacher,content,sentAt,isRead);
+int get hashCode => Object.hash(runtimeType,id,threadId,fromTeacher,content,sentAt,isRead,status,clientId);
 
 @override
 String toString() {
-  return 'DirectMessage(id: $id, threadId: $threadId, fromTeacher: $fromTeacher, content: $content, sentAt: $sentAt, isRead: $isRead)';
+  return 'DirectMessage(id: $id, threadId: $threadId, fromTeacher: $fromTeacher, content: $content, sentAt: $sentAt, isRead: $isRead, status: $status, clientId: $clientId)';
 }
 
 
@@ -257,7 +265,7 @@ abstract mixin class _$DirectMessageCopyWith<$Res> implements $DirectMessageCopy
   factory _$DirectMessageCopyWith(_DirectMessage value, $Res Function(_DirectMessage) _then) = __$DirectMessageCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String threadId, bool fromTeacher, String content, DateTime sentAt, bool isRead
+ String id, String threadId, bool fromTeacher, String content, DateTime sentAt, bool isRead,@JsonKey(unknownEnumValue: MessageStatus.sent) MessageStatus status, String? clientId
 });
 
 
@@ -274,7 +282,7 @@ class __$DirectMessageCopyWithImpl<$Res>
 
 /// Create a copy of DirectMessage
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? threadId = null,Object? fromTeacher = null,Object? content = null,Object? sentAt = null,Object? isRead = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? threadId = null,Object? fromTeacher = null,Object? content = null,Object? sentAt = null,Object? isRead = null,Object? status = null,Object? clientId = freezed,}) {
   return _then(_DirectMessage(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,threadId: null == threadId ? _self.threadId : threadId // ignore: cast_nullable_to_non_nullable
@@ -282,7 +290,9 @@ as String,fromTeacher: null == fromTeacher ? _self.fromTeacher : fromTeacher // 
 as bool,content: null == content ? _self.content : content // ignore: cast_nullable_to_non_nullable
 as String,sentAt: null == sentAt ? _self.sentAt : sentAt // ignore: cast_nullable_to_non_nullable
 as DateTime,isRead: null == isRead ? _self.isRead : isRead // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as MessageStatus,clientId: freezed == clientId ? _self.clientId : clientId // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

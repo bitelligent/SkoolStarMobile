@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_card.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_chip.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_form_field.dart';
@@ -69,13 +70,13 @@ class SessionTab extends StatelessWidget {
                       vertical: 3,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.primarySoft,
+                      color: context.brand.primarySoft,
                       borderRadius: BorderRadius.circular(AppRadius.pill),
                     ),
                     child: Text(
                       '$total learners',
                       style: AppTextStyles.labelMedium.copyWith(
-                        color: AppColors.primary,
+                        color: context.brand.primary,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -254,13 +255,13 @@ class _LearnerRow extends StatelessWidget {
                 height: 30,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: AppColors.primarySoft,
+                  color: context.brand.primarySoft,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.chat_bubble_outline_rounded,
                   size: 14,
-                  color: AppColors.primary,
+                  color: context.brand.primary,
                 ),
               ),
             ),
@@ -288,7 +289,7 @@ class _SaveButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final enabled = saved > 0 && !isLoading;
     return Material(
-      color: enabled ? AppColors.primary : AppColors.surfaceMuted,
+      color: enabled ? context.brand.primary : AppColors.surfaceMuted,
       borderRadius: BorderRadius.circular(AppRadius.md),
       child: InkWell(
         onTap: enabled ? onTap : null,
@@ -358,17 +359,17 @@ class _OutlineAction extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.surface,
           borderRadius: BorderRadius.circular(AppRadius.md),
-          border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+          border: Border.all(color: context.brand.primary.withOpacity(0.3)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 16, color: AppColors.primary),
+            Icon(icon, size: 16, color: context.brand.primary),
             const SizedBox(height: 2),
             Text(
               label,
               style: AppTextStyles.labelSmall.copyWith(
-                color: AppColors.primary,
+                color: context.brand.primary,
                 fontWeight: FontWeight.w700,
               ),
             ),

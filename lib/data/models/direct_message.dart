@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:skoolstar_teacher_module/data/models/message_status.dart';
 
 part 'direct_message.freezed.dart';
 part 'direct_message.g.dart';
@@ -14,6 +15,14 @@ abstract class DirectMessage with _$DirectMessage {
     required String content,
     required DateTime sentAt,
     @Default(true) bool isRead,
+
+    /// Local-only: delivery state of an optimistic message.
+    @JsonKey(unknownEnumValue: MessageStatus.sent)
+    @Default(MessageStatus.sent)
+    MessageStatus status,
+
+    /// Local id of an optimistic message; lets the server copy replace it.
+    String? clientId,
   }) = _DirectMessage;
 
   factory DirectMessage.fromJson(Map<String, dynamic> json) =>

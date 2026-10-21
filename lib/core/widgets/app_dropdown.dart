@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_sheet.dart';
 
 /// Field-style dropdown. Tapping opens the common bottom sheet picker
@@ -123,10 +124,10 @@ class AppDateField extends StatelessWidget {
         ),
         child: Row(
           children: [
-            const Icon(
+            Icon(
               Icons.calendar_today_rounded,
               size: 16,
-              color: AppColors.primary,
+              color: context.brand.primary,
             ),
             const SizedBox(width: 8),
             Expanded(
@@ -189,10 +190,10 @@ class AppTimeField extends StatelessWidget {
         ),
         child: Row(
           children: [
-            const Icon(
+            Icon(
               Icons.access_time_rounded,
               size: 16,
-              color: AppColors.primary,
+              color: context.brand.primary,
             ),
             const SizedBox(width: 8),
             Expanded(

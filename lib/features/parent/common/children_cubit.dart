@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:skoolstar_teacher_module/core/bloc/safe_cubit.dart';
 import 'package:skoolstar_teacher_module/core/network/error_message.dart';
 import 'package:skoolstar_teacher_module/core/storage/key_value_store.dart';
 import 'package:skoolstar_teacher_module/data/models/auth/app_role.dart';
@@ -36,7 +37,7 @@ sealed class ChildrenState with _$ChildrenState {
 ///
 /// Lives above the router so shell tabs and pushed screens share it. It
 /// resets itself when the role changes or the user signs out.
-class ChildrenCubit extends Cubit<ChildrenState> {
+class ChildrenCubit extends SafeCubit<ChildrenState> {
   ChildrenCubit({
     required ChildrenRepository repository,
     required KeyValueStore store,

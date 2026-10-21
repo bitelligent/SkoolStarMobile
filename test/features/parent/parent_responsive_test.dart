@@ -280,12 +280,28 @@ void main() {
           ),
         );
         _noLayoutErrors(tester, 'home agenda @ $label');
+        await tester.scrollUntilVisible(
+          find.text('Schedule Overview'),
+          200,
+          scrollable: find.byType(Scrollable).first,
+        );
         expect(find.text('Schedule Overview'), findsOneWidget);
+        await tester.scrollUntilVisible(
+          find.text('Progress'),
+          -200,
+          scrollable: find.byType(Scrollable).first,
+        );
+        expect(find.text('Progress'), findsOneWidget);
 
         await _scroll(tester, -500);
         _noLayoutErrors(tester, 'home agenda scrolled @ $label');
         await _scroll(tester, 500);
 
+        await tester.scrollUntilVisible(
+          find.text('Month'),
+          200,
+          scrollable: find.byType(Scrollable).first,
+        );
         await tester.tap(find.text('Month'));
         for (var i = 0; i < 4; i++) {
           await tester.pump(const Duration(milliseconds: 200));

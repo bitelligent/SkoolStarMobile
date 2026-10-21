@@ -5,7 +5,7 @@ class _NState {
   final NotificationsData? data;
 }
 
-class _NotificationsCubit extends Cubit<_NState> {
+class _NotificationsCubit extends SafeCubit<_NState> {
   _NotificationsCubit(this._repo) : super(const _NState());
 
   final NotificationsRepository _repo;

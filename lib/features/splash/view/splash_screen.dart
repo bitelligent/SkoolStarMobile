@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:skoolstar_teacher_module/core/router/app_routes.dart';
-import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
+import 'package:skoolstar_teacher_module/features/branding/brand_context.dart';
+import 'package:skoolstar_teacher_module/features/branding/widgets/brand_logo.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -51,7 +53,7 @@ class _SplashScreenState extends State<SplashScreen>
         body: Container(
           width: double.infinity,
           height: double.infinity,
-          decoration: const BoxDecoration(gradient: AppGradients.primary),
+          decoration: BoxDecoration(gradient: context.brand.gradient),
           child: Center(
             child: ScaleTransition(
               scale: CurvedAnimation(
@@ -61,29 +63,10 @@ class _SplashScreenState extends State<SplashScreen>
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Container(
-                    width: 88,
-                    height: 88,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(AppRadius.xl),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.15),
-                          blurRadius: 24,
-                          offset: const Offset(0, 8),
-                        ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.school_rounded,
-                      size: 48,
-                      color: AppColors.primary,
-                    ),
-                  ),
+                  const BrandLogo(size: 88),
                   const SizedBox(height: AppSpacing.xl),
                   Text(
-                    'SkoolStar',
+                    context.appName,
                     style: AppTextStyles.displayLarge.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.w800,

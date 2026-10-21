@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 
 /// White rounded surface used everywhere for grouping content. Uses the
 /// shared [AppShadows] tokens so elevation is consistent across the app.
@@ -134,7 +135,7 @@ class AppSectionTitle extends StatelessWidget {
     return Row(
       children: [
         if (icon != null) ...[
-          Icon(icon, size: 18, color: iconColor ?? AppColors.primary),
+          Icon(icon, size: 18, color: iconColor ?? context.brand.primary),
           const SizedBox(width: 6),
         ],
         Expanded(

@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_form_field.dart';
 import 'package:skoolstar_teacher_module/core/widgets/primary_button.dart';
 import 'package:skoolstar_teacher_module/data/models/homework_model.dart';
@@ -318,7 +319,7 @@ class _Field extends StatelessWidget {
         ),
         enabledBorder: border(AppColors.border),
         disabledBorder: border(AppColors.border),
-        focusedBorder: border(AppColors.primary, 1.4),
+        focusedBorder: border(context.brand.primary, 1.4),
         errorBorder: border(AppColors.danger),
         focusedErrorBorder: border(AppColors.danger, 1.4),
       ),

@@ -5,6 +5,7 @@ import 'package:skoolstar_teacher_module/core/router/app_routes.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_action_row.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_card.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_form_field.dart';
@@ -14,6 +15,7 @@ import 'package:skoolstar_teacher_module/core/widgets/loading_view.dart';
 import 'package:skoolstar_teacher_module/core/widgets/primary_button.dart';
 import 'package:skoolstar_teacher_module/data/repositories/auth_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/user_repository.dart';
+import 'package:skoolstar_teacher_module/features/branding/brand_context.dart';
 import 'package:skoolstar_teacher_module/features/profile/cubit/profile_cubit.dart';
 import 'package:skoolstar_teacher_module/features/profile/cubit/profile_state.dart';
 
@@ -186,7 +188,7 @@ class _LoadedState extends State<_Loaded> {
                         name: '${s.user.firstName} ${s.user.lastName}',
                         size: 60,
                         background: Colors.white,
-                        foreground: AppColors.primary,
+                        foreground: context.brand.primary,
                       ),
                     ),
                     const SizedBox(width: AppSpacing.md),
@@ -318,9 +320,10 @@ class _ViewSection extends StatelessWidget {
               children: [
                 AppActionRow(
                   icon: Icons.swap_horiz_rounded,
-                  iconColor: AppColors.primary,
+                  iconColor: context.brand.primary,
                   label: 'Switch role',
-                  subtitle: 'Use SkoolStar as a parent or another role',
+                  subtitle:
+                      'Use ${context.appName} as a parent or another role',
                   onTap: () => context.push(AppRoutes.selectRolePath),
                 ),
                 const Divider(height: 1),
@@ -730,7 +733,7 @@ class _HeroEditButton extends StatelessWidget {
               isEditing ? Icons.close_rounded : Icons.edit_rounded,
               key: ValueKey(isEditing),
               size: 18,
-              color: isEditing ? AppColors.primary : Colors.white,
+              color: isEditing ? context.brand.primary : Colors.white,
             ),
           ),
         ),

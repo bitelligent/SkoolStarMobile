@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:skoolstar_teacher_module/core/bloc/safe_cubit.dart';
 import 'package:skoolstar_teacher_module/core/network/error_message.dart';
 import 'package:skoolstar_teacher_module/data/models/auth/auth_context.dart';
 import 'package:skoolstar_teacher_module/data/repositories/auth_repository.dart';
@@ -21,7 +22,7 @@ sealed class RoleSelectionState with _$RoleSelectionState {
       RoleSelectionFailure;
 }
 
-class RoleSelectionCubit extends Cubit<RoleSelectionState> {
+class RoleSelectionCubit extends SafeCubit<RoleSelectionState> {
   RoleSelectionCubit(this._auth) : super(const RoleSelectionState.idle());
 
   final AuthRepository _auth;
