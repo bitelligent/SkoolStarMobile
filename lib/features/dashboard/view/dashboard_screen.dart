@@ -16,7 +16,6 @@ import 'package:skoolstar_teacher_module/core/widgets/main_top_bar.dart';
 import 'package:skoolstar_teacher_module/data/models/session_model.dart';
 import 'package:skoolstar_teacher_module/data/repositories/class_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/institute_repository.dart';
-import 'package:skoolstar_teacher_module/data/repositories/notifications_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/session_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/subject_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/user_repository.dart';
@@ -40,7 +39,6 @@ class DashboardScreen extends StatelessWidget {
         sessionRepository: context.read<SessionRepository>(),
         classRepository: context.read<ClassRepository>(),
         subjectRepository: context.read<SubjectRepository>(),
-        notificationsRepository: context.read<NotificationsRepository>(),
       )..load(),
       child: const _DashboardView(),
     );
@@ -53,6 +51,7 @@ class _DashboardView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: AppColors.background,
       body: SafeArea(
         bottom: false,

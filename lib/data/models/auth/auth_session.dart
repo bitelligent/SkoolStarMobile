@@ -31,6 +31,10 @@ class AuthSession {
     return c.appRole;
   }
 
+  /// More than one role the app can run (e.g. teacher + parent): only then
+  /// is there anything to switch to.
+  bool get canSwitchRole => contexts.where((c) => c.isSupported).length > 1;
+
   /// Only the fields that decide navigation and cached data.
   String? get contextKey => context?.contextKey;
 

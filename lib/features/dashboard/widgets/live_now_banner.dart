@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
 import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
@@ -38,7 +37,6 @@ class LiveNowBanner extends StatelessWidget {
         .join(' · ');
 
     return AppGradientHero(
-      gradient: context.brand.liveGradient,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -219,16 +217,16 @@ class _OpenLiveButton extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(
+              Icon(
                 Icons.play_circle_fill_rounded,
-                color: AppColors.accentPurple,
+                color: context.brand.primary,
                 size: 20,
               ),
               const SizedBox(width: 6),
               Text(
                 'Open live class',
                 style: AppTextStyles.titleSmall.copyWith(
-                  color: AppColors.accentPurple,
+                  color: context.brand.primary,
                   fontWeight: FontWeight.w700,
                 ),
               ),

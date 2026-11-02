@@ -17,17 +17,21 @@ void main() {
   DirectChatLoaded loaded() => cubit.state as DirectChatLoaded;
   List<String> contents() => loaded().messages.map((m) => m.content).toList();
 
+  var seen = 0;
+
   Future<void> boot({
     List<DirectMessage>? messages,
     bool asParent = false,
     ChatThread? thread,
   }) async {
+    seen = 0;
     repo = FakeChatRepository(thread: thread, messages: messages);
     cubit = DirectChatCubit(
       threadId: 'dm_1',
       repository: repo,
       asParent: asParent,
       markReadDelay: const Duration(milliseconds: 10),
+      onSeen: () => seen++,
     );
     await cubit.load();
   }
@@ -44,6 +48,18 @@ void main() {
     await pump(40);
     expect(repo.reads, ['dm_1']);
   });
+
+  test(
+    'seeing the thread is reported (notifications can be cleared)',
+    () async {
+      await boot(messages: [dm('1', 'hello')]);
+      await pump(60);
+      expect(seen, 1);
+      repo.controller.add(DirectMessageReceived('dm_1', dm('2', 'more')));
+      await pump(80);
+      expect(seen, 2); // new messages while open are "seen" too
+    },
+  );
 
   test('closing the screen leaves the thread', () async {
     await boot();

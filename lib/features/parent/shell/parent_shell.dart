@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:skoolstar_teacher_module/core/router/app_routes.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_bottom_nav.dart';
+import 'package:skoolstar_teacher_module/features/notifications/widgets/notification_bell.dart';
 import 'package:skoolstar_teacher_module/features/parent/common/child_gate.dart';
 import 'package:skoolstar_teacher_module/features/parent/common/child_switcher_header.dart';
 
@@ -28,13 +29,9 @@ class ParentShell extends StatelessWidget {
       body: Column(
         children: [
           ChildSwitcherHeader(
-            trailing: IconButton(
-              tooltip: 'Notifications',
-              onPressed: () => context.push(AppRoutes.parentNotificationsPath),
-              icon: const Icon(Icons.notifications_none_rounded),
-              style: IconButton.styleFrom(
-                backgroundColor: AppColors.surfaceMuted,
-              ),
+            trailing: NotificationBell(
+              size: 40,
+              onTap: () => context.push(AppRoutes.parentNotificationsPath),
             ),
           ),
           // The header already handled the status bar: screens below it (the

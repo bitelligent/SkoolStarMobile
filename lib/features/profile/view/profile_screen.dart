@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:skoolstar_teacher_module/core/utils/keyboard.dart';
 import 'package:skoolstar_teacher_module/core/router/app_routes.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
@@ -37,6 +38,7 @@ class _ProfileView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: AppColors.background,
       body: SafeArea(
         bottom: false,
@@ -134,6 +136,7 @@ class _LoadedState extends State<_Loaded> {
 
   Future<void> _save() async {
     final cubit = context.read<ProfileCubit>();
+    context.dismissKeyboard();
     final ok = await cubit.save();
     if (!mounted) return;
     if (ok) {
@@ -318,23 +321,21 @@ class _ViewSection extends StatelessWidget {
             ),
             child: Column(
               children: [
-                AppActionRow(
-                  icon: Icons.swap_horiz_rounded,
-                  iconColor: context.brand.primary,
-                  label: 'Switch role',
-                  subtitle:
-                      'Use ${context.appName} as a parent or another role',
-                  onTap: () => context.push(AppRoutes.selectRolePath),
-                ),
-                const Divider(height: 1),
-                AppActionRow(
-                  icon: Icons.notifications_rounded,
-                  iconColor: AppColors.warning,
-                  label: 'Notifications',
-                  subtitle: 'Manage push alerts',
-                  onTap: () => onNotice('Notifications'),
-                ),
-                const Divider(height: 1),
+                if (context
+                    .read<AuthRepository>()
+                    .session
+                    .value
+                    .canSwitchRole) ...[
+                  AppActionRow(
+                    icon: Icons.swap_horiz_rounded,
+                    iconColor: context.brand.primary,
+                    label: 'Switch role',
+                    subtitle:
+                        'Use ${context.appName} as a parent or another role',
+                    onTap: () => context.push(AppRoutes.selectRolePath),
+                  ),
+                  const Divider(height: 1),
+                ],
                 AppActionRow(
                   icon: Icons.help_outline_rounded,
                   iconColor: AppColors.accentTeal,
@@ -683,7 +684,7 @@ class _EditSection extends StatelessWidget {
                   label: 'Save',
                   icon: Icons.check_rounded,
                   isLoading: state.isSaving,
-                  onPressed: onSave,
+                  onPressed: state.canSave ? onSave : null,
                 ),
               ),
             ],

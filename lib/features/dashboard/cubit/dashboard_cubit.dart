@@ -8,7 +8,6 @@ import 'package:skoolstar_teacher_module/data/models/subject_model.dart';
 import 'package:skoolstar_teacher_module/data/models/user_model.dart';
 import 'package:skoolstar_teacher_module/data/repositories/class_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/institute_repository.dart';
-import 'package:skoolstar_teacher_module/data/repositories/notifications_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/session_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/subject_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/user_repository.dart';
@@ -21,13 +20,11 @@ class DashboardCubit extends SafeCubit<DashboardState> {
     required SessionRepository sessionRepository,
     required ClassRepository classRepository,
     required SubjectRepository subjectRepository,
-    required NotificationsRepository notificationsRepository,
   }) : _instituteRepository = instituteRepository,
        _userRepository = userRepository,
        _sessionRepository = sessionRepository,
        _classRepository = classRepository,
        _subjectRepository = subjectRepository,
-       _notificationsRepository = notificationsRepository,
        super(const DashboardState.initial());
 
   final InstituteRepository _instituteRepository;
@@ -35,7 +32,6 @@ class DashboardCubit extends SafeCubit<DashboardState> {
   final SessionRepository _sessionRepository;
   final ClassRepository _classRepository;
   final SubjectRepository _subjectRepository;
-  final NotificationsRepository _notificationsRepository;
 
   /// Date range of sessions currently held in state.
   DateTime? _loadedFrom;
@@ -92,7 +88,6 @@ class DashboardCubit extends SafeCubit<DashboardState> {
       _sessionRepository.getBetween(from, to, refresh: refresh),
       _classRepository.getAll(),
       _subjectRepository.getAll(),
-      _hasUnreadNotifications(),
     ]);
     final sessions = results[1] as List<Session>;
     _loadedFrom = from;
@@ -100,9 +95,7 @@ class DashboardCubit extends SafeCubit<DashboardState> {
 
     return DashboardLoaded(
       institute: institute,
-      user: (results[0] as UserModel).copyWith(
-        hasUnreadNotifications: results[4] as bool,
-      ),
+      user: results[0] as UserModel,
       liveSession: sessions.where((s) => s.isLive).firstOrNull,
       sessions: sessions,
       classes: results[2] as List<ClassGroup>,
@@ -112,17 +105,6 @@ class DashboardCubit extends SafeCubit<DashboardState> {
       dayFilter: defaultDayFilter,
       view: DashboardView.agenda,
     );
-  }
-
-  /// Notifications have no backend yet (mock data); never fail the dashboard
-  /// because of them.
-  Future<bool> _hasUnreadNotifications() async {
-    try {
-      final data = await _notificationsRepository.getNotifications();
-      return data.items.any((n) => !n.isRead);
-    } on Object {
-      return false;
-    }
   }
 
   void setQuery(String query) {

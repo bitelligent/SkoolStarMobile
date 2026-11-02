@@ -25,6 +25,7 @@ class DirectChatCubit extends SafeCubit<DirectChatState> {
     this.asParent = false,
     this.maxLength = 1000,
     this.markReadDelay = const Duration(milliseconds: 500),
+    this.onSeen,
   }) : _repo = repository,
        super(const DirectChatState.initial());
 
@@ -37,6 +38,10 @@ class DirectChatCubit extends SafeCubit<DirectChatState> {
   /// Server limit per message.
   final int maxLength;
   final Duration markReadDelay;
+
+  /// Called after the thread was marked read (the screen uses it to clear
+  /// the matching notifications, which the server leaves unread).
+  final VoidCallback? onSeen;
 
   StreamSubscription<ChatEvent>? _events;
   VoidCallback? _liveListener;
@@ -424,7 +429,11 @@ class DirectChatCubit extends SafeCubit<DirectChatState> {
     _markReadTimer?.cancel();
     _markReadTimer = Timer(markReadDelay, () {
       if (isClosed) return;
-      unawaited(_repo.markDirectThreadRead(threadId, asParent: asParent));
+      unawaited(
+        _repo
+            .markDirectThreadRead(threadId, asParent: asParent)
+            .whenComplete(() => onSeen?.call()),
+      );
     });
   }
 

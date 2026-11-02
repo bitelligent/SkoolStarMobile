@@ -16,7 +16,6 @@ class BrandColors extends ThemeExtension<BrandColors> {
     required this.secondary,
     required this.onSecondary,
     required this.gradientStart,
-    required this.liveGradientStart,
   });
 
   /// Derives the whole palette from the institute's colours. A `null` or
@@ -36,7 +35,6 @@ class BrandColors extends ThemeExtension<BrandColors> {
       secondary: s,
       onSecondary: _onColor(s),
       gradientStart: _withLightness(hsl, hsl.lightness + 0.10),
-      liveGradientStart: Color.lerp(p, s, 0.5)!,
     );
   }
 
@@ -49,7 +47,6 @@ class BrandColors extends ThemeExtension<BrandColors> {
     secondary: Color(0xFF8B5CF6),
     onSecondary: Colors.white,
     gradientStart: Color(0xFF4F7FFF),
-    liveGradientStart: Color(0xFF6366F1),
   );
 
   final Color primary;
@@ -62,7 +59,6 @@ class BrandColors extends ThemeExtension<BrandColors> {
   final Color onSecondary;
 
   final Color gradientStart;
-  final Color liveGradientStart;
 
   /// Text / icons placed on [primary]. `fromSeeds` guarantees the primary is
   /// dark enough for white.
@@ -72,12 +68,6 @@ class BrandColors extends ThemeExtension<BrandColors> {
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
     colors: [gradientStart, primary],
-  );
-
-  LinearGradient get liveGradient => LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [liveGradientStart, secondary],
   );
 
   static Color _withLightness(
@@ -112,7 +102,6 @@ class BrandColors extends ThemeExtension<BrandColors> {
     Color? secondary,
     Color? onSecondary,
     Color? gradientStart,
-    Color? liveGradientStart,
   }) => BrandColors(
     primary: primary ?? this.primary,
     primaryDark: primaryDark ?? this.primaryDark,
@@ -121,7 +110,6 @@ class BrandColors extends ThemeExtension<BrandColors> {
     secondary: secondary ?? this.secondary,
     onSecondary: onSecondary ?? this.onSecondary,
     gradientStart: gradientStart ?? this.gradientStart,
-    liveGradientStart: liveGradientStart ?? this.liveGradientStart,
   );
 
   @override
@@ -135,11 +123,6 @@ class BrandColors extends ThemeExtension<BrandColors> {
       secondary: Color.lerp(secondary, other.secondary, t)!,
       onSecondary: Color.lerp(onSecondary, other.onSecondary, t)!,
       gradientStart: Color.lerp(gradientStart, other.gradientStart, t)!,
-      liveGradientStart: Color.lerp(
-        liveGradientStart,
-        other.liveGradientStart,
-        t,
-      )!,
     );
   }
 
@@ -152,8 +135,7 @@ class BrandColors extends ThemeExtension<BrandColors> {
       other.primarySoft == primarySoft &&
       other.secondary == secondary &&
       other.onSecondary == onSecondary &&
-      other.gradientStart == gradientStart &&
-      other.liveGradientStart == liveGradientStart;
+      other.gradientStart == gradientStart;
 
   @override
   int get hashCode => Object.hash(
@@ -164,7 +146,6 @@ class BrandColors extends ThemeExtension<BrandColors> {
     secondary,
     onSecondary,
     gradientStart,
-    liveGradientStart,
   );
 }
 

@@ -26,6 +26,7 @@ class FeedbackChatCubit extends SafeCubit<FeedbackChatState> {
     this.minLength = 2,
     this.pollInterval = const Duration(seconds: 15),
     this.markReadDelay = const Duration(milliseconds: 500),
+    this.onSeen,
   }) : _repo = repository,
        super(const FeedbackChatState.initial());
 
@@ -42,6 +43,10 @@ class FeedbackChatCubit extends SafeCubit<FeedbackChatState> {
 
   final Duration pollInterval;
   final Duration markReadDelay;
+
+  /// Called with the feedback ids that were just read (the screen uses it to
+  /// clear the matching notifications, which the server leaves unread).
+  final void Function(Set<String> topicIds)? onSeen;
 
   StreamSubscription<ChatEvent>? _events;
   VoidCallback? _liveListener;
@@ -74,6 +79,8 @@ class FeedbackChatCubit extends SafeCubit<FeedbackChatState> {
       );
       await _startRealtime(topics);
       if (topics.isNotEmpty) _scheduleRead(topics.first.id);
+      // Opening the thread counts as seeing every feedback in it.
+      onSeen?.call({for (final t in topics) t.id});
     } on UnauthorizedException {
       rethrow;
     } on Exception catch (e) {
@@ -266,6 +273,7 @@ class FeedbackChatCubit extends SafeCubit<FeedbackChatState> {
 
   Future<void> _markRead(String topicId) async {
     await _repo.markTopicRead(topicId, asParent: asParent);
+    onSeen?.call({topicId});
     final s = state;
     if (isClosed || s is! FeedbackChatLoaded) return;
     emit(

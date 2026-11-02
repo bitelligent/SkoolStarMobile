@@ -9,6 +9,7 @@ import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
 import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_card.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_chip.dart';
+import 'package:skoolstar_teacher_module/core/utils/keyboard.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_dropdown.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_empty_state.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_form_field.dart';
@@ -80,19 +81,34 @@ class _HomeworkTabState extends State<HomeworkTab> {
       _title.text.trim().isNotEmpty &&
       _classId != null &&
       _subjectId != null &&
-      _selectedStudents.isNotEmpty;
+      _selectedStudents.isNotEmpty &&
+      !_deadlinePassed;
+
+  /// Picked date + time (end of day when no time is chosen; tomorrow when
+  /// nothing is chosen).
+  DateTime get _deadline => _deadlineDate == null
+      ? DateTime.now().add(const Duration(days: 1))
+      : DateTime(
+          _deadlineDate!.year,
+          _deadlineDate!.month,
+          _deadlineDate!.day,
+          _deadlineTime?.hour ?? 23,
+          _deadlineTime?.minute ?? 59,
+        );
+
+  /// Only possible for today with an earlier time: past days cannot be
+  /// picked.
+  bool get _deadlinePassed => !_deadline.isAfter(DateTime.now());
 
   Future<void> _assign() async {
     if (_creating || _uploading) return;
-    final deadline = _deadlineDate == null
-        ? DateTime.now().add(const Duration(days: 1))
-        : DateTime(
-            _deadlineDate!.year,
-            _deadlineDate!.month,
-            _deadlineDate!.day,
-            _deadlineTime?.hour ?? 23,
-            _deadlineTime?.minute ?? 59,
-          );
+    if (_deadlinePassed) {
+      // The clock moved past the picked time while the form was open.
+      setState(() {});
+      return;
+    }
+    context.dismissKeyboard();
+    final deadline = _deadline;
     final maxMarks = int.tryParse(_maxMarks.text) ?? 100;
     final draft = Homework(
       id: '',
@@ -106,10 +122,6 @@ class _HomeworkTabState extends State<HomeworkTab> {
       assignedStudentIds: _selectedStudents.toList(),
       attachments: _attachments,
     );
-    if (!deadline.isAfter(DateTime.now())) {
-      _toast('Choose a deadline in the future.');
-      return;
-    }
     final cubit = context.read<SessionDetailCubit>();
     setState(() => _creating = true);
     final ok = await cubit.createHomework(draft);
@@ -289,6 +301,8 @@ class _HomeworkTabState extends State<HomeworkTab> {
                       label: 'Deadline',
                       child: AppDateField(
                         value: _deadlineDate,
+                        // Past days cannot be a deadline.
+                        firstDate: DateUtils.dateOnly(DateTime.now()),
                         onChanged: (d) => setState(() => _deadlineDate = d),
                       ),
                     ),
@@ -297,6 +311,9 @@ class _HomeworkTabState extends State<HomeworkTab> {
                   Expanded(
                     child: AppFormField(
                       label: 'Time',
+                      error: _deadlinePassed
+                          ? 'Pick a time later than now.'
+                          : null,
                       child: AppTimeField(
                         value: _deadlineTime,
                         onChanged: (t) => setState(() => _deadlineTime = t),

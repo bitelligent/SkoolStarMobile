@@ -99,34 +99,23 @@ class ParentProfileScreen extends StatelessWidget {
                 ),
               ),
             ],
-            const SizedBox(height: AppSpacing.lg),
-            AppCard(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.md,
-                vertical: AppSpacing.xs,
+            if (auth.session.value.canSwitchRole) ...[
+              const SizedBox(height: AppSpacing.lg),
+              AppCard(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.md,
+                  vertical: AppSpacing.xs,
+                ),
+                child: AppActionRow(
+                  icon: Icons.swap_horiz_rounded,
+                  iconColor: context.brand.primary,
+                  label: 'Switch role',
+                  subtitle:
+                      'Use ${context.appName} as a teacher or another role',
+                  onTap: () => context.push(AppRoutes.selectRolePath),
+                ),
               ),
-              child: Column(
-                children: [
-                  AppActionRow(
-                    icon: Icons.swap_horiz_rounded,
-                    iconColor: context.brand.primary,
-                    label: 'Switch role',
-                    subtitle:
-                        'Use ${context.appName} as a teacher or another role',
-                    onTap: () => context.push(AppRoutes.selectRolePath),
-                  ),
-                  const Divider(height: 1),
-                  AppActionRow(
-                    icon: Icons.notifications_rounded,
-                    iconColor: AppColors.warning,
-                    label: 'Notifications',
-                    subtitle: 'Updates from school',
-                    onTap: () =>
-                        context.push(AppRoutes.parentNotificationsPath),
-                  ),
-                ],
-              ),
-            ),
+            ],
             const SizedBox(height: AppSpacing.md),
             OutlinedButton.icon(
               onPressed: () => confirmLogout(context),

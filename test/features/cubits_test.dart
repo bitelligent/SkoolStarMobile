@@ -6,7 +6,6 @@ import 'package:skoolstar_teacher_module/data/models/class_group.dart';
 import 'package:skoolstar_teacher_module/data/models/feedback_model.dart';
 import 'package:skoolstar_teacher_module/data/models/homework_model.dart';
 import 'package:skoolstar_teacher_module/data/models/institute_model.dart';
-import 'package:skoolstar_teacher_module/data/models/notification_model.dart';
 import 'package:skoolstar_teacher_module/data/models/session_model.dart';
 import 'package:skoolstar_teacher_module/data/models/student_model.dart';
 import 'package:skoolstar_teacher_module/data/models/subject_model.dart';
@@ -16,7 +15,6 @@ import 'package:skoolstar_teacher_module/data/repositories/class_repository.dart
 import 'package:skoolstar_teacher_module/data/repositories/feedback_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/homework_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/institute_repository.dart';
-import 'package:skoolstar_teacher_module/data/repositories/notifications_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/session_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/subject_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/user_repository.dart';
@@ -103,12 +101,6 @@ class _Subjects implements SubjectRepository {
   Future<List<Subject>> getAll() async => const [
     Subject(id: '18', name: 'Computer'),
   ];
-}
-
-class _Notifications implements NotificationsRepository {
-  @override
-  Future<NotificationsData> getNotifications() async =>
-      throw StateError('mock notifications broke');
 }
 
 class _Attendance implements AttendanceRepository {
@@ -203,11 +195,10 @@ void main() {
       sessionRepository: sessions,
       classRepository: _Classes(),
       subjectRepository: _Subjects(),
-      notificationsRepository: _Notifications(),
     );
 
     test(
-      'loads data; a broken notifications source does not fail it',
+      'loads the dashboard data',
       () async {
         final sessions = _Sessions([_session()]);
         final cubit = build(sessions);
@@ -216,7 +207,6 @@ void main() {
         final s = cubit.state as DashboardLoaded;
         expect(s.institute.name, 'ISL AC');
         expect(s.user.firstName, 'Tahir');
-        expect(s.user.hasUnreadNotifications, isFalse);
         expect(s.sessions, hasLength(1));
         expect(s.liveSession?.id, 's1'); // 00:00-23:59 today is live
         // previous, current and next month are requested

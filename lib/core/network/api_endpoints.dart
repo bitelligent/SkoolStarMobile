@@ -71,6 +71,13 @@ class ApiEndpoints {
       '$_teacher/feedback/$id/unresolve';
   static String feedbackRead(String id) => '$_teacher/feedback/$id/read';
 
+  // In-app notifications
+  static const String notifications = '/api/Notifications';
+  static const String notificationsUnreadCount =
+      '/api/Notifications/unread-count';
+  static const String notificationsReadAll = '/api/Notifications/read-all';
+  static String notificationRead(String id) => '/api/Notifications/$id/read';
+
   // Direct (1-to-1) chat
   static const String chatThreads = '/api/Chat/threads';
   static String chatMessages(int threadId) =>

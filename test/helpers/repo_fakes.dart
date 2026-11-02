@@ -2,7 +2,7 @@ import 'package:skoolstar_teacher_module/data/models/class_group.dart';
 import 'package:skoolstar_teacher_module/data/models/feedback_model.dart';
 import 'package:skoolstar_teacher_module/data/models/homework_model.dart';
 import 'package:skoolstar_teacher_module/data/models/institute_model.dart';
-import 'package:skoolstar_teacher_module/data/models/notification_model.dart';
+import 'package:skoolstar_teacher_module/data/models/app_notification.dart';
 import 'package:skoolstar_teacher_module/data/models/session_model.dart';
 import 'package:skoolstar_teacher_module/data/models/student_model.dart';
 import 'package:skoolstar_teacher_module/data/models/subject_model.dart';
@@ -111,9 +111,53 @@ class FakeSubjectsRepo implements SubjectRepository {
 }
 
 class FakeNotificationsRepo implements NotificationsRepository {
+  FakeNotificationsRepo([List<AppNotification>? items]) : items = items ?? [];
+
+  List<AppNotification> items;
+  Object? error;
+  final List<String> marked = [];
+  int allMarked = 0;
+  int countCalls = 0;
+  final List<({bool unreadOnly, int take})> listCalls = [];
+
   @override
-  Future<NotificationsData> getNotifications() async =>
-      const NotificationsData(items: []);
+  Future<List<AppNotification>> getNotifications({
+    bool unreadOnly = false,
+    int take = 50,
+  }) async {
+    listCalls.add((unreadOnly: unreadOnly, take: take));
+    if (error != null) throw error!;
+    return [
+      for (final n in items)
+        if (!unreadOnly || !n.isRead) n,
+    ].take(take).toList();
+  }
+
+  @override
+  Future<int> unreadCount() async {
+    countCalls++;
+    if (error != null) throw error!;
+    return items.where((n) => !n.isRead).length;
+  }
+
+  @override
+  Future<void> markRead(String id) async {
+    if (error != null) throw error!;
+    marked.add(id);
+    items = [
+      for (final n in items)
+        if (n.id == id) n.copyWith(isRead: true) else n,
+    ];
+  }
+
+  @override
+  Future<int> markAllRead() async {
+    if (error != null) throw error!;
+    allMarked++;
+    final n = items.where((x) => !x.isRead).length;
+    items = [for (final x in items) x.copyWith(isRead: true)];
+    return n;
+  }
 }
 
 class FakeAttendanceRepo implements AttendanceRepository {

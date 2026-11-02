@@ -13,6 +13,7 @@ import 'package:skoolstar_teacher_module/data/models/student_model.dart';
 import 'package:skoolstar_teacher_module/features/session_detail/cubit/session_detail_cubit.dart';
 import 'package:skoolstar_teacher_module/features/session_detail/cubit/session_detail_state.dart';
 import 'package:skoolstar_teacher_module/features/session_detail/widgets/session_header_card.dart';
+import 'package:skoolstar_teacher_module/features/session_detail/widgets/student_chat_launcher.dart';
 
 /// First tab — quick learner list with inline P/A/L buttons, bulk actions,
 /// Save N/M button and shortcuts to the Attendance / Feedback tabs.
@@ -134,10 +135,7 @@ class SessionTab extends StatelessWidget {
                     student: s,
                     status: state.attendance[s.id] ?? 'unmarked',
                     onStatus: (status) => cubit.setStatus(s.id, status),
-                    onChat: () => _snack(
-                      context,
-                      'Chat with ${s.firstName} ${s.lastName}',
-                    ),
+                    onChat: () => openStudentChat(context, s),
                   ),
                 ),
             ],
@@ -186,7 +184,7 @@ class SessionTab extends StatelessWidget {
   }
 }
 
-class _LearnerRow extends StatelessWidget {
+class _LearnerRow extends StatefulWidget {
   const _LearnerRow({
     required this.student,
     required this.status,
@@ -197,10 +195,30 @@ class _LearnerRow extends StatelessWidget {
   final Student student;
   final String status;
   final ValueChanged<String> onStatus;
-  final VoidCallback onChat;
+  final Future<void> Function() onChat;
+
+  @override
+  State<_LearnerRow> createState() => _LearnerRowState();
+}
+
+class _LearnerRowState extends State<_LearnerRow> {
+  bool _openingChat = false;
+
+  Future<void> _chat() async {
+    if (_openingChat) return;
+    setState(() => _openingChat = true);
+    try {
+      await widget.onChat();
+    } finally {
+      if (mounted) setState(() => _openingChat = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final student = widget.student;
+    final status = widget.status;
+    final onStatus = widget.onStatus;
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
       child: Container(
@@ -248,7 +266,7 @@ class _LearnerRow extends StatelessWidget {
             ),
             const SizedBox(width: 4),
             InkResponse(
-              onTap: onChat,
+              onTap: _chat,
               radius: 18,
               child: Container(
                 width: 30,
@@ -258,11 +276,19 @@ class _LearnerRow extends StatelessWidget {
                   color: context.brand.primarySoft,
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
-                  Icons.chat_bubble_outline_rounded,
-                  size: 14,
-                  color: context.brand.primary,
-                ),
+                child: _openingChat
+                    ? SizedBox.square(
+                        dimension: 14,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: context.brand.primary,
+                        ),
+                      )
+                    : Icon(
+                        Icons.chat_bubble_outline_rounded,
+                        size: 14,
+                        color: context.brand.primary,
+                      ),
               ),
             ),
           ],

@@ -103,11 +103,21 @@ class AppDateField extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () async {
+        final first = firstDate ?? DateTime(2020);
+        final last = lastDate ?? DateTime(2100);
+        // The picker asserts when its initial date is outside the range
+        // (e.g. a stale value from before `firstDate`).
+        final wanted = value ?? DateTime.now();
+        final initial = wanted.isBefore(first)
+            ? first
+            : wanted.isAfter(last)
+            ? last
+            : wanted;
         final picked = await showDatePicker(
           context: context,
-          firstDate: firstDate ?? DateTime(2020),
-          lastDate: lastDate ?? DateTime(2100),
-          initialDate: value ?? DateTime.now(),
+          firstDate: first,
+          lastDate: last,
+          initialDate: initial,
         );
         if (picked != null) onChanged(picked);
       },

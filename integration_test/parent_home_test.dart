@@ -17,11 +17,14 @@ void main() {
     await pumpUntil(tester, find.text('Attendance'));
     await checkpoint(tester, 'home_top');
 
-    // The three labelled figures are on screen.
-    expect(find.text('Attendance'), findsWidgets);
-    expect(find.text('Homework'), findsWidgets);
+    // Calmer home: labelled percentages only, no counts, no "CHILD" label.
+    expect(find.text('Attendance'), findsOneWidget);
+    expect(find.text('Homework'), findsOneWidget);
     expect(find.text('Avg. score'), findsOneWidget);
-    expect(find.text('Last 30 days'), findsOneWidget);
+    expect(find.text('View Progress'), findsOneWidget);
+    expect(find.text('CHILD'), findsNothing);
+    expect(find.textContaining(' of '), findsNothing);
+    expect(find.text('Up next'), findsNothing);
 
     await tester.drag(find.byType(ListView).first, const Offset(0, -380));
     await tester.pump(const Duration(seconds: 1));

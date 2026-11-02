@@ -70,23 +70,28 @@ void main() {
       expect(bar.bottom, closeTo(700, 1)); // pinned to the bottom edge
     });
 
-    testWidgets('only the active tab shows its label', (tester) async {
+    testWidgets('every tab shows its label under its icon', (tester) async {
       await _pump(
         tester,
         width: 320,
         items: AppBottomNav.parentItems,
         index: 2,
+        scale: 1.24,
       );
-      expect(find.text('Assignments'), findsOneWidget);
-      expect(find.text('Attendance'), findsNothing);
-      expect(find.text('Home'), findsNothing);
-      expect(find.text('Chat'), findsNothing);
-      expect(find.text('Profile'), findsNothing);
+      expect(tester.takeException(), isNull);
+      for (final item in AppBottomNav.parentItems) {
+        final label = tester.getCenter(find.text(item.label));
+        final icon = tester.getCenter(
+          find.byIcon(
+            item == AppBottomNav.parentItems[2] ? item.activeIcon : item.icon,
+          ),
+        );
+        expect(label.dy, greaterThan(icon.dy), reason: item.label);
+        expect(label.dx, closeTo(icon.dx, 1), reason: item.label);
+      }
     });
 
-    testWidgets('inactive tabs stay reachable by tooltip and tap', (
-      tester,
-    ) async {
+    testWidgets('tabs are tappable', (tester) async {
       final taps = <int>[];
       await _pump(
         tester,
@@ -94,9 +99,8 @@ void main() {
         items: AppBottomNav.parentItems,
         onTap: taps.add,
       );
-      expect(find.byTooltip('Attendance'), findsOneWidget);
-      await tester.tap(find.byTooltip('Attendance'));
-      await tester.tap(find.byTooltip('Profile'));
+      await tester.tap(find.text('Attendance'));
+      await tester.tap(find.text('Profile'));
       expect(taps, [1, 4]);
     });
 

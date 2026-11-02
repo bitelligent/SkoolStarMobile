@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:skoolstar_teacher_module/core/utils/keyboard.dart';
 import 'package:skoolstar_teacher_module/core/speech/dictation_controller.dart';
 import 'package:skoolstar_teacher_module/core/speech/dictation_scope.dart';
 import 'package:skoolstar_teacher_module/core/widgets/dictation_button.dart';
@@ -138,13 +139,16 @@ class _NewFeedbackBodyState extends State<_NewFeedbackBody> {
             label: 'Send feedback',
             icon: Icons.send_rounded,
             onPressed: _canSend
-                ? () => widget.onSubmit(
-                    NewFeedbackDraft(
-                      subject: _subject.text,
-                      tone: _tone,
-                      message: _message.text,
-                    ),
-                  )
+                ? () {
+                    context.dismissKeyboard();
+                    widget.onSubmit(
+                      NewFeedbackDraft(
+                        subject: _subject.text,
+                        tone: _tone,
+                        message: _message.text,
+                      ),
+                    );
+                  }
                 : null,
           ),
           const SizedBox(height: 2),

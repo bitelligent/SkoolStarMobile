@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:skoolstar_teacher_module/core/utils/keyboard.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
@@ -115,7 +116,7 @@ class _EditFormState extends State<_EditForm> {
       Navigator.of(context).pop(HomeworkEditResult.none);
       return;
     }
-    FocusScope.of(context).unfocus();
+    context.dismissKeyboard();
     setState(() {
       _saving = true;
       _error = null;

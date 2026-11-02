@@ -408,6 +408,28 @@ void main() {
       );
     });
 
+    test(
+      'finds the thread of a feedback id (for notification links)',
+      () async {
+        build((r) {
+          if (r.url.path.endsWith('/history')) {
+            return ok([_feedback(1022), _feedback(1021, studentId: 3)]);
+          }
+          return ok([]);
+        });
+        expect(await repo.feedbackThreadIdFor('1021'), 'fb_3');
+        expect(await repo.feedbackThreadIdFor('1022'), 'fb_2'); // cached now
+      },
+    );
+
+    test('an unknown feedback id is null; offline is null too', () async {
+      var fail = false;
+      build((r) => fail ? jsonResponse({}, 500) : ok([_feedback(1022)]));
+      expect(await repo.feedbackThreadIdFor('555'), isNull);
+      fail = true;
+      expect(await repo.feedbackThreadIdFor('777'), isNull);
+    });
+
     test('delete calls the soft-delete route', () async {
       build((_) => ok({'message': 'Feedback deleted successfully.'}));
       await repo.deleteTopic('1022');

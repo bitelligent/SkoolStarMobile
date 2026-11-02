@@ -89,6 +89,34 @@ void main() {
     expect(text.text, 'hello');
   });
 
+  test('ending without hearing anything says so, not silence', () async {
+    await startListening();
+    engine.end(); // no words, no error (e.g. no audio input)
+    expect(dictation.state, DictationState.idle);
+    expect(dictation.takeMessage(), contains("Didn't catch"));
+  });
+
+  test('no "didn\'t catch that" when the user stopped it themselves', () async {
+    await startListening();
+    await dictation.toggle(); // user taps stop
+    expect(dictation.takeMessage(), isNull);
+  });
+
+  test('no message when words were heard', () async {
+    await startListening();
+    engine.say('hello', isFinal: true);
+    engine.end();
+    expect(dictation.takeMessage(), isNull);
+  });
+
+  test('an error is not followed by a second, generic message', () async {
+    await startListening();
+    engine.fail(DictationError.network);
+    engine.end();
+    expect(dictation.takeMessage(), contains('internet'));
+    expect(dictation.takeMessage(), isNull);
+  });
+
   test('permission refused shows guidance, does not listen', () async {
     engine.availability = DictationAvailability.permissionDenied;
     await dictation.toggle();

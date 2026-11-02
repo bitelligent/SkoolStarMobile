@@ -59,8 +59,9 @@ class AppColors {
 class AppGradients {
   AppGradients._();
 
-  // Brand gradients are institute specific: `context.brand.gradient` and
-  // `context.brand.liveGradient`.
+  // The brand gradient is institute specific: `context.brand.gradient`.
+  // Hero cards (live class included) all use it, so no screen has a colour
+  // of its own.
 
   static const LinearGradient success = LinearGradient(
     begin: Alignment.topLeft,

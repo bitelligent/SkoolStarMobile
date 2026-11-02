@@ -25,6 +25,17 @@ abstract class Child with _$Child {
     return (first + last).toUpperCase();
   }
 
+  /// The class as parents say it: "Class 2" → "2", "Grade 5" and
+  /// "Nursery" are kept as they are.
+  String get classShort {
+    final trimmed = className.trim();
+    final stripped = trimmed.replaceFirst(
+      RegExp(r'^class\s+', caseSensitive: false),
+      '',
+    );
+    return stripped.isEmpty ? trimmed : stripped;
+  }
+
   /// "Class 1" or "Class 1 · Section A".
   String get classLabel {
     if (className.isEmpty) return '';

@@ -11,6 +11,8 @@ import 'package:skoolstar_teacher_module/core/network/api_client.dart';
 import 'package:skoolstar_teacher_module/core/network/token_store.dart';
 import 'package:skoolstar_teacher_module/core/router/app_router.dart';
 import 'package:skoolstar_teacher_module/core/speech/dictation_engine.dart';
+import 'package:skoolstar_teacher_module/core/utils/stream_merge.dart';
+import 'package:skoolstar_teacher_module/features/notifications/cubit/notifications_cubit.dart';
 import 'package:skoolstar_teacher_module/core/speech/dictation_scope.dart';
 import 'package:skoolstar_teacher_module/core/storage/key_value_store.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_theme.dart';
@@ -125,6 +127,18 @@ class _SkoolStarAppState extends State<SkoolStarApp>
           defaultTargetPlatform == TargetPlatform.iOS
       ? SpeechToTextEngine()
       : null;
+  // In-app notifications (bell badge + list), fed by the API and nudged by
+  // chat events so a new message shows on the badge quickly.
+  late final NotificationsRepository _notificationsRepository =
+      NotificationsRepositoryImpl(_apiClient);
+  late final NotificationsCubit _notificationsCubit = NotificationsCubit(
+    repository: _notificationsRepository,
+    auth: _authRepository,
+    events: mergeStreams([
+      _teacherChatRepository.events,
+      _parentChatRepository.events,
+    ]),
+  );
   late final GoRouter _router = buildRouter(
     session: _authRepository.session,
     parentChatRepository: _parentChatRepository,
@@ -159,6 +173,7 @@ class _SkoolStarAppState extends State<SkoolStarApp>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed && _realtimeKey != null) {
       _realtime.onAppResumed();
+      _notificationsCubit.onResumed();
     }
   }
 
@@ -169,6 +184,7 @@ class _SkoolStarAppState extends State<SkoolStarApp>
     _teacherChatRepository.dispose();
     _parentChatRepository.dispose();
     unawaited(_realtime.dispose());
+    unawaited(_notificationsCubit.close());
     unawaited(_brandCubit.close());
     _apiClient.close();
     super.dispose();
@@ -220,8 +236,8 @@ class _SkoolStarAppState extends State<SkoolStarApp>
           value: _teacherChatRepository,
         ),
         // Notifications have no backend yet: bundled mock JSON.
-        RepositoryProvider<NotificationsRepository>(
-          create: (_) => NotificationsRepositoryImpl(_dataSource),
+        RepositoryProvider<NotificationsRepository>.value(
+          value: _notificationsRepository,
         ),
         // ── Parent module ──
         RepositoryProvider<ChildrenRepository>.value(
@@ -257,6 +273,7 @@ class _SkoolStarAppState extends State<SkoolStarApp>
       child: MultiBlocProvider(
         providers: [
           BlocProvider<BrandCubit>.value(value: _brandCubit),
+          BlocProvider<NotificationsCubit>.value(value: _notificationsCubit),
           BlocProvider<ChildrenCubit>(
             create: (_) => ChildrenCubit(
               repository: _childrenRepository,
@@ -278,7 +295,7 @@ class _SkoolStarAppState extends State<SkoolStarApp>
                 data: mq.copyWith(
                   textScaler: mq.textScaler.clamp(
                     minScaleFactor: 0.85,
-                    maxScaleFactor: 1.15,
+                    maxScaleFactor: 1.1,
                   ),
                 ),
                 child: DictationScope(engine: _dictation, child: child!),

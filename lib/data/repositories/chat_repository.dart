@@ -52,6 +52,10 @@ abstract class ChatRepository {
   Future<List<ChatThread>> getByCategory(ChatCategory category);
   Future<ChatThread?> getThreadById(String id);
 
+  /// The feedback thread a feedback record (topic) belongs to, or `null`
+  /// when it no longer exists. Used to open a thread from a notification.
+  Future<String?> feedbackThreadIdFor(String topicId) async => null;
+
   /// Re-reads one thread from the server (read state, last message,
   /// presence). Falls back to the cached copy when offline.
   Future<ChatThread?> refreshThread(String id) => getThreadById(id);

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:skoolstar_teacher_module/core/network/secure_token_store.dart';
 import 'package:skoolstar_teacher_module/main.dart' as app;
 
 /// Credentials come from `--dart-define` so nothing is stored in the repo.
@@ -40,6 +41,12 @@ Future<void> launchAndSignIn(
   required String roleLabel,
   required Finder homeMarker,
 }) async {
+  // Every test starts signed out: a session saved by an earlier run (maybe
+  // another role) must not leak in and make the test pass for the wrong user.
+  final store = SecureTokenStore();
+  await store.load();
+  await store.clear();
+
   app.main();
   await tester.pump(const Duration(seconds: 3));
 
@@ -53,6 +60,8 @@ Future<void> launchAndSignIn(
   if (homeMarker.evaluate().isEmpty && emailField.evaluate().length >= 2) {
     await tester.enterText(emailField.at(0), email);
     await tester.enterText(emailField.at(1), password);
+    // A software keyboard would cover the button.
+    FocusManager.instance.primaryFocus?.unfocus();
     await tester.pump(const Duration(milliseconds: 300));
     await tester.tap(find.text('Sign in'));
     await tester.pump(const Duration(seconds: 1));
@@ -63,7 +72,10 @@ Future<void> launchAndSignIn(
         await tester.tap(role.first);
         await tester.pump(const Duration(seconds: 1));
       }
-      if (DateTime.now().isAfter(end)) fail('Never reached home after login');
+      if (DateTime.now().isAfter(end)) {
+        await checkpoint(tester, 'stuck_after_login');
+        fail('Never reached home after login');
+      }
       await tester.pump(const Duration(milliseconds: 250));
     }
   }

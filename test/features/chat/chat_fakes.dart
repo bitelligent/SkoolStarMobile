@@ -61,6 +61,16 @@ class FakeChatRepository extends ChatRepository {
   @override
   Future<ChatThread?> getThreadById(String id) async => thread;
 
+  /// feedback id -> thread id for notification deep links.
+  final Map<String, String> topicThreads = {};
+  Object? failTopicLookup;
+
+  @override
+  Future<String?> feedbackThreadIdFor(String topicId) async {
+    if (failTopicLookup != null) throw failTopicLookup!;
+    return topicThreads[topicId];
+  }
+
   @override
   Future<ChatThread?> refreshThread(String id) async {
     threadRefreshes++;

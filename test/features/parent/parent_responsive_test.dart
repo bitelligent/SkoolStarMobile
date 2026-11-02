@@ -42,8 +42,8 @@ const _sizes = <String, Size>{
   'tablet 768x1024': Size(768, 1024),
 };
 
-// +8% over the app's 1.15 clamp (Roboto is narrower than Inter in tests).
-const _textScale = 1.24;
+// +8% over the app's 1.1 clamp (Roboto is narrower than Inter in tests).
+const _textScale = 1.19;
 
 const _longChild = Child(
   id: '2',
@@ -421,4 +421,119 @@ void main() {
       });
     });
   }
+
+  // ─── Client feedback: a calmer home screen ──────────────────────────
+  group('home screen (client feedback)', () {
+    Future<void> pumpHome(WidgetTester tester, {Size? size}) => _pump(
+      tester,
+      size ?? const Size(390, 844),
+      (c) => BlocProvider(
+        create: (ctx) => ParentHomeCubit(
+          children: c,
+          schedule: ctx.read<ChildScheduleRepository>(),
+          assignments: ctx.read<ChildAssignmentsRepository>(),
+          attendance: ctx.read<ChildAttendanceRepository>(),
+        )..load(),
+        child: const ParentHomeScreen(),
+      ),
+    );
+
+    testWidgets('header: no "CHILD" label; class shown without the word', (
+      tester,
+    ) async {
+      await pumpHome(tester);
+      expect(find.text('CHILD'), findsNothing);
+      expect(find.text('Child'), findsNothing);
+      // Long class names that do not start with "Class" are kept whole.
+      expect(
+        find.textContaining('Grade 10 - Section Alpha'),
+        findsWidgets,
+      );
+      // (The live banner legitimately says "Class in progress": only the
+      // header is checked.)
+      expect(
+        find.descendant(
+          of: find.byType(ChildSwitcherHeader),
+          matching: find.textContaining('Class'),
+        ),
+        findsNothing,
+      );
+    });
+
+    testWidgets('progress cards show a percentage and a label, no counts', (
+      tester,
+    ) async {
+      await pumpHome(tester);
+      expect(find.text('Progress'), findsOneWidget);
+      expect(find.text('Attendance'), findsOneWidget);
+      expect(find.text('Homework'), findsOneWidget);
+      expect(find.text('Avg. score'), findsOneWidget);
+      expect(find.textContaining('%'), findsWidgets);
+      // The old captions ("7 of 7 classes", "0 of 2 done", "89 / 100 marks").
+      expect(find.textContaining(' of '), findsNothing);
+      expect(find.textContaining('classes'), findsNothing);
+      expect(find.textContaining('marks'), findsNothing);
+      expect(find.textContaining(' done'), findsNothing);
+      expect(find.text('No data yet'), findsNothing);
+    });
+
+    testWidgets('"Up Coming" replaces "Up next"', (tester) async {
+      await pumpHome(tester);
+      expect(find.text('Up Coming'), findsOneWidget);
+      expect(find.text('Up next'), findsNothing);
+    });
+
+    testWidgets('up coming rows show the day once and the time once', (
+      tester,
+    ) async {
+      await pumpHome(tester);
+      // Tomorrow's class: "09:00 – 23:59" as the subtitle, "Tomorrow" as the
+      // only day label; no date and no second clock time.
+      expect(find.text('09:00 – 23:59'), findsOneWidget);
+      expect(find.text('Tomorrow'), findsOneWidget);
+      expect(find.textContaining('AM'), findsNothing);
+      expect(find.textContaining('PM'), findsNothing);
+    });
+
+    testWidgets('Up Coming says how many classes it lists', (tester) async {
+      await pumpHome(tester);
+      expect(
+        find.textContaining(RegExp(r'^Next (class|\d+ classes)$')),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('search is tucked behind an icon, and clears when closed', (
+      tester,
+    ) async {
+      await pumpHome(tester);
+      await tester.scrollUntilVisible(
+        find.text('Schedule Overview'),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      expect(find.text('Search subject or teacher'), findsNothing);
+
+      await tester.tap(find.byIcon(Icons.search_rounded).first);
+      await tester.pump();
+      expect(find.text('Search subject or teacher'), findsOneWidget);
+
+      await tester.enterText(find.byType(TextField).last, 'mathematics');
+      await tester.pump();
+      expect(find.byIcon(Icons.close_rounded), findsWidgets);
+
+      await tester.tap(find.byIcon(Icons.close_rounded).first);
+      await tester.pump();
+      expect(find.text('Search subject or teacher'), findsNothing);
+    });
+
+    for (final entry in _sizes.entries) {
+      testWidgets('no layout errors at ${entry.key}', (tester) async {
+        await pumpHome(tester, size: entry.value);
+        _noLayoutErrors(tester, 'home ${entry.key}');
+        await _scroll(tester, -400);
+        _noLayoutErrors(tester, 'home scrolled ${entry.key}');
+      });
+    }
+  });
 }

@@ -117,7 +117,9 @@ GoRouter buildRouter({
         path: AppRoutes.parentNotificationsPath,
         name: AppRoutes.parentNotifications,
         parentNavigatorKey: _rootKey,
-        builder: (_, __) => const NotificationsScreen(),
+        // Opening a notification needs the parent's chat repository and
+        // routes.
+        builder: (_, __) => parentChat(const NotificationsScreen()),
       ),
       GoRoute(
         path: AppRoutes.parentProgressPath,

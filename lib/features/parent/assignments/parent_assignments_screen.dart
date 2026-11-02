@@ -99,6 +99,7 @@ class _Loaded extends StatelessWidget {
                   value: '${counts.total}',
                   label: 'Total',
                   color: context.brand.primary,
+                  selected: state.filter == AssignmentFilter.all,
                   onTap: () => cubit.setFilter(AssignmentFilter.all),
                 ),
               ),
@@ -109,6 +110,7 @@ class _Loaded extends StatelessWidget {
                   value: '${counts.completed}',
                   label: 'Completed',
                   color: AppColors.success,
+                  selected: state.filter == AssignmentFilter.completed,
                   onTap: () => cubit.setFilter(AssignmentFilter.completed),
                 ),
               ),
@@ -119,21 +121,12 @@ class _Loaded extends StatelessWidget {
                   value: '${counts.pending}',
                   label: 'Pending',
                   color: AppColors.accentOrange,
+                  selected: state.filter == AssignmentFilter.pending,
                   onTap: () => cubit.setFilter(AssignmentFilter.pending),
                 ),
               ),
             ],
           ),
-          if (state.filter != AssignmentFilter.all) ...[
-            const SizedBox(height: AppSpacing.md),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: InputChip(
-                label: Text('Showing ${state.filter.name}'),
-                onDeleted: () => cubit.setFilter(state.filter),
-              ),
-            ),
-          ],
           const SizedBox(height: AppSpacing.md),
           if (items.isEmpty)
             AppCard(

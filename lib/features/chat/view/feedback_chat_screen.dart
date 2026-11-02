@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:skoolstar_teacher_module/data/models/app_notification.dart';
+import 'package:skoolstar_teacher_module/features/notifications/notifications_context.dart';
 import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 import 'package:skoolstar_teacher_module/features/chat/chat_perspective.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -28,6 +30,10 @@ class FeedbackChatScreen extends StatelessWidget {
         threadId: threadId,
         repository: context.read<ChatRepository>(),
         asParent: ChatPerspectiveScope.read(context).isParent,
+        onSeen: (ids) => context.notificationsOrNull?.markRelatedRead(
+          type: NotificationType.feedback,
+          referenceIds: ids,
+        ),
       )..load(),
       child: const _FeedbackChatView(),
     );
@@ -144,7 +150,7 @@ class _Loaded extends StatelessWidget {
 
     return Column(
       children: [
-        _ParentHeader(thread: state.thread, topicCount: topics.length),
+        _ParentHeader(thread: state.thread),
         if (!state.isLive) const ConnectionBanner(),
         Expanded(
           child: topics.isEmpty
@@ -192,13 +198,12 @@ class _Loaded extends StatelessWidget {
   }
 }
 
-// ─── Parent header strip (back button + avatar + name + counter) ─────
+// ─── Parent header strip (back button + avatar + name) ─────
 
 class _ParentHeader extends StatelessWidget {
-  const _ParentHeader({required this.thread, required this.topicCount});
+  const _ParentHeader({required this.thread});
 
   final ChatThread thread;
-  final int topicCount;
 
   @override
   Widget build(BuildContext context) {
@@ -259,24 +264,6 @@ class _ParentHeader extends StatelessWidget {
               ],
             ),
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                '$topicCount',
-                style: AppTextStyles.titleMedium.copyWith(
-                  color: context.brand.primary,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              Text(
-                'feedback${topicCount == 1 ? '' : 's'}',
-                style: AppTextStyles.labelSmall.copyWith(
-                  color: AppColors.textTertiary,
-                ),
-              ),
-            ],
-          ),
         ],
       ),
     );
@@ -312,13 +299,6 @@ class _CountRow extends StatelessWidget {
               color: context.brand.primary,
               fontWeight: FontWeight.w800,
             ),
-          ),
-        ),
-        const Spacer(),
-        Text(
-          'Newest first',
-          style: AppTextStyles.labelSmall.copyWith(
-            color: AppColors.textTertiary,
           ),
         ),
       ],

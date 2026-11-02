@@ -47,11 +47,14 @@ void main() {
   FeedbackTopic topicOf(String id) =>
       loaded().topics.firstWhere((t) => t.id == id);
 
+  final seen = <Set<String>>[];
+
   Future<void> boot({
     List<FeedbackTopic>? topics,
     bool asParent = false,
     Duration poll = const Duration(hours: 1),
   }) async {
+    seen.clear();
     repo = FakeChatRepository(
       thread: ChatThread(
         id: 'fb_2',
@@ -66,6 +69,7 @@ void main() {
       asParent: asParent,
       pollInterval: poll,
       markReadDelay: const Duration(milliseconds: 10),
+      onSeen: seen.add,
     );
     await cubit.load();
   }
@@ -81,6 +85,24 @@ void main() {
     expect(loaded().expandedTopicIds, {'10'});
     await pump(40);
     expect(repo.topicReads, ['10']);
+  });
+
+  test('opening the thread reports every feedback in it as seen', () async {
+    await boot();
+    expect(seen.first, {'10', '9'});
+    await pump(60);
+    expect(seen.any((s) => s.length == 1 && s.contains('10')), isTrue);
+  });
+
+  test('expanding another card reports just that one', () async {
+    await boot();
+    await pump(60); // the newest card is read on open
+    seen.clear();
+    cubit.toggleExpanded('9');
+    await pump(60);
+    expect(seen, [
+      {'9'},
+    ]);
   });
 
   test('reply is optimistic and confirmed', () async {

@@ -105,6 +105,8 @@ class _Loaded extends StatelessWidget {
                   value: '${counts.total}',
                   label: 'Total',
                   color: context.brand.primary,
+                  selected: state.filter.isEmpty,
+                  onTap: () => cubit.setFilter(''),
                 ),
               ),
               const SizedBox(width: AppSpacing.sm),
@@ -114,6 +116,7 @@ class _Loaded extends StatelessWidget {
                   value: '${counts.present}',
                   label: 'Present',
                   color: AppColors.success,
+                  selected: state.filter == AttendanceStatusConfig.present,
                   onTap: () => cubit.setFilter(AttendanceStatusConfig.present),
                 ),
               ),
@@ -124,6 +127,7 @@ class _Loaded extends StatelessWidget {
                   value: '${counts.late}',
                   label: 'Late',
                   color: AppColors.warning,
+                  selected: state.filter == AttendanceStatusConfig.late,
                   onTap: () => cubit.setFilter(AttendanceStatusConfig.late),
                 ),
               ),
@@ -134,23 +138,12 @@ class _Loaded extends StatelessWidget {
                   value: '${counts.absent}',
                   label: 'Absent',
                   color: AppColors.danger,
+                  selected: state.filter == AttendanceStatusConfig.absent,
                   onTap: () => cubit.setFilter(AttendanceStatusConfig.absent),
                 ),
               ),
             ],
           ),
-          if (state.filter.isNotEmpty) ...[
-            const SizedBox(height: AppSpacing.md),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: InputChip(
-                label: Text(
-                  'Showing ${attendanceStyle(state.filter).label}',
-                ),
-                onDeleted: () => cubit.setFilter(state.filter),
-              ),
-            ),
-          ],
           const SizedBox(height: AppSpacing.md),
           if (records.isEmpty)
             AppCard(

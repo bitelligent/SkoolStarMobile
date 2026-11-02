@@ -123,41 +123,26 @@ class _Pill extends StatelessWidget {
           ),
           child: Row(
             children: [
-              AvatarCircle(name: child.name, size: 34),
+              AvatarCircle(name: child.name, size: 32),
               const SizedBox(width: AppSpacing.sm),
               // The name takes all the free width, so the chip and chevron
               // sit at the right edge on any screen size.
               Expanded(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'CHILD',
-                      style: AppTextStyles.labelSmall.copyWith(
-                        color: AppColors.textTertiary,
-                        fontSize: 10,
-                        letterSpacing: 0.8,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    Text(
-                      child.name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: AppTextStyles.titleSmall.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
+                child: Text(
+                  child.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.titleSmall.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
-              if (child.className.isNotEmpty) ...[
+              if (child.classShort.isNotEmpty) ...[
                 const SizedBox(width: AppSpacing.sm),
                 ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 120),
                   child: AppChip(
-                    label: child.className,
+                    label: child.classShort,
                     color: context.brand.primary,
                     dense: true,
                   ),

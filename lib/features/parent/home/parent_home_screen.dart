@@ -57,6 +57,7 @@ class _Loaded extends StatefulWidget {
 class _LoadedState extends State<_Loaded> with SingleTickerProviderStateMixin {
   late final TabController _tabs = TabController(length: 2, vsync: this);
   final _search = TextEditingController();
+  bool _showSearch = false;
 
   @override
   void initState() {
@@ -64,6 +65,7 @@ class _LoadedState extends State<_Loaded> with SingleTickerProviderStateMixin {
     _tabs.index = widget.state.view == ParentHomeView.month ? 0 : 1;
     _tabs.addListener(_onTab);
     _search.text = widget.state.query;
+    _showSearch = widget.state.query.isNotEmpty;
   }
 
   void _onTab() {
@@ -144,7 +146,7 @@ class _LoadedState extends State<_Loaded> with SingleTickerProviderStateMixin {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'Last 30 days',
+                      'View Progress',
                       style: AppTextStyles.labelMedium.copyWith(
                         color: AppColors.textSecondary,
                       ),
@@ -172,8 +174,7 @@ class _LoadedState extends State<_Loaded> with SingleTickerProviderStateMixin {
                       icon: Icons.how_to_reg_rounded,
                       label: 'Attendance',
                       stat: s.attendanceStat,
-                      detail: (r) => '${r.part} of ${r.whole} classes',
-                      onTap: () => context.pushNamed(AppRoutes.parentProgress),
+                      onTap: () => context.goNamed(AppRoutes.parentAttendance),
                     ),
                   ),
                   const SizedBox(width: AppSpacing.sm),
@@ -182,8 +183,7 @@ class _LoadedState extends State<_Loaded> with SingleTickerProviderStateMixin {
                       icon: Icons.assignment_turned_in_rounded,
                       label: 'Homework',
                       stat: s.homeworkStat,
-                      detail: (r) => '${r.part} of ${r.whole} done',
-                      onTap: () => context.pushNamed(AppRoutes.parentProgress),
+                      onTap: () => context.goNamed(AppRoutes.parentAssignments),
                     ),
                   ),
                   const SizedBox(width: AppSpacing.sm),
@@ -192,7 +192,6 @@ class _LoadedState extends State<_Loaded> with SingleTickerProviderStateMixin {
                       icon: Icons.grade_rounded,
                       label: 'Avg. score',
                       stat: s.scoreStat,
-                      detail: (r) => '${r.part} / ${r.whole} marks',
                       onTap: () => context.pushNamed(AppRoutes.parentProgress),
                     ),
                   ),
@@ -217,7 +216,28 @@ class _LoadedState extends State<_Loaded> with SingleTickerProviderStateMixin {
             child: AppSectionTitle(
               title: 'Schedule Overview',
               icon: Icons.event_rounded,
-              trailing: _CountBadge(count: sessions.length),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    tooltip: _showSearch ? 'Close search' : 'Search',
+                    visualDensity: VisualDensity.compact,
+                    onPressed: () {
+                      setState(() => _showSearch = !_showSearch);
+                      if (!_showSearch) {
+                        _search.clear();
+                        cubit.setQuery('');
+                      }
+                    },
+                    icon: Icon(
+                      _showSearch ? Icons.close_rounded : Icons.search_rounded,
+                      size: 20,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  _CountBadge(count: sessions.length),
+                ],
+              ),
             ),
           ),
           const SizedBox(height: AppSpacing.sm),
@@ -232,15 +252,18 @@ class _LoadedState extends State<_Loaded> with SingleTickerProviderStateMixin {
               ],
             ),
           ),
-          const SizedBox(height: AppSpacing.md),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-            child: AppSearchField(
-              controller: _search,
-              hint: 'Search subject or teacher',
-              onChanged: cubit.setQuery,
+          if (_showSearch) ...[
+            const SizedBox(height: AppSpacing.sm),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+              child: AppSearchField(
+                controller: _search,
+                hint: 'Search subject or teacher',
+                autofocus: true,
+                onChanged: cubit.setQuery,
+              ),
             ),
-          ),
+          ],
           const SizedBox(height: AppSpacing.sm),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
@@ -500,13 +523,13 @@ class _DateBanner extends StatelessWidget {
   }
 }
 
-/// One progress figure as a percentage, with what it measures spelled out.
+/// One progress figure as a percentage with its name. Exact counts live on
+/// the Progress screen; the home card stays glanceable.
 class _ProgressTile extends StatelessWidget {
   const _ProgressTile({
     required this.icon,
     required this.label,
     required this.stat,
-    required this.detail,
     required this.onTap,
   });
 
@@ -515,7 +538,6 @@ class _ProgressTile extends StatelessWidget {
 
   /// `null` = could not be loaded; empty = nothing to measure yet.
   final RatioStat? stat;
-  final String Function(RatioStat) detail;
   final VoidCallback onTap;
 
   @override
@@ -527,21 +549,19 @@ class _ProgressTile extends StatelessWidget {
       StatBand.poor => AppColors.danger,
       StatBand.none => AppColors.textTertiary,
     };
-    final caption = stat == null
-        ? 'Unavailable'
-        : percent == null
-        ? 'No data yet'
-        : detail(stat!);
+    final spoken = percent != null
+        ? '$label $percent percent'
+        : stat == null
+        ? '$label unavailable'
+        : '$label, no data yet';
     return Semantics(
-      label:
-          '$label ${percent == null ? caption : '$percent percent, $caption'}',
+      label: spoken,
       button: true,
       excludeSemantics: true,
       child: AppStatTile(
         icon: icon,
         value: percent == null ? '—' : '$percent%',
         label: label,
-        caption: caption,
         color: color,
         onTap: onTap,
       ),
@@ -550,7 +570,7 @@ class _ProgressTile extends StatelessWidget {
 }
 
 /// The next few classes as compact rows (the agenda below has the full
-/// cards), each with a live "starts in" label.
+/// cards). Each row shows its time once and its day once.
 class _UpNext extends StatelessWidget {
   const _UpNext({
     required this.sessions,
@@ -567,7 +587,18 @@ class _UpNext extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const AppSectionTitle(title: 'Up next', icon: Icons.upcoming_rounded),
+        AppSectionTitle(
+          title: 'Up Coming',
+          icon: Icons.upcoming_rounded,
+          trailing: Text(
+            sessions.length == 1
+                ? 'Next class'
+                : 'Next ${sessions.length} classes',
+            style: AppTextStyles.labelMedium.copyWith(
+              color: AppColors.textSecondary,
+            ),
+          ),
+        ),
         const SizedBox(height: AppSpacing.sm),
         AppCard(
           padding: EdgeInsets.zero,
@@ -636,8 +667,7 @@ class _UpNextRow extends StatelessWidget {
                     style: AppTextStyles.titleSmall,
                   ),
                   Text(
-                    '${DateFormat('EEE, MMM d').format(session.date)}'
-                    '  ·  ${session.startTime} – ${session.endTime}',
+                    '${session.startTime} – ${session.endTime}',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: AppTextStyles.labelMedium.copyWith(
@@ -656,7 +686,8 @@ class _UpNextRow extends StatelessWidget {
   }
 }
 
-/// "Starts in 2 h 15 min" / "Tomorrow, 14:30", refreshed every 30 s.
+/// When the class is, refreshed every 30 s: "In 2 h 10 min" today, then just
+/// the day. The clock time is shown once, as the row's subtitle.
 class _StartsIn extends StatefulWidget {
   const _StartsIn({required this.session});
 
@@ -685,7 +716,7 @@ class _StartsInState extends State<_StartsIn> {
 
   @override
   Widget build(BuildContext context) => Text(
-    startsInLabel(widget.session.startsAt, DateTime.now()),
+    upcomingWhenLabel(widget.session.startsAt, DateTime.now()),
     style: AppTextStyles.labelMedium.copyWith(
       color: context.brand.primary,
       fontWeight: FontWeight.w700,
@@ -693,22 +724,22 @@ class _StartsInState extends State<_StartsIn> {
   );
 }
 
-/// Human wording for when a class starts, relative to [now].
-String startsInLabel(DateTime start, DateTime now) {
+/// Short "when" for an upcoming class, without repeating its clock time:
+/// "Starting now", "In 25 min", "In 3 h 15 min", "Tomorrow", "Friday",
+/// "Nov 5".
+String upcomingWhenLabel(DateTime start, DateTime now) {
   final diff = start.difference(now);
-  if (diff.isNegative) return 'Starting now';
   if (diff.inMinutes < 1) return 'Starting now';
-  if (diff.inMinutes < 60) return 'Starts in ${diff.inMinutes} min';
+  if (diff.inMinutes < 60) return 'In ${diff.inMinutes} min';
   final today = DateTime(now.year, now.month, now.day);
   final day = DateTime(start.year, start.month, start.day);
   final days = day.difference(today).inDays;
-  final time = DateFormat('h:mm a').format(start);
   if (days == 0) {
     final h = diff.inHours;
     final m = diff.inMinutes % 60;
-    return m == 0 ? 'Starts in $h h' : 'Starts in $h h $m min';
+    return m == 0 ? 'In $h h' : 'In $h h $m min';
   }
-  if (days == 1) return 'Tomorrow, $time';
-  if (days < 7) return '${DateFormat('EEEE').format(start)}, $time';
-  return '${DateFormat('MMM d').format(start)}, $time';
+  if (days == 1) return 'Tomorrow';
+  if (days < 7) return DateFormat('EEEE').format(start);
+  return DateFormat('MMM d').format(start);
 }

@@ -317,10 +317,16 @@ class ParentHomeCubit extends ChildScopedCubit<ParentHomeState> {
       });
   }
 
-  /// The next classes that have not finished yet (ignores the filters: this
-  /// is "what's coming", whatever the schedule below is showing), soonest
-  /// first. A class already in progress is shown by the live banner instead.
-  List<Session> upcomingSessions({int limit = 4}) {
+  /// The next classes that have not finished yet, soonest first.
+  ///
+  /// How many classes "Up Coming" shows.
+  static const upcomingLimit = 3;
+
+  /// The next [limit] classes that have not started, soonest first, whatever
+  /// day they are on (the rest of today first, then the following days).
+  /// Independent of the filters and of Month/Agenda, so it never changes
+  /// under the user's hands. A class in progress is shown by the live banner.
+  List<Session> upcomingSessions({int limit = upcomingLimit}) {
     final s = _loaded;
     if (s == null) return const [];
     final now = _now();

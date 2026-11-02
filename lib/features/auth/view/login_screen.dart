@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:skoolstar_teacher_module/core/utils/keyboard.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
@@ -47,7 +48,7 @@ class _LoginViewState extends State<_LoginView> {
 
   void _submit({String? contextKey}) {
     if (!_formKey.currentState!.validate()) return;
-    FocusScope.of(context).unfocus();
+    context.dismissKeyboard();
     context.read<LoginCubit>().submit(
       email: _email.text,
       password: _password.text,

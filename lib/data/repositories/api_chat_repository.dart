@@ -146,6 +146,27 @@ class ApiChatRepository extends ChatRepository {
   }
 
   @override
+  Future<String?> feedbackThreadIdFor(String topicId) async {
+    String? find() {
+      for (final entry in _topics.entries) {
+        if (entry.value.any((t) => t.id == topicId)) return entry.key;
+      }
+      return null;
+    }
+
+    final cached = find();
+    if (cached != null) return cached;
+    try {
+      await _loadFeedbackThreads(); // the topic may be newer than our cache
+    } on UnauthorizedException {
+      rethrow;
+    } on ApiException {
+      return null;
+    }
+    return find();
+  }
+
+  @override
   Future<ChatThread?> refreshThread(String id) async {
     if (serverDirectThreadId(id) != null) {
       try {

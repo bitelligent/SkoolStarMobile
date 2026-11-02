@@ -48,6 +48,12 @@ class DictationController extends ChangeNotifier with WidgetsBindingObserver {
   /// Text that was in the field when this utterance started.
   String _base = '';
 
+  /// What happened in the current session, so an ending with nothing heard
+  /// can say so instead of failing silently.
+  bool _heardWords = false;
+  bool _userStopped = false;
+  bool _errorReported = false;
+
   /// Guards against reacting to our own writes into [text].
   bool _writing = false;
   bool _disposed = false;
@@ -86,6 +92,9 @@ class DictationController extends ChangeNotifier with WidgetsBindingObserver {
     }
 
     _base = text.text.trim();
+    _heardWords = false;
+    _userStopped = false;
+    _errorReported = false;
     unawaited(HapticFeedback.selectionClick());
     await engine.start(
       DictationSession(
@@ -104,6 +113,7 @@ class DictationController extends ChangeNotifier with WidgetsBindingObserver {
 
   Future<void> stop() async {
     if (_state == DictationState.idle) return;
+    _userStopped = true;
     await engine.stop();
   }
 
@@ -113,6 +123,7 @@ class DictationController extends ChangeNotifier with WidgetsBindingObserver {
     Duration timeout = const Duration(milliseconds: 1500),
   }) async {
     if (_state == DictationState.idle) return;
+    _userStopped = true;
     final settled = Completer<void>();
     void check() {
       if (_state == DictationState.idle && !settled.isCompleted) {
@@ -132,6 +143,7 @@ class DictationController extends ChangeNotifier with WidgetsBindingObserver {
       _setState(DictationState.listening);
     }
     final spoken = words.trim();
+    if (spoken.isNotEmpty) _heardWords = true;
     _write(_join(_base, spoken));
     if (isFinal && spoken.isNotEmpty) {
       // The next utterance in this session continues after this one.
@@ -141,11 +153,17 @@ class DictationController extends ChangeNotifier with WidgetsBindingObserver {
 
   void _onEnded(int generation) {
     if (_disposed || generation != _generation) return;
+    // The recogniser gave up without hearing anything and without saying why
+    // (no audio input, silence): tell the user rather than just stopping.
+    if (!_heardWords && !_userStopped && !_errorReported) {
+      _message = "Didn't catch that. Try again.";
+    }
     _setState(DictationState.idle);
   }
 
   void _onError(int generation, DictationError error) {
     if (_disposed || generation != _generation) return;
+    _errorReported = true;
     switch (error) {
       case DictationError.permissionDenied:
         _message =

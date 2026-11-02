@@ -13,6 +13,7 @@ class AppStatTile extends StatelessWidget {
     required this.color,
     this.caption,
     this.onTap,
+    this.selected = false,
     super.key,
   });
 
@@ -25,63 +26,77 @@ class AppStatTile extends StatelessWidget {
   final String? caption;
   final VoidCallback? onTap;
 
+  /// Marks the tile as the active filter: tinted background and a [color]
+  /// border instead of a separate "showing …" line.
+  final bool selected;
+
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(AppRadius.lg),
-      child: Container(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(AppRadius.lg),
-          border: Border.all(color: AppColors.border),
-          boxShadow: AppShadows.cardSoft,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 36,
-              height: 36,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.12),
-                borderRadius: BorderRadius.circular(AppRadius.sm),
-              ),
-              child: Icon(icon, size: 18, color: color),
+    return Semantics(
+      selected: selected,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppRadius.lg),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.md,
+            vertical: 12,
+          ),
+          decoration: BoxDecoration(
+            color: selected ? color.withValues(alpha: 0.08) : AppColors.surface,
+            borderRadius: BorderRadius.circular(AppRadius.lg),
+            border: Border.all(
+              color: selected ? color : AppColors.border,
+              width: selected ? 1.6 : 1,
             ),
-            const SizedBox(height: AppSpacing.sm),
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: Alignment.centerLeft,
-              child: Text(
-                value,
-                style: AppTextStyles.headingMedium.copyWith(
-                  color: AppColors.textPrimary,
-                  fontWeight: FontWeight.w800,
+            boxShadow: AppShadows.cardSoft,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 32,
+                height: 32,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.12),
+                  borderRadius: BorderRadius.circular(AppRadius.sm),
+                ),
+                child: Icon(icon, size: 17, color: color),
+              ),
+              const SizedBox(height: 6),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  value,
+                  style: AppTextStyles.headingMedium.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
               ),
-            ),
-            Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.textPrimary,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            if (caption != null)
               Text(
-                caption!,
+                label,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: AppTextStyles.labelSmall.copyWith(
-                  color: AppColors.textSecondary,
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
-          ],
+              if (caption != null)
+                Text(
+                  caption!,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.labelSmall.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );

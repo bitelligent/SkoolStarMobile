@@ -179,35 +179,53 @@ void main() {
     expect(ProgressStats.pending(list, _now), 2);
   });
 
-  group('startsInLabel', () {
+  group('upcomingWhenLabel', () {
     final base = DateTime(2026, 10, 20, 12);
-    test('minutes, hours, tomorrow, weekday, date', () {
+
+    test('today counts down, later days name only the day', () {
       expect(
-        startsInLabel(base.add(const Duration(seconds: 20)), base),
+        upcomingWhenLabel(base.add(const Duration(seconds: 20)), base),
         'Starting now',
       );
       expect(
-        startsInLabel(base.add(const Duration(minutes: 25)), base),
-        'Starts in 25 min',
+        upcomingWhenLabel(base.add(const Duration(minutes: 25)), base),
+        'In 25 min',
       );
       expect(
-        startsInLabel(base.add(const Duration(hours: 3)), base),
-        'Starts in 3 h',
+        upcomingWhenLabel(base.add(const Duration(hours: 3)), base),
+        'In 3 h',
       );
       expect(
-        startsInLabel(base.add(const Duration(hours: 3, minutes: 15)), base),
-        'Starts in 3 h 15 min',
+        upcomingWhenLabel(
+          base.add(const Duration(hours: 3, minutes: 15)),
+          base,
+        ),
+        'In 3 h 15 min',
       );
       expect(
-        startsInLabel(DateTime(2026, 10, 21, 14, 30), base),
-        'Tomorrow, 2:30 PM',
+        upcomingWhenLabel(DateTime(2026, 10, 21, 14, 30), base),
+        'Tomorrow',
       );
-      expect(startsInLabel(DateTime(2026, 10, 23, 9), base), 'Friday, 9:00 AM');
-      expect(startsInLabel(DateTime(2026, 11, 5, 9), base), 'Nov 5, 9:00 AM');
+      expect(upcomingWhenLabel(DateTime(2026, 10, 23, 9), base), 'Friday');
+      expect(upcomingWhenLabel(DateTime(2026, 11, 5, 9), base), 'Nov 5');
       expect(
-        startsInLabel(base.subtract(const Duration(minutes: 5)), base),
+        upcomingWhenLabel(base.subtract(const Duration(minutes: 5)), base),
         'Starting now',
       );
+    });
+
+    test('never repeats the clock time (the row shows it once)', () {
+      for (final d in [
+        DateTime(2026, 10, 20, 15, 30),
+        DateTime(2026, 10, 21, 14, 30),
+        DateTime(2026, 10, 24, 14, 30),
+        DateTime(2026, 12, 1, 14, 30),
+      ]) {
+        final label = upcomingWhenLabel(d, base);
+        expect(label, isNot(contains(':')), reason: label);
+        expect(label, isNot(contains('PM')), reason: label);
+        expect(label, isNot(contains('AM')), reason: label);
+      }
     });
   });
 }

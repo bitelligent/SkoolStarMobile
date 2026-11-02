@@ -231,6 +231,28 @@ void main() {
       className: 'Class 1',
     );
 
+    testWidgets('has no "CHILD" label and shows the class without "Class"', (
+      tester,
+    ) async {
+      await pump(tester, repo: _Children([irha, jannat]));
+      expect(find.text('CHILD'), findsNothing);
+      expect(find.text('Irha Shahzadi'), findsOneWidget);
+      expect(find.text('2'), findsOneWidget); // "Class 2" -> "2"
+      expect(find.text('Class 2'), findsNothing);
+    });
+
+    testWidgets('class names that are not "Class N" are kept as they are', (
+      tester,
+    ) async {
+      await pump(
+        tester,
+        repo: _Children([
+          const Child(id: '9', name: 'Hamza Ali', className: 'Nursery'),
+        ]),
+      );
+      expect(find.text('Nursery'), findsOneWidget);
+    });
+
     testWidgets('shows the selected child and switches from the sheet', (
       tester,
     ) async {

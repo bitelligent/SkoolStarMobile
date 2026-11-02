@@ -5,10 +5,11 @@ import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
 import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 
-/// Edge-to-edge bottom navigation. All three tabs always show icon + label
-/// — the only difference between active and inactive is colour + a soft
-/// pill highlight behind the active icon (Material 3 NavigationBar style,
-/// tuned for our palette).
+/// Edge-to-edge bottom navigation. Every tab shows its label under its icon
+/// (4 or 5 tabs alike) — the only difference between active and inactive is
+/// colour + a soft pill highlight behind the active icon (Material 3
+/// NavigationBar style, tuned for our palette). Labels scale down rather than
+/// collide on narrow screens.
 class AppBottomNav extends StatelessWidget {
   const AppBottomNav({
     required this.currentIndex,
@@ -85,27 +86,11 @@ class AppBottomNav extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(
             vertical: 6,
-            horizontal: AppSpacing.sm,
+            horizontal: AppSpacing.xs,
           ),
           child: Row(
             children: List.generate(items.length, (i) {
               final active = i == currentIndex;
-              // Five or more tabs: only the active tab shows its label
-              // (icon + label in a pill); the others are icon-only. Labels
-              // can then never collide, whatever the screen width.
-              if (items.length > 4) {
-                return Expanded(
-                  flex: active ? 5 : 2,
-                  child: _CompactNavButton(
-                    item: items[i],
-                    active: active,
-                    onTap: () {
-                      HapticFeedback.selectionClick();
-                      onTap(i);
-                    },
-                  ),
-                );
-              }
               return Expanded(
                 child: _NavButton(
                   item: items[i],
@@ -157,6 +142,7 @@ class _NavButton extends StatelessWidget {
         button: true,
         selected: active,
         label: item.label,
+        excludeSemantics: true,
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 6),
           child: Column(
@@ -166,7 +152,7 @@ class _NavButton extends StatelessWidget {
                 duration: const Duration(milliseconds: 240),
                 curve: Curves.easeOutCubic,
                 padding: EdgeInsets.symmetric(
-                  horizontal: active ? 20 : 12,
+                  horizontal: active ? 16 : 10,
                   vertical: 4,
                 ),
                 decoration: BoxDecoration(
@@ -190,96 +176,20 @@ class _NavButton extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 4),
-              AnimatedDefaultTextStyle(
-                duration: const Duration(milliseconds: 220),
-                style: AppTextStyles.labelSmall.copyWith(
-                  color: active
-                      ? context.brand.primary
-                      : AppColors.textSecondary,
-                  fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: AnimatedDefaultTextStyle(
+                  duration: const Duration(milliseconds: 220),
+                  style: AppTextStyles.labelSmall.copyWith(
+                    color: active
+                        ? context.brand.primary
+                        : AppColors.textSecondary,
+                    fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+                  ),
+                  child: Text(item.label, maxLines: 1),
                 ),
-                child: Text(item.label, maxLines: 1),
               ),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Tab for bars with five or more items. Inactive tabs are a bare icon; the
-/// active tab grows into a pill holding the icon and its label.
-class _CompactNavButton extends StatelessWidget {
-  const _CompactNavButton({
-    required this.item,
-    required this.active,
-    required this.onTap,
-  });
-
-  final AppNavItem item;
-  final bool active;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Semantics(
-      button: true,
-      selected: active,
-      label: item.label,
-      excludeSemantics: true,
-      child: Tooltip(
-        message: item.label,
-        child: InkResponse(
-          onTap: onTap,
-          radius: 40,
-          highlightShape: BoxShape.rectangle,
-          // A fixed row height: `Center` alone would fill the (unbounded)
-          // height of the bottom bar and push the content off screen.
-          child: SizedBox(
-            height: 52,
-            child: Center(
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 240),
-                curve: Curves.easeOutCubic,
-                height: 44,
-                padding: EdgeInsets.symmetric(horizontal: active ? 10 : 8),
-                decoration: BoxDecoration(
-                  color: active
-                      ? context.brand.primarySoft
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(AppRadius.pill),
-                ),
-                // Scales down instead of overflowing on very narrow screens
-                // or with large text.
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        active ? item.activeIcon : item.icon,
-                        size: 24,
-                        color: active
-                            ? context.brand.primary
-                            : AppColors.textSecondary,
-                      ),
-                      if (active) ...[
-                        const SizedBox(width: 6),
-                        Text(
-                          item.label,
-                          maxLines: 1,
-                          style: AppTextStyles.labelMedium.copyWith(
-                            color: context.brand.primary,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-              ),
-            ),
           ),
         ),
       ),

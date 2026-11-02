@@ -376,6 +376,64 @@ void main() {
 
     tearDown(() => children.close());
 
+    group('upcoming sessions (Up Coming)', () {
+      Session at(String id, DateTime d, String start, String end) =>
+          _session(id, d).copyWith(startTime: start, endTime: end);
+
+      setUp(() {
+        schedule.sessions = [
+          at('tonight', now, '18:00', '19:00'),
+          at('tomorrow', now.add(const Duration(days: 1)), '09:00', '10:00'),
+          at('day3', now.add(const Duration(days: 3)), '09:00', '10:00'),
+          at('day4', now.add(const Duration(days: 4)), '09:00', '10:00'),
+          at('day5', now.add(const Duration(days: 5)), '09:00', '10:00'),
+          at('earlier', now, '08:00', '09:00'), // already over
+        ];
+      });
+
+      test('is the next three classes, soonest first, across days', () async {
+        final cubit = make();
+        await cubit.load();
+        expect(cubit.upcomingSessions().map((x) => x.id), [
+          'tonight',
+          'tomorrow',
+          'day3',
+        ]);
+        expect(ParentHomeCubit.upcomingLimit, 3);
+        await cubit.close();
+      });
+
+      test('does not change with the agenda, view or filters', () async {
+        final cubit = make();
+        await cubit.load();
+        final before = cubit.upcomingSessions().map((x) => x.id).toList();
+        cubit.setView(ParentHomeView.month);
+        cubit.setQuery('no such subject');
+        cubit.setDayFilter('');
+        expect(cubit.upcomingSessions().map((x) => x.id), before);
+        await cubit.close();
+      });
+
+      test('shows fewer when fewer are left', () async {
+        final cubit = make();
+        await cubit.load();
+        expect(cubit.upcomingSessions(limit: 10).length, 5);
+        schedule.sessions = [at('only', now, '23:00', '23:30')];
+        await cubit.load();
+        expect(cubit.upcomingSessions().map((x) => x.id), ['only']);
+        await cubit.close();
+      });
+
+      test('classes that are over or in progress are not listed', () async {
+        final cubit = make();
+        await cubit.load();
+        cubit.setView(ParentHomeView.month);
+        final ids = cubit.upcomingSessions(limit: 10).map((x) => x.id);
+        expect(ids, isNot(contains('earlier')));
+        await cubit.close();
+      });
+    });
+
     test('defaults to today, agenda view, with stat inputs', () async {
       final cubit = make();
       await cubit.load();

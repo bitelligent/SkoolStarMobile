@@ -67,6 +67,9 @@ class _ChatViewState extends State<_ChatView>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // The tab shell already resizes for the keyboard; doing it again here
+      // would apply the inset twice and collapse the content.
+      resizeToAvoidBottomInset: false,
       backgroundColor: AppColors.background,
       body: SafeArea(
         bottom: false,

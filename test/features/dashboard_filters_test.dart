@@ -1,13 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:skoolstar_teacher_module/data/models/class_group.dart';
 import 'package:skoolstar_teacher_module/data/models/institute_model.dart';
-import 'package:skoolstar_teacher_module/data/models/notification_model.dart';
 import 'package:skoolstar_teacher_module/data/models/session_model.dart';
 import 'package:skoolstar_teacher_module/data/models/subject_model.dart';
 import 'package:skoolstar_teacher_module/data/models/user_model.dart';
 import 'package:skoolstar_teacher_module/data/repositories/class_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/institute_repository.dart';
-import 'package:skoolstar_teacher_module/data/repositories/notifications_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/session_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/subject_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/user_repository.dart';
@@ -83,12 +81,6 @@ class _Subjects implements SubjectRepository {
   ];
 }
 
-class _Notifs implements NotificationsRepository {
-  @override
-  Future<NotificationsData> getNotifications() async =>
-      const NotificationsData(items: []);
-}
-
 void main() {
   final now = DateTime.now();
   final today = _day(now);
@@ -118,7 +110,6 @@ void main() {
     sessionRepository: _Sessions(sessions),
     classRepository: _Classes(),
     subjectRepository: _Subjects(),
-    notificationsRepository: _Notifs(),
   );
 
   Set<String> ids(DashboardCubit c) =>

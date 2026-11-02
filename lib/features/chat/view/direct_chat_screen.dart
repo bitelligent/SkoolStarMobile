@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:skoolstar_teacher_module/data/models/app_notification.dart';
+import 'package:skoolstar_teacher_module/features/notifications/notifications_context.dart';
+import 'package:skoolstar_teacher_module/data/mappers/chat_mapper.dart';
 import 'package:skoolstar_teacher_module/features/chat/chat_perspective.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
@@ -29,6 +32,14 @@ class DirectChatScreen extends StatelessWidget {
         threadId: threadId,
         repository: context.read<ChatRepository>(),
         asParent: ChatPerspectiveScope.read(context).isParent,
+        onSeen: () {
+          final serverId = serverDirectThreadId(threadId);
+          if (serverId == null) return;
+          context.notificationsOrNull?.markRelatedRead(
+            type: NotificationType.chat,
+            referenceIds: {'$serverId'},
+          );
+        },
       )..load(),
       child: const _DirectChatView(),
     );
