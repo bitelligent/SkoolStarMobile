@@ -12,6 +12,7 @@ import 'package:skoolstar_teacher_module/core/widgets/app_empty_state.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_top_bar.dart';
 import 'package:skoolstar_teacher_module/core/widgets/loading_view.dart';
 import 'package:skoolstar_teacher_module/features/parent/common/child_gate.dart';
+import 'package:skoolstar_teacher_module/features/parent/progress/exam_results_section.dart';
 import 'package:skoolstar_teacher_module/features/parent/progress/parent_progress_cubit.dart';
 import 'package:skoolstar_teacher_module/features/parent/progress/progress_charts.dart';
 import 'package:skoolstar_teacher_module/features/parent/progress/progress_report.dart';
@@ -109,7 +110,7 @@ class _Loaded extends StatelessWidget {
             const _PartialNotice(),
           ],
           const SizedBox(height: AppSpacing.md),
-          if (!report.hasAnyData)
+          if (!report.hasAnyData && !state.hasSchoolFigures)
             const AppCard(
               child: AppEmptyState(
                 icon: Icons.insights_rounded,
@@ -121,28 +122,40 @@ class _Loaded extends StatelessWidget {
               ),
             )
           else ...[
-            _SummaryCard(report: report),
-            const SizedBox(height: AppSpacing.lg),
-            _AttentionSection(
-              report: report,
-              onOpen: (l) => _open(context, l),
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            _TrendSection(report: report),
-            if (report.subjects.isNotEmpty) ...[
+            if (report.hasAnyData) ...[
+              _SummaryCard(report: report),
               const SizedBox(height: AppSpacing.lg),
-              const AppSectionTitle(
-                title: 'Score by subject',
-                icon: Icons.menu_book_rounded,
+              _AttentionSection(
+                report: report,
+                onOpen: (l) => _open(context, l),
               ),
-              const SizedBox(height: AppSpacing.sm),
-              AppCard(child: SubjectBars(subjects: report.subjects)),
+              const SizedBox(height: AppSpacing.lg),
+              _TrendSection(report: report),
+              if (report.subjects.isNotEmpty) ...[
+                const SizedBox(height: AppSpacing.lg),
+                const AppSectionTitle(
+                  title: 'Score by subject',
+                  icon: Icons.menu_book_rounded,
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                AppCard(child: SubjectBars(subjects: report.subjects)),
+              ],
             ],
-            const SizedBox(height: AppSpacing.lg),
-            _TimelineSection(
-              events: report.timeline,
-              onOpen: (l) => _open(context, l),
-            ),
+            if (state.summary?.hasData ?? false) ...[
+              const SizedBox(height: AppSpacing.lg),
+              OverallStrip(summary: state.summary!),
+            ],
+            if (state.results.isNotEmpty) ...[
+              const SizedBox(height: AppSpacing.lg),
+              ExamResultsList(results: state.results),
+            ],
+            if (report.hasAnyData) ...[
+              const SizedBox(height: AppSpacing.lg),
+              _TimelineSection(
+                events: report.timeline,
+                onOpen: (l) => _open(context, l),
+              ),
+            ],
           ],
           const SizedBox(height: AppSpacing.lg),
           _MessageTeacher(onTap: () => context.go(AppRoutes.parentChatPath)),

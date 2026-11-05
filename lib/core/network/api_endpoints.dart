@@ -19,6 +19,13 @@ class ApiEndpoints {
   // Parent module
   static const String childAttendance = '$_teacher/children/attendance';
   static const String childAssignments = '$_teacher/children/assignments';
+  static const String childProgress = '$_teacher/children/progress';
+  static const String childResults = '$_teacher/children/results';
+
+  /// Parent leave requests. Admin routes (list / decide) are web-only.
+  static const String leaveMine = '/api/LeaveApplications/mine';
+  static const String leaveApplications = '/api/LeaveApplications';
+  static String leaveCancel(String id) => '/api/LeaveApplications/$id/cancel';
   static String studentOccurrences(String studentId) =>
       '$_schedules/occurrences/student/$studentId';
   static String studentContactPersons(String studentId) =>
@@ -59,6 +66,10 @@ class ApiEndpoints {
   static const String feedbackConversations =
       '$_teacher/feedback/conversations';
   static const String sendFeedback = '$_teacher/feedback/send';
+
+  /// Subjects the teacher teaches a student's class (picker for feedback).
+  static const String feedbackSubjects =
+      '$_teacher/weekly-feedback-report/subjects';
   static const String feedbackHistory = '$_teacher/feedback/history';
 
   /// `PUT` edits, `DELETE` soft-deletes.

@@ -16,6 +16,7 @@ import 'package:skoolstar_teacher_module/features/dashboard/widgets/live_now_ban
 import 'package:skoolstar_teacher_module/features/profile/cubit/profile_state.dart';
 import 'package:skoolstar_teacher_module/features/session_detail/cubit/session_detail_cubit.dart';
 import 'package:skoolstar_teacher_module/features/session_detail/cubit/session_detail_state.dart';
+import 'package:skoolstar_teacher_module/data/repositories/feedback_subjects_repository.dart';
 import 'package:skoolstar_teacher_module/features/session_detail/view/feedback_tab.dart';
 import 'package:skoolstar_teacher_module/features/session_detail/view/homework_tab.dart';
 
@@ -41,12 +42,15 @@ Future<Widget> _tab(
 ) async {
   final cubit = await buildDetailCubit(RecordingHomeworkRepo([_hw()]));
   addTearDown(cubit.close);
-  return MaterialApp(
-    home: Scaffold(
-      body: BlocProvider.value(
-        value: cubit,
-        child: BlocBuilder<SessionDetailCubit, SessionDetailState>(
-          builder: (_, s) => tab(s as SessionDetailLoaded),
+  return RepositoryProvider<FeedbackSubjectsRepository>.value(
+    value: FakeFeedbackSubjects(),
+    child: MaterialApp(
+      home: Scaffold(
+        body: BlocProvider.value(
+          value: cubit,
+          child: BlocBuilder<SessionDetailCubit, SessionDetailState>(
+            builder: (_, s) => tab(s as SessionDetailLoaded),
+          ),
         ),
       ),
     ),

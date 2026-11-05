@@ -3,8 +3,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_form_field.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_stat_tile.dart';
 
-Widget _wrap(Widget child) =>
-    MaterialApp(home: Scaffold(body: Center(child: child)));
+Widget _wrap(Widget child) => MaterialApp(
+  home: Scaffold(body: Center(child: child)),
+);
 
 void main() {
   group('AppSearchField', () {

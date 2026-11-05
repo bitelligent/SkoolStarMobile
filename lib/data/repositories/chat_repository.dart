@@ -63,7 +63,7 @@ abstract class ChatRepository {
   Future<List<FeedbackTopic>> getFeedbackTopicsFor(String threadId);
   Future<FeedbackTopic> createFeedbackTopic({
     required String threadId,
-    required String subject,
+    String? subject,
     required FeedbackTone tone,
     required String message,
   });

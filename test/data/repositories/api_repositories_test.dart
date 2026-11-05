@@ -532,6 +532,22 @@ void main() {
       expect(bodies.first['scheduleOccurrencePublicId'], 'pub-1');
     });
 
+    test('sends the chosen subject name, or null when none', () async {
+      final bodies = <Map<String, dynamic>>[];
+      final repo = FeedbackRepositoryImpl(
+        _api(
+          MockClient((r) async {
+            bodies.add(jsonDecode(r.body) as Map<String, dynamic>);
+            return jsonResponse({'id': 1});
+          }),
+        ),
+      );
+      await repo.sendMessage(_session, draft.copyWith(subject: 'Mathematics'));
+      await repo.sendMessage(_session, draft);
+      expect(bodies.first['subject'], 'Mathematics');
+      expect(bodies[3]['subject'], isNull, reason: 'no subject picked');
+    });
+
     test('partial failure reports the failed students only', () async {
       final repo = FeedbackRepositoryImpl(
         _api(

@@ -7,8 +7,10 @@ import 'package:skoolstar_teacher_module/data/models/feedback_topic.dart';
 import 'package:skoolstar_teacher_module/data/models/parent/child.dart';
 import 'package:skoolstar_teacher_module/data/models/parent/child_assignment.dart';
 import 'package:skoolstar_teacher_module/data/models/parent/child_attendance_record.dart';
+import 'package:skoolstar_teacher_module/data/models/parent/child_progress.dart';
 import 'package:skoolstar_teacher_module/data/repositories/parent/child_assignments_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/parent/child_attendance_repository.dart';
+import 'package:skoolstar_teacher_module/data/repositories/parent/child_progress_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/parent/children_repository.dart';
 import 'package:skoolstar_teacher_module/features/parent/common/children_cubit.dart';
 import 'package:skoolstar_teacher_module/features/parent/progress/parent_progress_cubit.dart';
@@ -51,6 +53,31 @@ class FakeAtt implements ChildAttendanceRepository {
           status: i == 1 ? 'absent' : 'present',
         ),
     ];
+  }
+}
+
+class FakeProgress implements ChildProgressRepository {
+  Object? summaryError;
+  Object? resultsError;
+  ChildProgress? summary;
+  List<ExamResult> results = const [];
+
+  @override
+  Future<ChildProgress?> getSummary(
+    String childId, {
+    bool refresh = false,
+  }) async {
+    if (summaryError != null) throw summaryError!;
+    return summary;
+  }
+
+  @override
+  Future<List<ExamResult>> getResults(
+    String childId, {
+    bool refresh = false,
+  }) async {
+    if (resultsError != null) throw resultsError!;
+    return results;
   }
 }
 

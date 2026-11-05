@@ -76,16 +76,19 @@ void main() {
 
     test('unknown status ids are not guessed', () {
       final r = attendanceFromJson([
-        {
-          'studentId': 2,
-          'sessionDate': '2026-10-01',
-          'statusId': 4,
-        },
+        {'studentId': 2, 'sessionDate': '2026-10-01', 'statusId': 9},
         {'studentId': 2, 'sessionDate': '2026-10-02', 'statusId': null},
         {'studentId': 2}, // no date → skipped
       ]);
       expect(r, hasLength(2));
       expect(r.every((x) => x.status == 'unmarked'), isTrue);
+    });
+
+    test('the school\'s Excused mark (4) is kept for parents', () {
+      final r = attendanceFromJson([
+        {'studentId': 2, 'sessionDate': '2026-10-01', 'statusId': 4},
+      ]);
+      expect(r.single.status, 'excused');
     });
   });
 

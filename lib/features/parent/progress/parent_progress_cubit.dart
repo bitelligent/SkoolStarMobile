@@ -5,9 +5,11 @@ import 'package:skoolstar_teacher_module/data/models/chat_thread.dart';
 import 'package:skoolstar_teacher_module/data/models/parent/child.dart';
 import 'package:skoolstar_teacher_module/data/models/parent/child_assignment.dart';
 import 'package:skoolstar_teacher_module/data/models/parent/child_attendance_record.dart';
+import 'package:skoolstar_teacher_module/data/models/parent/child_progress.dart';
 import 'package:skoolstar_teacher_module/data/repositories/chat_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/parent/child_assignments_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/parent/child_attendance_repository.dart';
+import 'package:skoolstar_teacher_module/data/repositories/parent/child_progress_repository.dart';
 import 'package:skoolstar_teacher_module/features/parent/common/child_scoped_cubit.dart';
 import 'package:skoolstar_teacher_module/features/parent/common/children_cubit.dart';
 import 'package:skoolstar_teacher_module/features/parent/progress/progress_report.dart';
@@ -25,11 +27,22 @@ sealed class ParentProgressState with _$ParentProgressState {
     required List<ChildAttendanceRecord> attendance,
     required List<ChildAssignment> assignments,
     required List<FeedbackEntry> feedback,
+
+    /// Exam results and the school's all-time totals (not period-based).
+    @Default(<ExamResult>[]) List<ExamResult> results,
+    ChildProgress? summary,
     @Default(ProgressPeriod.month) ProgressPeriod period,
 
     /// Some sources could not be loaded; what is shown may be incomplete.
     @Default(false) bool partial,
   }) = ParentProgressLoaded;
+}
+
+extension ParentProgressLoadedX on ParentProgressLoaded {
+  /// The school's own totals or exam results exist, even if the app-computed
+  /// figures are empty.
+  bool get hasSchoolFigures =>
+      results.isNotEmpty || (summary?.hasData ?? false);
 }
 
 /// Progress report for the selected child: attendance, homework, grades and
@@ -39,16 +52,19 @@ class ParentProgressCubit extends ChildScopedCubit<ParentProgressState> {
     required ChildrenCubit children,
     required ChildAttendanceRepository attendance,
     required ChildAssignmentsRepository assignments,
+    required ChildProgressRepository progress,
     required ChatRepository chat,
     DateTime Function()? clock,
   }) : _attendance = attendance,
        _assignments = assignments,
+       _progress = progress,
        _chat = chat,
        _now = clock ?? DateTime.now,
        super(const ParentProgressState.initial(), children);
 
   final ChildAttendanceRepository _attendance;
   final ChildAssignmentsRepository _assignments;
+  final ChildProgressRepository _progress;
   final ChatRepository _chat;
   final DateTime Function() _now;
 
@@ -128,6 +144,12 @@ class ParentProgressCubit extends ChildScopedCubit<ParentProgressState> {
       _assignments.getForChild(c.id, refresh: refresh),
     );
     final (fb, _) = await _settle(_loadFeedback(c));
+    final (results, _) = await _settle(
+      _progress.getResults(c.id, refresh: refresh),
+    );
+    final (summary, summaryError) = await _settle(
+      _progress.getSummary(c.id, refresh: refresh),
+    );
 
     if (att == null && hw == null) {
       Error.throwWithStackTrace(
@@ -140,8 +162,15 @@ class ParentProgressCubit extends ChildScopedCubit<ParentProgressState> {
       attendance: att ?? const [],
       assignments: hw ?? const [],
       feedback: fb ?? const [],
+      results: results ?? const [],
+      summary: summary,
       period: period,
-      partial: att == null || hw == null || fb == null,
+      partial:
+          att == null ||
+          hw == null ||
+          fb == null ||
+          results == null ||
+          summaryError != null,
     );
   }
 

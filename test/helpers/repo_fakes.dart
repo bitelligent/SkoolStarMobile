@@ -1,3 +1,4 @@
+import 'package:skoolstar_teacher_module/data/mappers/feedback_mapper.dart';
 import 'package:skoolstar_teacher_module/data/models/class_group.dart';
 import 'package:skoolstar_teacher_module/data/models/feedback_model.dart';
 import 'package:skoolstar_teacher_module/data/models/homework_model.dart';
@@ -10,6 +11,7 @@ import 'package:skoolstar_teacher_module/data/models/user_model.dart';
 import 'package:skoolstar_teacher_module/data/repositories/attendance_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/class_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/feedback_repository.dart';
+import 'package:skoolstar_teacher_module/data/repositories/feedback_subjects_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/homework_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/institute_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/notifications_repository.dart';
@@ -108,6 +110,29 @@ class FakeClassesRepo implements ClassRepository {
 class FakeSubjectsRepo implements SubjectRepository {
   @override
   Future<List<Subject>> getAll() async => stressSubjects;
+}
+
+/// Subjects per student id; students not listed have none.
+class FakeFeedbackSubjects implements FeedbackSubjectsRepository {
+  FakeFeedbackSubjects([this.byStudent = const {}]);
+
+  final Map<String, List<String>> byStudent;
+  Object? error;
+  final List<List<String>> calls = [];
+
+  @override
+  Future<List<Subject>> commonFor(Iterable<String> studentIds) async {
+    calls.add(studentIds.toList());
+    if (error != null) throw error!;
+    final lists = [
+      for (final id in studentIds)
+        [
+          for (final n in byStudent[id] ?? const <String>[])
+            Subject(id: n, name: n),
+        ],
+    ];
+    return commonSubjects(lists);
+  }
 }
 
 class FakeNotificationsRepo implements NotificationsRepository {

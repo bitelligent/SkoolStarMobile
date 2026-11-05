@@ -206,7 +206,7 @@ class ApiChatRepository extends ChatRepository {
   @override
   Future<FeedbackTopic> createFeedbackTopic({
     required String threadId,
-    required String subject,
+    String? subject,
     required FeedbackTone tone,
     required String message,
   }) async {
@@ -215,13 +215,14 @@ class ApiChatRepository extends ChatRepository {
       throw const ValidationException('Select a student to send feedback to.');
     }
     final body = message.trim();
+    final picked = subject?.trim();
     final json = await _api.post(
       ApiEndpoints.sendFeedback,
       body: {
         'studentId': parsed.studentId,
         'content': body,
         'isPositive': tone == FeedbackTone.positive,
-        'subject': subject.trim().isEmpty ? 'Feedback' : subject.trim(),
+        if (picked != null && picked.isNotEmpty) 'subject': picked,
         'tone': toneToServer(tone),
       },
     );
@@ -234,7 +235,9 @@ class ApiChatRepository extends ChatRepository {
     final topic = FeedbackTopic(
       id: id,
       threadId: threadId,
-      subject: subject.trim().isEmpty ? 'Feedback' : subject.trim(),
+      subject: picked != null && picked.isNotEmpty
+          ? picked
+          : defaultFeedbackSubject(positive: tone == FeedbackTone.positive),
       tone: tone == FeedbackTone.positive
           ? FeedbackTone.positive
           : FeedbackTone.needsAttention,

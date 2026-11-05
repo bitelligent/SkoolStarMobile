@@ -8,8 +8,10 @@ import 'package:skoolstar_teacher_module/data/models/chat_thread.dart';
 import 'package:skoolstar_teacher_module/data/models/feedback_topic.dart';
 import 'package:skoolstar_teacher_module/data/models/student_model.dart';
 import 'package:skoolstar_teacher_module/data/repositories/chat_repository.dart';
+import 'package:skoolstar_teacher_module/data/repositories/feedback_subjects_repository.dart';
 import 'package:skoolstar_teacher_module/features/session_detail/widgets/student_chat_launcher.dart';
 
+import '../helpers/repo_fakes.dart';
 import '../helpers/test_fonts.dart';
 import 'chat/chat_fakes.dart';
 
@@ -29,7 +31,7 @@ class _Repo extends FakeChatRepository {
   @override
   Future<FeedbackTopic> createFeedbackTopic({
     required String threadId,
-    required String subject,
+    String? subject,
     required FeedbackTone tone,
     required String message,
   }) {
@@ -83,8 +85,13 @@ void main() {
       ],
     );
     await tester.pumpWidget(
-      RepositoryProvider<ChatRepository>.value(
-        value: repo,
+      MultiRepositoryProvider(
+        providers: [
+          RepositoryProvider<ChatRepository>.value(value: repo),
+          RepositoryProvider<FeedbackSubjectsRepository>.value(
+            value: FakeFeedbackSubjects(),
+          ),
+        ],
         child: MaterialApp.router(routerConfig: router),
       ),
     );

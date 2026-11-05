@@ -50,7 +50,8 @@ void main() {
     }
     await checkpoint(tester, 't_chat_opened');
     final sheet = find.text('Send feedback').evaluate().isNotEmpty;
-    final thread = find.byIcon(Icons.send_rounded).evaluate().isNotEmpty ||
+    final thread =
+        find.byIcon(Icons.send_rounded).evaluate().isNotEmpty ||
         find.text('New feedback').evaluate().isNotEmpty;
     // ignore: avoid_print
     print('CHAT RESULT sheet=$sheet thread=$thread');

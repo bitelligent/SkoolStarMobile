@@ -3,7 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:skoolstar_teacher_module/core/storage/key_value_store.dart';
 import 'package:skoolstar_teacher_module/data/models/auth/auth_context.dart';
+import 'package:skoolstar_teacher_module/data/models/parent/child_progress.dart';
 import 'package:skoolstar_teacher_module/features/parent/common/children_cubit.dart';
+import 'package:skoolstar_teacher_module/features/parent/progress/exam_results_section.dart';
 import 'package:skoolstar_teacher_module/features/parent/progress/parent_progress_cubit.dart';
 import 'package:skoolstar_teacher_module/features/parent/progress/parent_progress_screen.dart';
 
@@ -16,6 +18,7 @@ Future<void> _pump(
   Size size = const Size(390, 844),
   FakeAtt? att,
   FakeHw? hw,
+  FakeProgress? progress,
   FakeFeedbackChat? chat,
 }) async {
   tester.view
@@ -33,6 +36,7 @@ Future<void> _pump(
     children: children,
     attendance: att ?? FakeAtt(),
     assignments: hw ?? FakeHw(),
+    progress: progress ?? FakeProgress(),
     chat: chat ?? FakeFeedbackChat(),
     clock: () => progressNow,
   );
@@ -153,4 +157,77 @@ void main() {
       },
     );
   }
+
+  group('exam results', () {
+    final progress = FakeProgress()
+      ..summary = const ChildProgress(
+        childId: '3',
+        completedAssignments: 6,
+        totalAssignments: 8,
+        totalResults: 7,
+        averageScore: 78.5,
+      )
+      ..results = [
+        for (var i = 1; i <= 7; i++)
+          ExamResult(
+            examId: '$i',
+            examName: 'Exam $i',
+            score: i * 10.0,
+            remarks: i == 7 ? 'Excellent work' : null,
+            createdAt: DateTime(2026, 10, 30 - i),
+          ),
+      ];
+
+    testWidgets('shows the school\'s totals and the latest results', (
+      tester,
+    ) async {
+      await _pump(tester, progress: progress, size: const Size(390, 3200));
+      expect(find.text('Overall (all time)'), findsOneWidget);
+      expect(find.text('6/8'), findsOneWidget);
+      expect(find.text('78.5'), findsOneWidget);
+      expect(find.text('Exam results'), findsOneWidget);
+      expect(find.text('Exam 1'), findsOneWidget);
+      expect(find.text('Exam 6'), findsNothing, reason: 'only the first five');
+      await tester.tap(find.text('Show 2 more'));
+      await tester.pumpAndSettle();
+      expect(find.text('Exam 7'), findsOneWidget);
+      expect(find.text('Excellent work'), findsOneWidget);
+      expect(find.text('Show fewer'), findsOneWidget);
+      _noOverflow(tester, 'exam results');
+    });
+
+    testWidgets('results alone are enough to leave the empty state', (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        att: FakeAtt()..records = const [],
+        hw: FakeHw()..items = const [],
+        chat: FakeFeedbackChat()..noFeedback = true,
+        progress: progress,
+      );
+      expect(find.text('Nothing to show yet'), findsNothing);
+      expect(find.text('Exam results'), findsOneWidget);
+    });
+
+    testWidgets('no results and no totals keeps the empty state', (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        att: FakeAtt()..records = const [],
+        hw: FakeHw()..items = const [],
+        chat: FakeFeedbackChat()..noFeedback = true,
+      );
+      expect(find.text('Nothing to show yet'), findsOneWidget);
+      expect(find.text('Exam results'), findsNothing);
+    });
+
+    test('scores print without a trailing .0', () {
+      expect(formatScore(82), '82');
+      expect(formatScore(82.0), '82');
+      expect(formatScore(78.5), '78.5');
+      expect(formatScore(78.25), '78.3');
+    });
+  });
 }

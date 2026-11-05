@@ -1,4 +1,5 @@
 import 'package:skoolstar_teacher_module/data/datasources/local_json_data_source.dart';
+import 'package:skoolstar_teacher_module/data/mappers/chat_mapper.dart';
 import 'package:skoolstar_teacher_module/data/models/chat_thread.dart';
 import 'package:skoolstar_teacher_module/data/models/direct_message.dart';
 import 'package:skoolstar_teacher_module/data/models/feedback_topic.dart';
@@ -97,7 +98,7 @@ class MockChatRepository extends ChatRepository {
   @override
   Future<FeedbackTopic> createFeedbackTopic({
     required String threadId,
-    required String subject,
+    String? subject,
     required FeedbackTone tone,
     required String message,
   }) async {
@@ -108,7 +109,9 @@ class MockChatRepository extends ChatRepository {
     final topic = FeedbackTopic(
       id: 'ft_${now.microsecondsSinceEpoch}',
       threadId: threadId,
-      subject: subject.trim().isEmpty ? 'Feedback' : subject.trim(),
+      subject: subject?.trim().isNotEmpty ?? false
+          ? subject!.trim()
+          : defaultFeedbackSubject(positive: tone == FeedbackTone.positive),
       tone: tone,
       createdAt: now,
       messages: [

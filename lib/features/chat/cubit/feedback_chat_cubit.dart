@@ -298,7 +298,7 @@ class FeedbackChatCubit extends SafeCubit<FeedbackChatState> {
   }
 
   Future<bool> createTopic({
-    required String subject,
+    String? subject,
     required FeedbackTone tone,
     required String message,
   }) async {

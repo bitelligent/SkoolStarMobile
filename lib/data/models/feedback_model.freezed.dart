@@ -14,7 +14,9 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$FeedbackMessage {
 
- String get id; String get sessionId; List<String> get studentIds; String get message; bool get isPositive; DateTime? get sentAt;
+ String get id; String get sessionId; List<String> get studentIds; String get message; bool get isPositive;/// Subject name picked by the teacher; `null` lets the server fall back
+/// to the lesson's subject.
+ String? get subject; DateTime? get sentAt;
 /// Create a copy of FeedbackMessage
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +27,16 @@ $FeedbackMessageCopyWith<FeedbackMessage> get copyWith => _$FeedbackMessageCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is FeedbackMessage&&(identical(other.id, id) || other.id == id)&&(identical(other.sessionId, sessionId) || other.sessionId == sessionId)&&const DeepCollectionEquality().equals(other.studentIds, studentIds)&&(identical(other.message, message) || other.message == message)&&(identical(other.isPositive, isPositive) || other.isPositive == isPositive)&&(identical(other.sentAt, sentAt) || other.sentAt == sentAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FeedbackMessage&&(identical(other.id, id) || other.id == id)&&(identical(other.sessionId, sessionId) || other.sessionId == sessionId)&&const DeepCollectionEquality().equals(other.studentIds, studentIds)&&(identical(other.message, message) || other.message == message)&&(identical(other.isPositive, isPositive) || other.isPositive == isPositive)&&(identical(other.subject, subject) || other.subject == subject)&&(identical(other.sentAt, sentAt) || other.sentAt == sentAt));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,sessionId,const DeepCollectionEquality().hash(studentIds),message,isPositive,sentAt);
+int get hashCode => Object.hash(runtimeType,id,sessionId,const DeepCollectionEquality().hash(studentIds),message,isPositive,subject,sentAt);
 
 @override
 String toString() {
-  return 'FeedbackMessage(id: $id, sessionId: $sessionId, studentIds: $studentIds, message: $message, isPositive: $isPositive, sentAt: $sentAt)';
+  return 'FeedbackMessage(id: $id, sessionId: $sessionId, studentIds: $studentIds, message: $message, isPositive: $isPositive, subject: $subject, sentAt: $sentAt)';
 }
 
 
@@ -45,7 +47,7 @@ abstract mixin class $FeedbackMessageCopyWith<$Res>  {
   factory $FeedbackMessageCopyWith(FeedbackMessage value, $Res Function(FeedbackMessage) _then) = _$FeedbackMessageCopyWithImpl;
 @useResult
 $Res call({
- String id, String sessionId, List<String> studentIds, String message, bool isPositive, DateTime? sentAt
+ String id, String sessionId, List<String> studentIds, String message, bool isPositive, String? subject, DateTime? sentAt
 });
 
 
@@ -62,14 +64,15 @@ class _$FeedbackMessageCopyWithImpl<$Res>
 
 /// Create a copy of FeedbackMessage
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? sessionId = null,Object? studentIds = null,Object? message = null,Object? isPositive = null,Object? sentAt = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? sessionId = null,Object? studentIds = null,Object? message = null,Object? isPositive = null,Object? subject = freezed,Object? sentAt = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,sessionId: null == sessionId ? _self.sessionId : sessionId // ignore: cast_nullable_to_non_nullable
 as String,studentIds: null == studentIds ? _self.studentIds : studentIds // ignore: cast_nullable_to_non_nullable
 as List<String>,message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
 as String,isPositive: null == isPositive ? _self.isPositive : isPositive // ignore: cast_nullable_to_non_nullable
-as bool,sentAt: freezed == sentAt ? _self.sentAt : sentAt // ignore: cast_nullable_to_non_nullable
+as bool,subject: freezed == subject ? _self.subject : subject // ignore: cast_nullable_to_non_nullable
+as String?,sentAt: freezed == sentAt ? _self.sentAt : sentAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,
   ));
 }
@@ -155,10 +158,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String sessionId,  List<String> studentIds,  String message,  bool isPositive,  DateTime? sentAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String sessionId,  List<String> studentIds,  String message,  bool isPositive,  String? subject,  DateTime? sentAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _FeedbackMessage() when $default != null:
-return $default(_that.id,_that.sessionId,_that.studentIds,_that.message,_that.isPositive,_that.sentAt);case _:
+return $default(_that.id,_that.sessionId,_that.studentIds,_that.message,_that.isPositive,_that.subject,_that.sentAt);case _:
   return orElse();
 
 }
@@ -176,10 +179,10 @@ return $default(_that.id,_that.sessionId,_that.studentIds,_that.message,_that.is
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String sessionId,  List<String> studentIds,  String message,  bool isPositive,  DateTime? sentAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String sessionId,  List<String> studentIds,  String message,  bool isPositive,  String? subject,  DateTime? sentAt)  $default,) {final _that = this;
 switch (_that) {
 case _FeedbackMessage():
-return $default(_that.id,_that.sessionId,_that.studentIds,_that.message,_that.isPositive,_that.sentAt);case _:
+return $default(_that.id,_that.sessionId,_that.studentIds,_that.message,_that.isPositive,_that.subject,_that.sentAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -196,10 +199,10 @@ return $default(_that.id,_that.sessionId,_that.studentIds,_that.message,_that.is
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String sessionId,  List<String> studentIds,  String message,  bool isPositive,  DateTime? sentAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String sessionId,  List<String> studentIds,  String message,  bool isPositive,  String? subject,  DateTime? sentAt)?  $default,) {final _that = this;
 switch (_that) {
 case _FeedbackMessage() when $default != null:
-return $default(_that.id,_that.sessionId,_that.studentIds,_that.message,_that.isPositive,_that.sentAt);case _:
+return $default(_that.id,_that.sessionId,_that.studentIds,_that.message,_that.isPositive,_that.subject,_that.sentAt);case _:
   return null;
 
 }
@@ -211,7 +214,7 @@ return $default(_that.id,_that.sessionId,_that.studentIds,_that.message,_that.is
 
 
 class _FeedbackMessage implements FeedbackMessage {
-  const _FeedbackMessage({required this.id, required this.sessionId, required final  List<String> studentIds, required this.message, this.isPositive = true, this.sentAt}): _studentIds = studentIds;
+  const _FeedbackMessage({required this.id, required this.sessionId, required final  List<String> studentIds, required this.message, this.isPositive = true, this.subject, this.sentAt}): _studentIds = studentIds;
   
 
 @override final  String id;
@@ -225,6 +228,9 @@ class _FeedbackMessage implements FeedbackMessage {
 
 @override final  String message;
 @override@JsonKey() final  bool isPositive;
+/// Subject name picked by the teacher; `null` lets the server fall back
+/// to the lesson's subject.
+@override final  String? subject;
 @override final  DateTime? sentAt;
 
 /// Create a copy of FeedbackMessage
@@ -237,16 +243,16 @@ _$FeedbackMessageCopyWith<_FeedbackMessage> get copyWith => __$FeedbackMessageCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FeedbackMessage&&(identical(other.id, id) || other.id == id)&&(identical(other.sessionId, sessionId) || other.sessionId == sessionId)&&const DeepCollectionEquality().equals(other._studentIds, _studentIds)&&(identical(other.message, message) || other.message == message)&&(identical(other.isPositive, isPositive) || other.isPositive == isPositive)&&(identical(other.sentAt, sentAt) || other.sentAt == sentAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FeedbackMessage&&(identical(other.id, id) || other.id == id)&&(identical(other.sessionId, sessionId) || other.sessionId == sessionId)&&const DeepCollectionEquality().equals(other._studentIds, _studentIds)&&(identical(other.message, message) || other.message == message)&&(identical(other.isPositive, isPositive) || other.isPositive == isPositive)&&(identical(other.subject, subject) || other.subject == subject)&&(identical(other.sentAt, sentAt) || other.sentAt == sentAt));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,sessionId,const DeepCollectionEquality().hash(_studentIds),message,isPositive,sentAt);
+int get hashCode => Object.hash(runtimeType,id,sessionId,const DeepCollectionEquality().hash(_studentIds),message,isPositive,subject,sentAt);
 
 @override
 String toString() {
-  return 'FeedbackMessage(id: $id, sessionId: $sessionId, studentIds: $studentIds, message: $message, isPositive: $isPositive, sentAt: $sentAt)';
+  return 'FeedbackMessage(id: $id, sessionId: $sessionId, studentIds: $studentIds, message: $message, isPositive: $isPositive, subject: $subject, sentAt: $sentAt)';
 }
 
 
@@ -257,7 +263,7 @@ abstract mixin class _$FeedbackMessageCopyWith<$Res> implements $FeedbackMessage
   factory _$FeedbackMessageCopyWith(_FeedbackMessage value, $Res Function(_FeedbackMessage) _then) = __$FeedbackMessageCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String sessionId, List<String> studentIds, String message, bool isPositive, DateTime? sentAt
+ String id, String sessionId, List<String> studentIds, String message, bool isPositive, String? subject, DateTime? sentAt
 });
 
 
@@ -274,14 +280,15 @@ class __$FeedbackMessageCopyWithImpl<$Res>
 
 /// Create a copy of FeedbackMessage
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? sessionId = null,Object? studentIds = null,Object? message = null,Object? isPositive = null,Object? sentAt = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? sessionId = null,Object? studentIds = null,Object? message = null,Object? isPositive = null,Object? subject = freezed,Object? sentAt = freezed,}) {
   return _then(_FeedbackMessage(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,sessionId: null == sessionId ? _self.sessionId : sessionId // ignore: cast_nullable_to_non_nullable
 as String,studentIds: null == studentIds ? _self._studentIds : studentIds // ignore: cast_nullable_to_non_nullable
 as List<String>,message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
 as String,isPositive: null == isPositive ? _self.isPositive : isPositive // ignore: cast_nullable_to_non_nullable
-as bool,sentAt: freezed == sentAt ? _self.sentAt : sentAt // ignore: cast_nullable_to_non_nullable
+as bool,subject: freezed == subject ? _self.subject : subject // ignore: cast_nullable_to_non_nullable
+as String?,sentAt: freezed == sentAt ? _self.sentAt : sentAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,
   ));
 }

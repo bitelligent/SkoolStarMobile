@@ -3,6 +3,7 @@ import 'package:skoolstar_teacher_module/core/network/api_exception.dart';
 import 'package:skoolstar_teacher_module/core/storage/key_value_store.dart';
 import 'package:skoolstar_teacher_module/data/models/auth/auth_context.dart';
 import 'package:skoolstar_teacher_module/data/models/parent/child.dart';
+import 'package:skoolstar_teacher_module/data/models/parent/child_progress.dart';
 import 'package:skoolstar_teacher_module/features/parent/common/children_cubit.dart';
 import 'package:skoolstar_teacher_module/features/parent/progress/parent_progress_cubit.dart';
 import 'package:skoolstar_teacher_module/features/parent/progress/progress_report.dart';
@@ -15,6 +16,7 @@ void main() {
   late ChildrenCubit children;
   late FakeAtt att;
   late FakeHw hw;
+  late FakeProgress progress;
   late FakeFeedbackChat chat;
   late ParentProgressCubit cubit;
 
@@ -31,11 +33,13 @@ void main() {
     await children.stream.firstWhere((s) => s is ChildrenLoaded);
     att = FakeAtt();
     hw = FakeHw();
+    progress = FakeProgress();
     chat = FakeFeedbackChat();
     cubit = ParentProgressCubit(
       children: children,
       attendance: att,
       assignments: hw,
+      progress: progress,
       chat: chat,
       clock: () => progressNow,
     );
@@ -123,5 +127,43 @@ void main() {
     expect(loaded().child.id, '2');
     expect(att.requested.last, '2');
     expect(chat.topicRequests.last, 'fb_2_Tahir');
+  });
+
+  test('loads exam results and the school\'s totals', () async {
+    progress
+      ..summary = const ChildProgress(
+        childId: '3',
+        completedAssignments: 6,
+        totalAssignments: 8,
+        totalResults: 1,
+        averageScore: 82,
+      )
+      ..results = [
+        const ExamResult(examId: '5', examName: 'Mid term', score: 82),
+      ];
+    await cubit.load();
+    expect(loaded().results.single.examName, 'Mid term');
+    expect(loaded().summary!.completedAssignments, 6);
+    expect(loaded().hasSchoolFigures, isTrue);
+    expect(loaded().partial, isFalse);
+  });
+
+  test('exam results failing does not hide the rest, but is flagged', () async {
+    progress.resultsError = const NetworkException();
+    await cubit.load();
+    expect(cubit.state, isA<ParentProgressLoaded>());
+    expect(loaded().attendance, isNotEmpty);
+    expect(loaded().results, isEmpty);
+    expect(loaded().partial, isTrue);
+  });
+
+  test('the summary failing is flagged too, results still show', () async {
+    progress
+      ..summaryError = const NetworkException()
+      ..results = [const ExamResult(examId: '5', examName: 'Quiz', score: 7)];
+    await cubit.load();
+    expect(loaded().summary, isNull);
+    expect(loaded().results, hasLength(1));
+    expect(loaded().partial, isTrue);
   });
 }

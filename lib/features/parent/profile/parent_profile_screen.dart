@@ -99,8 +99,22 @@ class ParentProfileScreen extends StatelessWidget {
                 ),
               ),
             ],
+            const SizedBox(height: AppSpacing.lg),
+            AppCard(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.md,
+                vertical: AppSpacing.xs,
+              ),
+              child: AppActionRow(
+                icon: Icons.event_busy_rounded,
+                iconColor: context.brand.primary,
+                label: 'Leave requests',
+                subtitle: 'Ask the school for leave and track the answer',
+                onTap: () => context.pushNamed(AppRoutes.parentLeave),
+              ),
+            ),
             if (auth.session.value.canSwitchRole) ...[
-              const SizedBox(height: AppSpacing.lg),
+              const SizedBox(height: AppSpacing.md),
               AppCard(
                 padding: const EdgeInsets.symmetric(
                   horizontal: AppSpacing.md,

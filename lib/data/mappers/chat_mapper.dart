@@ -161,13 +161,17 @@ FeedbackTopic? feedbackTopicFromJson(
     threadId: threadId,
     subject: subject.isNotEmpty
         ? subject
-        : (positive ? 'Positive feedback' : 'Feedback'),
+        : defaultFeedbackSubject(positive: positive),
     tone: positive ? FeedbackTone.positive : FeedbackTone.needsAttention,
     createdAt: createdAt,
     messages: flagged.reversed.toList(),
     isResolved: j.boolean('isResolved'),
   );
 }
+
+/// Title of a feedback that has no subject (what the server falls back to).
+String defaultFeedbackSubject({required bool positive}) =>
+    positive ? 'Positive feedback' : 'Note';
 
 /// Server tone for a UI tone. The backend only knows "Positive" and "Note"
 /// (anything else is stored as Positive) and derives `isPositive` from it.

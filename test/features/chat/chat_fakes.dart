@@ -146,7 +146,7 @@ class FakeChatRepository extends ChatRepository {
   @override
   Future<FeedbackTopic> createFeedbackTopic({
     required String threadId,
-    required String subject,
+    String? subject,
     required FeedbackTone tone,
     required String message,
   }) async {
@@ -155,7 +155,7 @@ class FakeChatRepository extends ChatRepository {
     return FeedbackTopic(
       id: '${nextServerId++}',
       threadId: threadId,
-      subject: subject,
+      subject: subject ?? 'Feedback',
       tone: tone,
       createdAt: DateTime.now(),
       messages: [

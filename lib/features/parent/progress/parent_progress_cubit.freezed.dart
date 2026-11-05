@@ -125,13 +125,13 @@ return loaded(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( String message)?  error,TResult Function( Child child,  List<ChildAttendanceRecord> attendance,  List<ChildAssignment> assignments,  List<FeedbackEntry> feedback,  ProgressPeriod period,  bool partial)?  loaded,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( String message)?  error,TResult Function( Child child,  List<ChildAttendanceRecord> attendance,  List<ChildAssignment> assignments,  List<FeedbackEntry> feedback,  List<ExamResult> results,  ChildProgress? summary,  ProgressPeriod period,  bool partial)?  loaded,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case ParentProgressInitial() when initial != null:
 return initial();case ParentProgressLoading() when loading != null:
 return loading();case ParentProgressError() when error != null:
 return error(_that.message);case ParentProgressLoaded() when loaded != null:
-return loaded(_that.child,_that.attendance,_that.assignments,_that.feedback,_that.period,_that.partial);case _:
+return loaded(_that.child,_that.attendance,_that.assignments,_that.feedback,_that.results,_that.summary,_that.period,_that.partial);case _:
   return orElse();
 
 }
@@ -149,13 +149,13 @@ return loaded(_that.child,_that.attendance,_that.assignments,_that.feedback,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( String message)  error,required TResult Function( Child child,  List<ChildAttendanceRecord> attendance,  List<ChildAssignment> assignments,  List<FeedbackEntry> feedback,  ProgressPeriod period,  bool partial)  loaded,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( String message)  error,required TResult Function( Child child,  List<ChildAttendanceRecord> attendance,  List<ChildAssignment> assignments,  List<FeedbackEntry> feedback,  List<ExamResult> results,  ChildProgress? summary,  ProgressPeriod period,  bool partial)  loaded,}) {final _that = this;
 switch (_that) {
 case ParentProgressInitial():
 return initial();case ParentProgressLoading():
 return loading();case ParentProgressError():
 return error(_that.message);case ParentProgressLoaded():
-return loaded(_that.child,_that.attendance,_that.assignments,_that.feedback,_that.period,_that.partial);}
+return loaded(_that.child,_that.attendance,_that.assignments,_that.feedback,_that.results,_that.summary,_that.period,_that.partial);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -169,13 +169,13 @@ return loaded(_that.child,_that.attendance,_that.assignments,_that.feedback,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( String message)?  error,TResult? Function( Child child,  List<ChildAttendanceRecord> attendance,  List<ChildAssignment> assignments,  List<FeedbackEntry> feedback,  ProgressPeriod period,  bool partial)?  loaded,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( String message)?  error,TResult? Function( Child child,  List<ChildAttendanceRecord> attendance,  List<ChildAssignment> assignments,  List<FeedbackEntry> feedback,  List<ExamResult> results,  ChildProgress? summary,  ProgressPeriod period,  bool partial)?  loaded,}) {final _that = this;
 switch (_that) {
 case ParentProgressInitial() when initial != null:
 return initial();case ParentProgressLoading() when loading != null:
 return loading();case ParentProgressError() when error != null:
 return error(_that.message);case ParentProgressLoaded() when loaded != null:
-return loaded(_that.child,_that.attendance,_that.assignments,_that.feedback,_that.period,_that.partial);case _:
+return loaded(_that.child,_that.attendance,_that.assignments,_that.feedback,_that.results,_that.summary,_that.period,_that.partial);case _:
   return null;
 
 }
@@ -317,7 +317,7 @@ as String,
 
 
 class ParentProgressLoaded implements ParentProgressState {
-  const ParentProgressLoaded({required this.child, required final  List<ChildAttendanceRecord> attendance, required final  List<ChildAssignment> assignments, required final  List<FeedbackEntry> feedback, this.period = ProgressPeriod.month, this.partial = false}): _attendance = attendance,_assignments = assignments,_feedback = feedback;
+  const ParentProgressLoaded({required this.child, required final  List<ChildAttendanceRecord> attendance, required final  List<ChildAssignment> assignments, required final  List<FeedbackEntry> feedback, final  List<ExamResult> results = const <ExamResult>[], this.summary, this.period = ProgressPeriod.month, this.partial = false}): _attendance = attendance,_assignments = assignments,_feedback = feedback,_results = results;
   
 
  final  Child child;
@@ -342,6 +342,16 @@ class ParentProgressLoaded implements ParentProgressState {
   return EqualUnmodifiableListView(_feedback);
 }
 
+/// Exam results and the school's all-time totals (not period-based).
+ final  List<ExamResult> _results;
+/// Exam results and the school's all-time totals (not period-based).
+@JsonKey() List<ExamResult> get results {
+  if (_results is EqualUnmodifiableListView) return _results;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_results);
+}
+
+ final  ChildProgress? summary;
 @JsonKey() final  ProgressPeriod period;
 /// Some sources could not be loaded; what is shown may be incomplete.
 @JsonKey() final  bool partial;
@@ -356,16 +366,16 @@ $ParentProgressLoadedCopyWith<ParentProgressLoaded> get copyWith => _$ParentProg
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ParentProgressLoaded&&(identical(other.child, child) || other.child == child)&&const DeepCollectionEquality().equals(other._attendance, _attendance)&&const DeepCollectionEquality().equals(other._assignments, _assignments)&&const DeepCollectionEquality().equals(other._feedback, _feedback)&&(identical(other.period, period) || other.period == period)&&(identical(other.partial, partial) || other.partial == partial));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ParentProgressLoaded&&(identical(other.child, child) || other.child == child)&&const DeepCollectionEquality().equals(other._attendance, _attendance)&&const DeepCollectionEquality().equals(other._assignments, _assignments)&&const DeepCollectionEquality().equals(other._feedback, _feedback)&&const DeepCollectionEquality().equals(other._results, _results)&&(identical(other.summary, summary) || other.summary == summary)&&(identical(other.period, period) || other.period == period)&&(identical(other.partial, partial) || other.partial == partial));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,child,const DeepCollectionEquality().hash(_attendance),const DeepCollectionEquality().hash(_assignments),const DeepCollectionEquality().hash(_feedback),period,partial);
+int get hashCode => Object.hash(runtimeType,child,const DeepCollectionEquality().hash(_attendance),const DeepCollectionEquality().hash(_assignments),const DeepCollectionEquality().hash(_feedback),const DeepCollectionEquality().hash(_results),summary,period,partial);
 
 @override
 String toString() {
-  return 'ParentProgressState.loaded(child: $child, attendance: $attendance, assignments: $assignments, feedback: $feedback, period: $period, partial: $partial)';
+  return 'ParentProgressState.loaded(child: $child, attendance: $attendance, assignments: $assignments, feedback: $feedback, results: $results, summary: $summary, period: $period, partial: $partial)';
 }
 
 
@@ -376,11 +386,11 @@ abstract mixin class $ParentProgressLoadedCopyWith<$Res> implements $ParentProgr
   factory $ParentProgressLoadedCopyWith(ParentProgressLoaded value, $Res Function(ParentProgressLoaded) _then) = _$ParentProgressLoadedCopyWithImpl;
 @useResult
 $Res call({
- Child child, List<ChildAttendanceRecord> attendance, List<ChildAssignment> assignments, List<FeedbackEntry> feedback, ProgressPeriod period, bool partial
+ Child child, List<ChildAttendanceRecord> attendance, List<ChildAssignment> assignments, List<FeedbackEntry> feedback, List<ExamResult> results, ChildProgress? summary, ProgressPeriod period, bool partial
 });
 
 
-$ChildCopyWith<$Res> get child;
+$ChildCopyWith<$Res> get child;$ChildProgressCopyWith<$Res>? get summary;
 
 }
 /// @nodoc
@@ -393,13 +403,15 @@ class _$ParentProgressLoadedCopyWithImpl<$Res>
 
 /// Create a copy of ParentProgressState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? child = null,Object? attendance = null,Object? assignments = null,Object? feedback = null,Object? period = null,Object? partial = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? child = null,Object? attendance = null,Object? assignments = null,Object? feedback = null,Object? results = null,Object? summary = freezed,Object? period = null,Object? partial = null,}) {
   return _then(ParentProgressLoaded(
 child: null == child ? _self.child : child // ignore: cast_nullable_to_non_nullable
 as Child,attendance: null == attendance ? _self._attendance : attendance // ignore: cast_nullable_to_non_nullable
 as List<ChildAttendanceRecord>,assignments: null == assignments ? _self._assignments : assignments // ignore: cast_nullable_to_non_nullable
 as List<ChildAssignment>,feedback: null == feedback ? _self._feedback : feedback // ignore: cast_nullable_to_non_nullable
-as List<FeedbackEntry>,period: null == period ? _self.period : period // ignore: cast_nullable_to_non_nullable
+as List<FeedbackEntry>,results: null == results ? _self._results : results // ignore: cast_nullable_to_non_nullable
+as List<ExamResult>,summary: freezed == summary ? _self.summary : summary // ignore: cast_nullable_to_non_nullable
+as ChildProgress?,period: null == period ? _self.period : period // ignore: cast_nullable_to_non_nullable
 as ProgressPeriod,partial: null == partial ? _self.partial : partial // ignore: cast_nullable_to_non_nullable
 as bool,
   ));
@@ -413,6 +425,18 @@ $ChildCopyWith<$Res> get child {
   
   return $ChildCopyWith<$Res>(_self.child, (value) {
     return _then(_self.copyWith(child: value));
+  });
+}/// Create a copy of ParentProgressState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$ChildProgressCopyWith<$Res>? get summary {
+    if (_self.summary == null) {
+    return null;
+  }
+
+  return $ChildProgressCopyWith<$Res>(_self.summary!, (value) {
+    return _then(_self.copyWith(summary: value));
   });
 }
 }

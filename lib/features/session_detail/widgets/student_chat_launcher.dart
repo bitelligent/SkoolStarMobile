@@ -41,6 +41,7 @@ Future<void> openStudentChat(BuildContext context, Student student) async {
     final draft = await showNewFeedbackSheet(
       context,
       parentName: '${student.firstName}’s parent',
+      studentId: student.id,
     );
     if (draft == null) return;
     await repository.createFeedbackTopic(

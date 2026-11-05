@@ -11,8 +11,10 @@ import 'package:skoolstar_teacher_module/data/models/auth/auth_session.dart';
 import 'package:skoolstar_teacher_module/data/repositories/chat_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/parent/child_assignments_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/parent/child_attendance_repository.dart';
+import 'package:skoolstar_teacher_module/data/repositories/parent/child_progress_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/parent/child_schedule_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/parent/guardian_repository.dart';
+import 'package:skoolstar_teacher_module/data/repositories/parent/leave_repository.dart';
 import 'package:skoolstar_teacher_module/features/auth/view/login_screen.dart';
 import 'package:skoolstar_teacher_module/features/auth/view/role_selection_screen.dart';
 import 'package:skoolstar_teacher_module/features/chat/chat_perspective.dart';
@@ -22,6 +24,8 @@ import 'package:skoolstar_teacher_module/features/parent/attendance/parent_atten
 import 'package:skoolstar_teacher_module/features/parent/attendance/parent_attendance_screen.dart';
 import 'package:skoolstar_teacher_module/features/parent/common/children_cubit.dart';
 import 'package:skoolstar_teacher_module/features/parent/home/parent_home_cubit.dart';
+import 'package:skoolstar_teacher_module/features/parent/leave/parent_leave_cubit.dart';
+import 'package:skoolstar_teacher_module/features/parent/leave/parent_leave_screen.dart';
 import 'package:skoolstar_teacher_module/features/parent/home/parent_home_screen.dart';
 import 'package:skoolstar_teacher_module/features/parent/profile/parent_profile_cubit.dart';
 import 'package:skoolstar_teacher_module/features/parent/progress/parent_progress_cubit.dart';
@@ -131,10 +135,23 @@ GoRouter buildRouter({
               children: ctx.read<ChildrenCubit>(),
               attendance: ctx.read<ChildAttendanceRepository>(),
               assignments: ctx.read<ChildAssignmentsRepository>(),
+              progress: ctx.read<ChildProgressRepository>(),
               chat: ctx.read<ChatRepository>(),
             )..load(),
             child: const ParentProgressScreen(),
           ),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.parentLeavePath,
+        name: AppRoutes.parentLeave,
+        parentNavigatorKey: _rootKey,
+        builder: (context, _) => BlocProvider(
+          create: (ctx) => ParentLeaveCubit(
+            children: ctx.read<ChildrenCubit>(),
+            repository: ctx.read<LeaveRepository>(),
+          )..load(),
+          child: const ParentLeaveScreen(),
         ),
       ),
       GoRoute(

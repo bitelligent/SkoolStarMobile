@@ -58,6 +58,9 @@ class AppRoutes {
   static const String parentProgress = 'parentProgress';
   static const String parentProgressPath = '/parent/progress';
 
+  static const String parentLeave = 'parentLeave';
+  static const String parentLeavePath = '/parent/leave';
+
   static const String parentProfile = 'parentProfile';
   static const String parentProfilePath = '/parent/profile';
 

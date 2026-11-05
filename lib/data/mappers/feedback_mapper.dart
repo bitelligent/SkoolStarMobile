@@ -1,5 +1,6 @@
 import 'package:skoolstar_teacher_module/core/utils/json_utils.dart';
 import 'package:skoolstar_teacher_module/data/models/feedback_model.dart';
+import 'package:skoolstar_teacher_module/data/models/subject_model.dart';
 
 /// Tolerant mapping for `TeacherModule/feedback/conversations` rows (the live
 /// server had none when this was written).
@@ -36,4 +37,29 @@ AssignmentReview? reviewFromTaskStudent(
     reviewText: j.str('review'),
     reviewedAt: j.dateOrNull('completedAt'),
   );
+}
+
+/// `weekly-feedback-report/subjects` rows. Feedback is tagged with the
+/// subject *name*; the id is only used by the weekly report.
+List<Subject> feedbackSubjectsFromJson(Object? json) => [
+  for (final row in asObjects(json))
+    if (row.strOrNull('subjectName') != null)
+      Subject(
+        id: row.str('subjectId', row.str('subjectName')),
+        name: row.str('subjectName').trim(),
+      ),
+];
+
+/// Subjects present for every student (matched by name), sorted by name.
+List<Subject> commonSubjects(List<List<Subject>> perStudent) {
+  if (perStudent.isEmpty) return const [];
+  final shared = perStudent.first.map((s) => s.name).toSet();
+  for (final list in perStudent.skip(1)) {
+    shared.retainAll(list.map((s) => s.name));
+  }
+  final seen = <String>{};
+  return [
+    for (final s in perStudent.first)
+      if (shared.contains(s.name) && seen.add(s.name)) s,
+  ]..sort((a, b) => a.name.compareTo(b.name));
 }

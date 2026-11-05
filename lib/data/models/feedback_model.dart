@@ -12,6 +12,10 @@ abstract class FeedbackMessage with _$FeedbackMessage {
     required List<String> studentIds,
     required String message,
     @Default(true) bool isPositive,
+
+    /// Subject name picked by the teacher; `null` lets the server fall back
+    /// to the lesson's subject.
+    String? subject,
     DateTime? sentAt,
   }) = _FeedbackMessage;
 }

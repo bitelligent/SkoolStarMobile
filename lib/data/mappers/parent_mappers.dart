@@ -3,7 +3,9 @@ import 'package:skoolstar_teacher_module/core/utils/json_utils.dart';
 import 'package:skoolstar_teacher_module/data/models/parent/child.dart';
 import 'package:skoolstar_teacher_module/data/models/parent/child_assignment.dart';
 import 'package:skoolstar_teacher_module/data/models/parent/child_attendance_record.dart';
+import 'package:skoolstar_teacher_module/data/models/parent/child_progress.dart';
 import 'package:skoolstar_teacher_module/data/models/parent/guardian_profile.dart';
+import 'package:skoolstar_teacher_module/data/models/parent/leave_request.dart';
 
 /// `GET Users/my-children` rows. Rows without a student id are skipped.
 List<Child> childrenFromJson(Object? json) => [
@@ -37,7 +39,10 @@ List<ChildAttendanceRecord> attendanceFromJson(Object? json) {
       ChildAttendanceRecord(
         childId: childId,
         date: date,
-        status: AttendanceStatusConfig.fromId(row.intOrNull('statusId')),
+        status: AttendanceStatusConfig.fromId(
+          row.intOrNull('statusId'),
+          withExcused: true,
+        ),
         className: row.str('className'),
         subjectName: row.str('subjectName'),
         startTime: hhmm(row.strOrNull('startTime')),
@@ -108,4 +113,83 @@ GuardianProfile guardianFromJson(Object? json, {required String email}) {
     relationship: match.str('relationship'),
     phone: match.str('phoneNumber'),
   );
+}
+
+/// One leave object (create / list item / cancel). `null` when it lacks the
+/// fields needed to show it.
+LeaveRequest? leaveFromJson(Object? json) {
+  if (json is! Json) return null;
+  final id = json.strOrNull('id');
+  final start = _dateOnly(json, ['startDate']);
+  final end = _dateOnly(json, ['endDate']);
+  if (id == null || start == null || end == null) return null;
+  return LeaveRequest(
+    id: id,
+    childId: json.str('studentId'),
+    childName: json.str('studentName'),
+    className: json.str('className'),
+    startDate: start,
+    endDate: end,
+    durationDays: json.integer(
+      'durationDays',
+      LeaveRules.daysBetween(start, end),
+    ),
+    reason: json.str('reason'),
+    status: LeaveStatus.fromId(json.intOrNull('statusId')),
+    decisionReason: json.strOrNull('decisionReason'),
+    submittedAt: json.dateOrNull('submittedAt')?.toLocal(),
+    decidedAt: json.dateOrNull('decidedAt')?.toLocal(),
+  );
+}
+
+/// `GET LeaveApplications/mine`: a paged envelope.
+LeavePage leavePageFromJson(Object? json) {
+  final map = json is Json ? json : const <String, dynamic>{};
+  final items = [
+    for (final row in asObjects(map['items'])) ?leaveFromJson(row),
+  ];
+  return LeavePage(
+    items: items,
+    pageNumber: map.integer('pageNumber', 1),
+    totalCount: map.integer('totalCount', items.length),
+    hasNextPage: map.boolean('hasNextPage'),
+  );
+}
+
+/// `GET TeacherModule/children/progress`: one row per child; the row for
+/// [childId] or `null`.
+ChildProgress? progressFromJson(Object? json, {required String childId}) {
+  for (final row in asObjects(json)) {
+    if (row.strOrNull('studentId') != childId) continue;
+    return ChildProgress(
+      childId: childId,
+      completedAssignments: row.integer('completedAssignments'),
+      totalAssignments: row.integer('totalAssignments'),
+      totalResults: row.integer('totalResults'),
+      averageScore: (row['averageScore'] as num?)?.toDouble() ?? 0,
+    );
+  }
+  return null;
+}
+
+/// `GET TeacherModule/children/results` rows of [childId], newest first.
+List<ExamResult> resultsFromJson(Object? json, {required String childId}) {
+  final results = [
+    for (final row in asObjects(json))
+      if (row.strOrNull('studentId') == childId &&
+          row.strOrNull('examName') != null &&
+          row['score'] is num)
+        ExamResult(
+          examId: row.str('examId', row.str('examName')),
+          examName: row.str('examName'),
+          score: (row['score'] as num).toDouble(),
+          remarks: row.strOrNull('remarks'),
+          createdAt: row.dateOrNull('createdAt'),
+        ),
+  ];
+  results.sort(
+    (a, b) =>
+        (b.createdAt ?? DateTime(0)).compareTo(a.createdAt ?? DateTime(0)),
+  );
+  return results;
 }

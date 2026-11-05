@@ -95,6 +95,7 @@ class FeedbackRepositoryImpl implements FeedbackRepository {
             'studentId': int.tryParse(studentId),
             'content': draft.message.trim(),
             'isPositive': draft.isPositive,
+            'subject': draft.subject,
             'scheduleOccurrenceId': session.occurrenceId,
             'scheduleOccurrencePublicId': session.id,
             'scheduleId': session.scheduleId,

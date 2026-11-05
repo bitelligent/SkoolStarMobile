@@ -26,6 +26,7 @@ import 'package:skoolstar_teacher_module/data/repositories/api_chat_repository.d
 import 'package:skoolstar_teacher_module/data/repositories/chat_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/class_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/feedback_repository.dart';
+import 'package:skoolstar_teacher_module/data/repositories/feedback_subjects_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/homework_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/institute_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/notifications_repository.dart';
@@ -34,9 +35,11 @@ import 'package:skoolstar_teacher_module/data/repositories/subject_repository.da
 import 'package:skoolstar_teacher_module/data/repositories/teacher_catalog.dart';
 import 'package:skoolstar_teacher_module/data/repositories/parent/child_assignments_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/parent/child_attendance_repository.dart';
+import 'package:skoolstar_teacher_module/data/repositories/parent/child_progress_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/parent/child_schedule_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/parent/children_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/parent/guardian_repository.dart';
+import 'package:skoolstar_teacher_module/data/repositories/parent/leave_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/user_repository.dart';
 import 'package:skoolstar_teacher_module/features/branding/cubit/brand_cubit.dart';
 import 'package:skoolstar_teacher_module/features/parent/common/children_cubit.dart';
@@ -230,6 +233,9 @@ class _SkoolStarAppState extends State<SkoolStarApp>
         RepositoryProvider<FeedbackRepository>(
           create: (_) => FeedbackRepositoryImpl(_apiClient),
         ),
+        RepositoryProvider<FeedbackSubjectsRepository>(
+          create: (_) => FeedbackSubjectsRepositoryImpl(_apiClient),
+        ),
         // Parent routes override this with the parent-perspective instance
         // (see `buildRouter`).
         RepositoryProvider<ChatRepository>.value(
@@ -260,6 +266,15 @@ class _SkoolStarAppState extends State<SkoolStarApp>
             apiClient: _apiClient,
             authRepository: _authRepository,
           ),
+        ),
+        RepositoryProvider<ChildProgressRepository>(
+          create: (_) => ChildProgressRepositoryImpl(
+            apiClient: _apiClient,
+            authRepository: _authRepository,
+          ),
+        ),
+        RepositoryProvider<LeaveRepository>(
+          create: (_) => LeaveRepositoryImpl(_apiClient),
         ),
         RepositoryProvider<GuardianRepository>(
           create: (_) => GuardianRepositoryImpl(

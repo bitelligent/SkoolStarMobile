@@ -12,24 +12,19 @@ import 'package:skoolstar_teacher_module/core/widgets/app_form_field.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_sheet.dart';
 import 'package:skoolstar_teacher_module/core/widgets/primary_button.dart';
 import 'package:skoolstar_teacher_module/data/models/feedback_topic.dart';
-
-typedef FeedbackSubmit =
-    Future<bool> Function({
-      required String subject,
-      required FeedbackTone tone,
-      required String message,
-    });
+import 'package:skoolstar_teacher_module/features/chat/widgets/feedback_subject_picker.dart';
 
 /// Draft returned to the caller — the sheet pops this value when the
 /// user hits "Send". Null means the sheet was dismissed.
 class NewFeedbackDraft {
   const NewFeedbackDraft({
-    required this.subject,
     required this.tone,
     required this.message,
+    this.subject,
   });
 
-  final String subject;
+  /// Optional subject name; `null` sends the feedback without one.
+  final String? subject;
   final FeedbackTone tone;
   final String message;
 }
@@ -38,6 +33,7 @@ class NewFeedbackDraft {
 Future<NewFeedbackDraft?> showNewFeedbackSheet(
   BuildContext context, {
   required String parentName,
+  required String studentId,
   NewFeedbackDraft? initial,
 }) {
   return showAppSheet<NewFeedbackDraft>(
@@ -45,6 +41,7 @@ Future<NewFeedbackDraft?> showNewFeedbackSheet(
     title: 'New feedback  ·  $parentName',
     isScrollControlled: true,
     builder: (sheetContext) => _NewFeedbackBody(
+      studentId: studentId,
       initial: initial,
       onSubmit: (draft) => Navigator.of(sheetContext).pop(draft),
     ),
@@ -52,8 +49,13 @@ Future<NewFeedbackDraft?> showNewFeedbackSheet(
 }
 
 class _NewFeedbackBody extends StatefulWidget {
-  const _NewFeedbackBody({required this.onSubmit, this.initial});
+  const _NewFeedbackBody({
+    required this.studentId,
+    required this.onSubmit,
+    this.initial,
+  });
 
+  final String studentId;
   final ValueChanged<NewFeedbackDraft> onSubmit;
   final NewFeedbackDraft? initial;
 
@@ -62,7 +64,7 @@ class _NewFeedbackBody extends StatefulWidget {
 }
 
 class _NewFeedbackBodyState extends State<_NewFeedbackBody> {
-  late final _subject = TextEditingController(text: widget.initial?.subject);
+  late String? _subject = widget.initial?.subject;
   late final _message = TextEditingController(text: widget.initial?.message);
   late FeedbackTone _tone = widget.initial?.tone ?? FeedbackTone.positive;
 
@@ -90,7 +92,6 @@ class _NewFeedbackBodyState extends State<_NewFeedbackBody> {
   @override
   void dispose() {
     _dictation?.dispose();
-    _subject.dispose();
     _message.dispose();
     super.dispose();
   }
@@ -112,13 +113,11 @@ class _NewFeedbackBodyState extends State<_NewFeedbackBody> {
         children: [
           _toneRow(),
           const SizedBox(height: AppSpacing.md),
-          AppFormField(
-            label: 'Subject',
-            hint: 'A short title helps the parent find this later.',
-            child: AppTextField(
-              controller: _subject,
-              hint: 'eg. Math homework progress',
-            ),
+          FeedbackSubjectPicker(
+            studentIds: [widget.studentId],
+            value: _subject,
+            noneLabel: 'General feedback',
+            onChanged: (v) => setState(() => _subject = v),
           ),
           const SizedBox(height: AppSpacing.md),
           AppFormField(
@@ -143,7 +142,7 @@ class _NewFeedbackBodyState extends State<_NewFeedbackBody> {
                     context.dismissKeyboard();
                     widget.onSubmit(
                       NewFeedbackDraft(
-                        subject: _subject.text,
+                        subject: _subject,
                         tone: _tone,
                         message: _message.text,
                       ),

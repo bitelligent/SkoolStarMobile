@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:skoolstar_teacher_module/core/router/app_routes.dart';
 import 'package:skoolstar_teacher_module/core/config/attendance_status_config.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
@@ -29,6 +31,12 @@ import 'package:skoolstar_teacher_module/features/parent/attendance/parent_atten
     icon: Icons.schedule_rounded,
     color: AppColors.warning,
     soft: AppColors.warningSoft,
+  ),
+  AttendanceStatusConfig.excused => (
+    label: 'Excused',
+    icon: Icons.event_available_rounded,
+    color: AppColors.info,
+    soft: AppColors.infoSoft,
   ),
   AttendanceStatusConfig.absent => (
     label: 'Absent',
@@ -88,7 +96,18 @@ class _Loaded extends StatelessWidget {
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.all(AppSpacing.lg),
         children: [
-          Text('Attendance', style: AppTextStyles.headingMedium),
+          Row(
+            children: [
+              Expanded(
+                child: Text('Attendance', style: AppTextStyles.headingMedium),
+              ),
+              TextButton.icon(
+                onPressed: () => context.pushNamed(AppRoutes.parentLeave),
+                icon: const Icon(Icons.event_busy_rounded, size: 18),
+                label: const Text('Request leave'),
+              ),
+            ],
+          ),
           const SizedBox(height: 2),
           Text(
             'Session attendance for ${state.child.name}',

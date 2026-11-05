@@ -14,6 +14,7 @@ import 'package:skoolstar_teacher_module/core/widgets/app_selectable_tile.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_sheet.dart';
 import 'package:skoolstar_teacher_module/core/widgets/primary_button.dart';
 import 'package:skoolstar_teacher_module/data/models/feedback_model.dart';
+import 'package:skoolstar_teacher_module/features/chat/widgets/feedback_subject_picker.dart';
 import 'package:skoolstar_teacher_module/features/session_detail/cubit/session_detail_cubit.dart';
 import 'package:skoolstar_teacher_module/features/session_detail/cubit/session_detail_state.dart';
 import 'package:skoolstar_teacher_module/features/session_detail/widgets/session_header_card.dart';
@@ -37,6 +38,7 @@ class _FeedbackTabState extends State<FeedbackTab> {
 
   final Set<String> _recipientIds = {};
   bool _isPositive = true;
+  String? _subject;
   String? _taskId;
   String? _studentId;
 
@@ -72,6 +74,7 @@ class _FeedbackTabState extends State<FeedbackTab> {
       studentIds: _recipientIds.toList(),
       message: _message.text.trim(),
       isPositive: _isPositive,
+      subject: _subject,
     );
     final cubit = context.read<SessionDetailCubit>();
     final ok = await cubit.sendFeedback(draft);
@@ -94,6 +97,7 @@ class _FeedbackTabState extends State<FeedbackTab> {
       setState(() {
         _message.clear();
         _recipientIds.clear();
+        _subject = null;
       });
     }
   }
@@ -200,6 +204,13 @@ class _FeedbackTabState extends State<FeedbackTab> {
                       ),
                   ],
                 ),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              FeedbackSubjectPicker(
+                studentIds: _recipientIds.toList(),
+                value: _subject,
+                noneLabel: "This lesson's subject",
+                onChanged: (v) => setState(() => _subject = v),
               ),
               const SizedBox(height: AppSpacing.md),
               AppFormField(

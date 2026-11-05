@@ -343,6 +343,32 @@ void main() {
       expect(requests.single.url.path, '/api/TeacherModule/feedback/send');
     });
 
+    test('feedback without a subject omits it and titles it by tone', () async {
+      build((r) => ok({'id': 1031}));
+      final t = await repo.createFeedbackTopic(
+        threadId: 'fb_2',
+        tone: FeedbackTone.positive,
+        message: 'Great',
+      );
+      final body = jsonDecode(requests.single.body) as Map<String, dynamic>;
+      expect(body.containsKey('subject'), isFalse);
+      expect(body['tone'], 'Positive');
+      expect(t.subject, 'Positive feedback');
+    });
+
+    test('a picked subject is sent as is and shown on the topic', () async {
+      build((r) => ok({'id': 1032}));
+      final t = await repo.createFeedbackTopic(
+        threadId: 'fb_2',
+        subject: ' Mathematics ',
+        tone: FeedbackTone.needsAttention,
+        message: 'Practise',
+      );
+      final body = jsonDecode(requests.single.body) as Map<String, dynamic>;
+      expect(body['subject'], 'Mathematics');
+      expect(t.subject, 'Mathematics');
+    });
+
     test('teacher follow-up and parent reply use different routes', () async {
       build(
         (r) => ok({

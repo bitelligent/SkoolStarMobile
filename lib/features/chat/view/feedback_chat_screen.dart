@@ -10,6 +10,7 @@ import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_empty_state.dart';
 import 'package:skoolstar_teacher_module/core/widgets/avatar_circle.dart';
 import 'package:skoolstar_teacher_module/core/widgets/loading_view.dart';
+import 'package:skoolstar_teacher_module/data/mappers/chat_mapper.dart';
 import 'package:skoolstar_teacher_module/data/models/chat_thread.dart';
 import 'package:skoolstar_teacher_module/data/repositories/chat_repository.dart';
 import 'package:skoolstar_teacher_module/features/chat/cubit/feedback_chat_cubit.dart';
@@ -48,10 +49,13 @@ class _FeedbackChatView extends StatelessWidget {
     FeedbackChatLoaded state, {
     NewFeedbackDraft? initial,
   }) async {
+    final studentId = parseFeedbackThreadId(state.thread.id)?.studentId;
+    if (studentId == null) return;
     final cubit = context.read<FeedbackChatCubit>();
     final draft = await showNewFeedbackSheet(
       context,
       parentName: state.thread.name,
+      studentId: '$studentId',
       initial: initial,
     );
     if (draft == null || !context.mounted) return;
