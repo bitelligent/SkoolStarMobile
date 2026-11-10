@@ -24,6 +24,12 @@ import 'package:skoolstar_teacher_module/features/parent/assignments/parent_assi
     color: AppColors.success,
     soft: AppColors.successSoft,
   ),
+  AssignmentStatus.graded => (
+    label: 'Graded',
+    icon: Icons.grading_rounded,
+    color: AppColors.accentIndigo,
+    soft: AppColors.accentIndigoSoft,
+  ),
   AssignmentStatus.overdue => (
     label: 'Overdue',
     icon: Icons.error_rounded,

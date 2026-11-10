@@ -194,7 +194,7 @@ void main() {
         '1': ['Maths'],
       })..error = const NetworkException();
       await pump(tester, repo, ids: ['1'], onChanged: (_) {});
-      expect(find.text('Could not load subjects.'), findsOneWidget);
+      expect(find.text(const NetworkException().message), findsOneWidget);
       repo.error = null;
       await tester.tap(find.text('Retry'));
       await tester.pumpAndSettle();
@@ -278,7 +278,7 @@ void main() {
         tester,
         FakeFeedbackSubjects()..error = const NetworkException(),
         interact: () async {
-          expect(find.text('Could not load subjects.'), findsOneWidget);
+          expect(find.text(const NetworkException().message), findsOneWidget);
           await tester.enterText(find.byType(TextField), 'Still works');
           await tester.pump();
           await tester.tap(find.widgetWithText(PrimaryButton, 'Send feedback'));

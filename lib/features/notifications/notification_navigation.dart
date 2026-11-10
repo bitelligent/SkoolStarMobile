@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:skoolstar_teacher_module/core/network/error_message.dart';
+import 'package:skoolstar_teacher_module/core/router/app_routes.dart';
 import 'package:skoolstar_teacher_module/data/mappers/chat_mapper.dart';
 import 'package:skoolstar_teacher_module/data/models/app_notification.dart';
 import 'package:skoolstar_teacher_module/data/repositories/chat_repository.dart';
@@ -14,6 +15,11 @@ Future<void> openNotification(
   AppNotification n,
 ) async {
   final perspective = ChatPerspectiveScope.of(context);
+  if (n.type == NotificationType.leave) {
+    // Leave is a parent feature; the list itself shows the updated request.
+    if (perspective.isParent) await context.pushNamed(AppRoutes.parentLeave);
+    return;
+  }
   final refId = n.referenceId;
   if (refId == null || refId.isEmpty) return;
 
@@ -52,6 +58,7 @@ Future<void> openNotification(
         perspective.feedbackRouteName,
         pathParameters: {'id': threadId},
       );
+    case NotificationType.leave:
     case NotificationType.other:
       return;
   }

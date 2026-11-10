@@ -85,7 +85,7 @@ class _FeedbackSubjectPickerState extends State<FeedbackSubjectPicker> {
     }
     if (state.failed) {
       return _Note(
-        'Could not load subjects.',
+        state.error!,
         action: TextButton(
           onPressed: _cubit.retry,
           child: const Text('Retry'),
@@ -95,15 +95,21 @@ class _FeedbackSubjectPickerState extends State<FeedbackSubjectPicker> {
     if (state.subjects.isEmpty) {
       return const _Note('No common subject for the selected students.');
     }
+    // Keyed by id: two subjects can share a name. The feedback itself carries
+    // the name.
+    final byId = {for (final s in state.subjects) s.id: s.name};
+    final selected = state.subjects
+        .where((s) => s.name == widget.value)
+        .firstOrNull;
     return AppDropdown<String>(
       sheetTitle: 'Subject',
-      value: widget.value,
+      value: selected?.id,
       hint: widget.noneLabel,
       options: [
         AppOption(id: '', label: widget.noneLabel),
-        for (final s in state.subjects) AppOption(id: s.name, label: s.name),
+        for (final s in state.subjects) AppOption(id: s.id, label: s.name),
       ],
-      onChanged: (name) => widget.onChanged(name.isEmpty ? null : name),
+      onChanged: (id) => widget.onChanged(id.isEmpty ? null : byId[id]),
     );
   }
 }

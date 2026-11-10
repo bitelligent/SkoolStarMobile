@@ -47,6 +47,12 @@ void main() {
         AppNotification.fromJson({..._chat, 'type': 'billing'})!.type,
         NotificationType.other,
       );
+      for (final json in [
+        {..._chat, 'type': 'LeaveApplication'},
+        {..._chat, 'type': 'General', 'referenceType': 'LeaveApplication'},
+      ]) {
+        expect(AppNotification.fromJson(json)!.type, NotificationType.leave);
+      }
       expect(
         AppNotification.fromJson({..._chat, 'type': 'CHAT'})!.type,
         NotificationType.chat,

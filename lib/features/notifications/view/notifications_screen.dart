@@ -228,6 +228,10 @@ class _SectionLabel extends StatelessWidget {
     icon: Icons.rate_review_rounded,
     color: context.brand.primary,
   ),
+  NotificationType.leave => (
+    icon: Icons.event_busy_rounded,
+    color: AppColors.accentIndigo,
+  ),
   NotificationType.other => (
     icon: Icons.notifications_rounded,
     color: AppColors.accentIndigo,

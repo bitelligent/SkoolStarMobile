@@ -318,11 +318,14 @@ void main() {
         final c = cubit.counts();
         expect(c.total, 2);
         expect(c.completed, 0);
-        expect(c.pending, 2);
-        expect(c.overdue, 2); // both deadlines are before Oct 12
+        // One is graded without a hand-in: neither pending nor overdue.
+        expect(c.pending, 1);
+        expect(c.overdue, 1); // both deadlines are before Oct 12
 
         cubit.setFilter(AssignmentFilter.overdue);
-        expect(cubit.visible(), hasLength(2));
+        expect(cubit.visible(), hasLength(1));
+        cubit.setFilter(AssignmentFilter.pending);
+        expect(cubit.visible(), hasLength(1));
         cubit.setFilter(AssignmentFilter.completed);
         expect(cubit.visible(), isEmpty);
         await cubit.close();
@@ -443,7 +446,7 @@ void main() {
       expect(s.view, ParentHomeView.agenda);
       expect(s.child.id, '3');
       expect(s.attendanceStat, const RatioStat(3, 3));
-      expect(s.homeworkStat, const RatioStat(0, 2));
+      expect(s.homeworkStat, const RatioStat(0, 1)); // graded work is no miss
       expect(s.scoreStat, const RatioStat(89, 100));
       expect(cubit.filteredSessions().map((x) => x.id), [
         'today',

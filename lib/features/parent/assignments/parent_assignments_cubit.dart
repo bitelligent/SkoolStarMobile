@@ -83,8 +83,8 @@ class ParentAssignmentsCubit extends ChildScopedCubit<ParentAssignmentsState> {
     }
   }
 
-  /// Totals for the tiles. "Pending" is everything not completed (matches the
-  /// web app); overdue is a subset shown as its own chip.
+  /// Totals for the tiles. "Pending" is everything still expected (not handed
+  /// in, not graded); overdue is a subset shown as its own chip.
   ({int total, int completed, int pending, int overdue}) counts() {
     final s = state;
     if (s is! ParentAssignmentsLoaded) {
@@ -98,7 +98,7 @@ class ParentAssignmentsCubit extends ChildScopedCubit<ParentAssignmentsState> {
     return (
       total: s.items.length,
       completed: completed,
-      pending: s.items.length - completed,
+      pending: s.items.where((a) => a.isOpen).length,
       overdue: overdue,
     );
   }
@@ -109,7 +109,7 @@ class ParentAssignmentsCubit extends ChildScopedCubit<ParentAssignmentsState> {
     final now = _now();
     return switch (s.filter) {
       AssignmentFilter.all => s.items,
-      AssignmentFilter.pending => s.items.where((a) => !a.isCompleted).toList(),
+      AssignmentFilter.pending => s.items.where((a) => a.isOpen).toList(),
       AssignmentFilter.overdue =>
         s.items
             .where((a) => a.statusAt(now) == AssignmentStatus.overdue)

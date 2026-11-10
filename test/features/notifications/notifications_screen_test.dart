@@ -86,6 +86,7 @@ class _Harness {
         dest(AppRoutes.feedbackChat, '/chat/feedback/:id'),
         dest(AppRoutes.parentDirectChat, '/parent/chat/direct/:id'),
         dest(AppRoutes.parentFeedbackChat, '/parent/chat/feedback/:id'),
+        dest(AppRoutes.parentLeave, '/parent/leave'),
       ],
     );
     await tester.pumpWidget(MaterialApp.router(routerConfig: router));
@@ -179,6 +180,23 @@ void main() {
     await tester.tap(find.text('New message'));
     await tester.pumpAndSettle();
     expect(h.pushed, ['${AppRoutes.parentDirectChat}:dm_3']);
+  });
+
+  testWidgets('a leave notification opens the leave requests, even without a '
+      'reference', (tester) async {
+    final repo = FakeNotificationsRepo([
+      _n(9, type: NotificationType.leave),
+    ]);
+    final h = _Harness(
+      repo,
+      FakeChatRepository(),
+      perspective: ChatPerspective.parent,
+    );
+    await h.pump(tester);
+    await tester.tap(find.text('New feedback'));
+    await tester.pumpAndSettle();
+    expect(h.pushed, ['${AppRoutes.parentLeave}:null']);
+    expect(repo.marked, ['9']);
   });
 
   testWidgets('a feedback notification resolves its thread first', (

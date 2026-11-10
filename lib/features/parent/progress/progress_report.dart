@@ -305,9 +305,7 @@ class ProgressReport {
     final items = <AttentionItem>[];
 
     final overdue =
-        assignments
-            .where((a) => !a.isCompleted && a.deadline.isBefore(now))
-            .toList()
+        assignments.where((a) => a.isOpen && a.deadline.isBefore(now)).toList()
           ..sort((a, b) => b.deadline.compareTo(a.deadline));
     for (final a in overdue.take(maxPerKind)) {
       items.add(

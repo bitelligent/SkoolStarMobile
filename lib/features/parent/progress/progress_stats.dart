@@ -54,7 +54,8 @@ enum StatBand {
 /// * **Attendance**: classes attended (present or late) out of classes that
 ///   were marked. Unmarked sessions are ignored.
 /// * **Homework**: tasks handed in out of tasks whose deadline has passed.
-///   Work not yet due is a to-do, not a miss.
+///   Work not yet due is a to-do, not a miss; work the teacher graded without
+///   a hand-in is not a miss either.
 /// * **Average score**: marks earned out of marks available on graded work.
 class ProgressStats {
   const ProgressStats._();
@@ -95,7 +96,7 @@ class ProgressStats {
       if (a.isCompleted) {
         done++;
         due++;
-      } else if (a.deadline.isBefore(now)) {
+      } else if (a.isOpen && a.deadline.isBefore(now)) {
         due++;
       }
     }
@@ -121,17 +122,13 @@ class ProgressStats {
     return RatioStat(earned, available);
   }
 
-  /// Not handed in and past the deadline.
+  /// Not handed in, not graded and past the deadline.
   static int overdue(Iterable<ChildAssignment> assignments, DateTime now) =>
-      assignments
-          .where((a) => !a.isCompleted && a.deadline.isBefore(now))
-          .length;
+      assignments.where((a) => a.isOpen && a.deadline.isBefore(now)).length;
 
-  /// Not handed in and still open.
+  /// Not handed in, not graded and still open.
   static int pending(Iterable<ChildAssignment> assignments, DateTime now) =>
-      assignments
-          .where((a) => !a.isCompleted && !a.deadline.isBefore(now))
-          .length;
+      assignments.where((a) => a.isOpen && !a.deadline.isBefore(now)).length;
 
   /// [includeToday] extends the window to the end of today so entries made
   /// later today count; earlier windows (previous period) stop exactly at

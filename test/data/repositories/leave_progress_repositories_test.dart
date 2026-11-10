@@ -231,7 +231,8 @@ void main() {
                       {'subjectId': 2, 'subjectName': 'English'},
                     ]
                   : [
-                      {'subjectId': 9, 'subjectName': 'Maths'},
+                      {'subjectId': 1, 'subjectName': 'Maths'},
+                      {'subjectId': 9, 'subjectName': 'English'},
                     ],
             );
           }),

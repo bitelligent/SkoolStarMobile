@@ -134,7 +134,7 @@ class _Loaded extends StatelessWidget {
               if (report.subjects.isNotEmpty) ...[
                 const SizedBox(height: AppSpacing.lg),
                 const AppSectionTitle(
-                  title: 'Score by subject',
+                  title: 'Homework score by subject',
                   icon: Icons.menu_book_rounded,
                 ),
                 const SizedBox(height: AppSpacing.sm),

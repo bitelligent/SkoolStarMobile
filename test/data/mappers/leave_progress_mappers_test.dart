@@ -167,8 +167,10 @@ void main() {
         {'subjectId': 3, 'subjectName': 'Art'},
       ]);
       final b = feedbackSubjectsFromJson([
-        {'subjectId': 9, 'subjectName': 'Maths'},
-        {'subjectId': 8, 'subjectName': 'Art'},
+        {'subjectId': 2, 'subjectName': 'Maths'},
+        {'subjectId': 3, 'subjectName': 'Art'},
+        // Same name, different subject (another class): not shared.
+        {'subjectId': 7, 'subjectName': 'Science'},
       ]);
       expect(commonSubjects([a, b]).map((e) => e.name), ['Art', 'Maths']);
       expect(commonSubjects([a]).map((e) => e.name), [

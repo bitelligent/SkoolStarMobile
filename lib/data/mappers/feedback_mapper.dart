@@ -50,16 +50,17 @@ List<Subject> feedbackSubjectsFromJson(Object? json) => [
       ),
 ];
 
-/// Subjects present for every student (matched by name), sorted by name.
+/// Subjects present for every student, matched by id (equal names in
+/// different classes are different subjects), sorted by name.
 List<Subject> commonSubjects(List<List<Subject>> perStudent) {
   if (perStudent.isEmpty) return const [];
-  final shared = perStudent.first.map((s) => s.name).toSet();
+  final shared = perStudent.first.map((s) => s.id).toSet();
   for (final list in perStudent.skip(1)) {
-    shared.retainAll(list.map((s) => s.name));
+    shared.retainAll(list.map((s) => s.id));
   }
   final seen = <String>{};
   return [
     for (final s in perStudent.first)
-      if (shared.contains(s.name) && seen.add(s.name)) s,
+      if (shared.contains(s.id) && seen.add(s.id)) s,
   ]..sort((a, b) => a.name.compareTo(b.name));
 }

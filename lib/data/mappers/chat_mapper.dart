@@ -154,7 +154,12 @@ FeedbackTopic? feedbackTopicFromJson(
     }
   }
 
-  final positive = j.boolean('isPositive', fallback: true);
+  // `tone` is the source of truth; `isPositive` only backs it up.
+  final positive = switch (j.strOrNull('tone')?.toLowerCase()) {
+    'positive' => true,
+    final tone? when tone.isNotEmpty => false,
+    _ => j.boolean('isPositive', fallback: true),
+  };
   final subject = j.str('subject').trim();
   return FeedbackTopic(
     id: id,

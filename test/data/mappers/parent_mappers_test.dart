@@ -104,7 +104,12 @@ void main() {
     });
 
     test('status follows the web: completed flag, else overdue/pending', () {
-      final a = list.first; // deadline 2026-10-10 15:41, not completed
+      // deadline 2026-10-10 15:41, not completed; graded by the teacher.
+      final graded = list.first;
+      expect(graded.statusAt(DateTime(2026, 10, 11)), AssignmentStatus.graded);
+      expect(graded.isOpen, isFalse);
+
+      final a = graded.copyWith(marks: null);
       expect(a.statusAt(DateTime(2026, 10, 9)), AssignmentStatus.pending);
       expect(a.statusAt(DateTime(2026, 10, 11)), AssignmentStatus.overdue);
       expect(
