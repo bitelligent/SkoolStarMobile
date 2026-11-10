@@ -1,3 +1,5 @@
+import 'package:skoolstar_teacher_module/data/models/auth/app_role.dart';
+
 /// Centralised route name/path constants. Use these instead of raw strings
 /// when calling `context.goNamed(...)` or `context.pushNamed(...)`.
 class AppRoutes {
@@ -35,4 +37,49 @@ class AppRoutes {
 
   static const String notifications = 'notifications';
   static const String notificationsPath = '/notifications';
+
+  // Role selection (post-login and Profile → Switch role).
+  static const String selectRole = 'selectRole';
+  static const String selectRolePath = '/select-role';
+
+  // Parent module
+  static const String parentHome = 'parentHome';
+  static const String parentHomePath = '/parent/home';
+
+  static const String parentAttendance = 'parentAttendance';
+  static const String parentAttendancePath = '/parent/attendance';
+
+  static const String parentAssignments = 'parentAssignments';
+  static const String parentAssignmentsPath = '/parent/assignments';
+
+  static const String parentChat = 'parentChat';
+  static const String parentChatPath = '/parent/chat';
+
+  static const String parentProgress = 'parentProgress';
+  static const String parentProgressPath = '/parent/progress';
+
+  static const String parentLeave = 'parentLeave';
+  static const String parentLeavePath = '/parent/leave';
+
+  static const String parentProfile = 'parentProfile';
+  static const String parentProfilePath = '/parent/profile';
+
+  static const String parentSessionDetail = 'parentSessionDetail';
+  static const String parentSessionDetailPath = '/parent/session/:id';
+
+  static const String parentFeedbackChat = 'parentFeedbackChat';
+  static const String parentFeedbackChatPath = '/parent/chat/feedback/:id';
+
+  static const String parentDirectChat = 'parentDirectChat';
+  static const String parentDirectChatPath = '/parent/chat/direct/:id';
+
+  static const String parentNotifications = 'parentNotifications';
+  static const String parentNotificationsPath = '/parent/notifications';
+
+  /// Landing path of each module.
+  static String homeFor(AppRole role) =>
+      role == AppRole.parent ? parentHomePath : dashboardPath;
+
+  static bool isParentPath(String location) =>
+      location == '/parent' || location.startsWith('/parent/');
 }

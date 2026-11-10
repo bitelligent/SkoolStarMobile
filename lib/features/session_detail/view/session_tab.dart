@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_card.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_chip.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_form_field.dart';
@@ -12,6 +13,7 @@ import 'package:skoolstar_teacher_module/data/models/student_model.dart';
 import 'package:skoolstar_teacher_module/features/session_detail/cubit/session_detail_cubit.dart';
 import 'package:skoolstar_teacher_module/features/session_detail/cubit/session_detail_state.dart';
 import 'package:skoolstar_teacher_module/features/session_detail/widgets/session_header_card.dart';
+import 'package:skoolstar_teacher_module/features/session_detail/widgets/student_chat_launcher.dart';
 
 /// First tab — quick learner list with inline P/A/L buttons, bulk actions,
 /// Save N/M button and shortcuts to the Attendance / Feedback tabs.
@@ -69,13 +71,13 @@ class SessionTab extends StatelessWidget {
                       vertical: 3,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.primarySoft,
+                      color: context.brand.primarySoft,
                       borderRadius: BorderRadius.circular(AppRadius.pill),
                     ),
                     child: Text(
                       '$total learners',
                       style: AppTextStyles.labelMedium.copyWith(
-                        color: AppColors.primary,
+                        color: context.brand.primary,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -133,10 +135,7 @@ class SessionTab extends StatelessWidget {
                     student: s,
                     status: state.attendance[s.id] ?? 'unmarked',
                     onStatus: (status) => cubit.setStatus(s.id, status),
-                    onChat: () => _snack(
-                      context,
-                      'Chat with ${s.firstName} ${s.lastName}',
-                    ),
+                    onChat: () => openStudentChat(context, s),
                   ),
                 ),
             ],
@@ -185,7 +184,7 @@ class SessionTab extends StatelessWidget {
   }
 }
 
-class _LearnerRow extends StatelessWidget {
+class _LearnerRow extends StatefulWidget {
   const _LearnerRow({
     required this.student,
     required this.status,
@@ -196,10 +195,30 @@ class _LearnerRow extends StatelessWidget {
   final Student student;
   final String status;
   final ValueChanged<String> onStatus;
-  final VoidCallback onChat;
+  final Future<void> Function() onChat;
+
+  @override
+  State<_LearnerRow> createState() => _LearnerRowState();
+}
+
+class _LearnerRowState extends State<_LearnerRow> {
+  bool _openingChat = false;
+
+  Future<void> _chat() async {
+    if (_openingChat) return;
+    setState(() => _openingChat = true);
+    try {
+      await widget.onChat();
+    } finally {
+      if (mounted) setState(() => _openingChat = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final student = widget.student;
+    final status = widget.status;
+    final onStatus = widget.onStatus;
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
       child: Container(
@@ -247,21 +266,29 @@ class _LearnerRow extends StatelessWidget {
             ),
             const SizedBox(width: 4),
             InkResponse(
-              onTap: onChat,
+              onTap: _chat,
               radius: 18,
               child: Container(
                 width: 30,
                 height: 30,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: AppColors.primarySoft,
+                  color: context.brand.primarySoft,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
-                  Icons.chat_bubble_outline_rounded,
-                  size: 14,
-                  color: AppColors.primary,
-                ),
+                child: _openingChat
+                    ? SizedBox.square(
+                        dimension: 14,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: context.brand.primary,
+                        ),
+                      )
+                    : Icon(
+                        Icons.chat_bubble_outline_rounded,
+                        size: 14,
+                        color: context.brand.primary,
+                      ),
               ),
             ),
           ],
@@ -288,7 +315,7 @@ class _SaveButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final enabled = saved > 0 && !isLoading;
     return Material(
-      color: enabled ? AppColors.primary : AppColors.surfaceMuted,
+      color: enabled ? context.brand.primary : AppColors.surfaceMuted,
       borderRadius: BorderRadius.circular(AppRadius.md),
       child: InkWell(
         onTap: enabled ? onTap : null,
@@ -358,17 +385,17 @@ class _OutlineAction extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.surface,
           borderRadius: BorderRadius.circular(AppRadius.md),
-          border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+          border: Border.all(color: context.brand.primary.withOpacity(0.3)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 16, color: AppColors.primary),
+            Icon(icon, size: 16, color: context.brand.primary),
             const SizedBox(height: 2),
             Text(
               label,
               style: AppTextStyles.labelSmall.copyWith(
-                color: AppColors.primary,
+                color: context.brand.primary,
                 fontWeight: FontWeight.w700,
               ),
             ),

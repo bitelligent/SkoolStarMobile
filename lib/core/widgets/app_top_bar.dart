@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 
 /// Simple top app bar used on pushed screens (back arrow + centered title +
 /// optional trailing action).
@@ -103,16 +104,17 @@ class CircleBorderIconButton extends StatelessWidget {
   const CircleBorderIconButton({
     required this.icon,
     required this.onTap,
-    this.color = AppColors.primary,
+    this.color,
     super.key,
   });
 
   final IconData icon;
   final VoidCallback onTap;
-  final Color color;
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
+    final color = this.color ?? context.brand.primary;
     return InkResponse(
       onTap: onTap,
       radius: 22,

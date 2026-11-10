@@ -1,41 +1,93 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_chip.dart';
 import 'package:skoolstar_teacher_module/data/models/homework_model.dart';
+import 'package:skoolstar_teacher_module/features/session_detail/cubit/session_detail_cubit.dart';
 import 'package:skoolstar_teacher_module/features/session_detail/cubit/session_detail_state.dart';
+import 'package:skoolstar_teacher_module/features/session_detail/widgets/homework_actions.dart';
 import 'package:skoolstar_teacher_module/features/session_detail/widgets/attachment_viewer.dart';
 
-/// Full details of one assigned homework, including tappable attachments.
+/// Full details of one assigned homework, with Edit / Delete actions.
+///
+/// The sheet reads the homework from the live screen state by [id], so an
+/// edit shows immediately and a delete closes the sheet.
 Future<void> showHomeworkDetail(
   BuildContext context, {
   required Homework homework,
   required SessionDetailLoaded state,
 }) {
+  final cubit = context.read<SessionDetailCubit>();
   return showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,
     backgroundColor: AppColors.surface,
-    builder: (sheetContext) => DraggableScrollableSheet(
-      expand: false,
-      initialChildSize: 0.7,
-      minChildSize: 0.4,
-      maxChildSize: 0.95,
-      builder: (_, controller) => _HomeworkDetail(
-        homework: homework,
-        state: state,
-        controller: controller,
-        // Open from the page context so the viewer route outlives the sheet.
-        openAttachment: (a) {
-          Navigator.of(sheetContext).pop();
-          return openHomeworkAttachment(context, a);
-        },
+    builder: (sheetContext) => BlocProvider.value(
+      value: cubit,
+      child: DraggableScrollableSheet(
+        expand: false,
+        initialChildSize: 0.7,
+        minChildSize: 0.4,
+        maxChildSize: 0.95,
+        builder: (_, controller) => _LiveHomework(
+          homeworkId: homework.id,
+          fallback: homework,
+          controller: controller,
+          // Open from the page context so the viewer route outlives the sheet.
+          openAttachment: (a) {
+            Navigator.of(sheetContext).pop();
+            return openHomeworkAttachment(context, a);
+          },
+        ),
       ),
     ),
   );
+}
+
+/// Rebuilds from the cubit so edits appear at once; closes if the homework
+/// disappears (deleted here or elsewhere).
+class _LiveHomework extends StatelessWidget {
+  const _LiveHomework({
+    required this.homeworkId,
+    required this.fallback,
+    required this.controller,
+    required this.openAttachment,
+  });
+
+  final String homeworkId;
+  final Homework fallback;
+  final ScrollController controller;
+  final Future<void> Function(HomeworkAttachment) openAttachment;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<SessionDetailCubit, SessionDetailState>(
+      builder: (context, state) {
+        if (state is! SessionDetailLoaded) return const SizedBox.shrink();
+        final live = state.homeworks
+            .where((h) => h.id == homeworkId)
+            .firstOrNull;
+        if (live == null) {
+          // Removed while the sheet was open: close it after this frame.
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (context.mounted) Navigator.of(context).maybePop();
+          });
+          return const SizedBox.shrink();
+        }
+        return _HomeworkDetail(
+          homework: live,
+          state: state,
+          controller: controller,
+          openAttachment: openAttachment,
+        );
+      },
+    );
+  }
 }
 
 class _HomeworkDetail extends StatelessWidget {
@@ -94,7 +146,11 @@ class _HomeworkDetail extends StatelessWidget {
               dense: true,
             ),
             if (className != null)
-              AppChip(label: className, color: AppColors.primary, dense: true),
+              AppChip(
+                label: className,
+                color: context.brand.primary,
+                dense: true,
+              ),
             if (subjectName != null)
               AppChip(
                 label: subjectName,
@@ -185,6 +241,94 @@ class _HomeworkDetail extends StatelessWidget {
                   ],
                 ),
         ),
+        const SizedBox(height: AppSpacing.sm),
+        _Actions(homework: homework),
+      ],
+    );
+  }
+}
+
+/// Edit (same-day only) and Delete (always).
+class _Actions extends StatefulWidget {
+  const _Actions({required this.homework});
+
+  final Homework homework;
+
+  @override
+  State<_Actions> createState() => _ActionsState();
+}
+
+class _ActionsState extends State<_Actions> {
+  bool _deleting = false;
+
+  Future<void> _edit() => runEditHomework(context, widget.homework);
+
+  Future<void> _delete() {
+    if (_deleting) return Future.value();
+    return runDeleteHomework(
+      context,
+      widget.homework,
+      onBusy: ({required busy}) {
+        if (mounted) setState(() => _deleting = busy);
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final canEdit = widget.homework.canEditAt(DateTime.now());
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const Divider(height: AppSpacing.xl),
+        if (canEdit)
+          OutlinedButton.icon(
+            onPressed: _deleting ? null : _edit,
+            icon: const Icon(Icons.edit_rounded, size: 18),
+            label: const Text('Edit homework'),
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppRadius.lg),
+              ),
+            ),
+          )
+        else
+          Padding(
+            padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.lock_clock_rounded,
+                  size: 16,
+                  color: AppColors.iconSubtle,
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    'Homework can only be edited on the day it was assigned.',
+                    style: AppTextStyles.labelMedium.copyWith(
+                      color: AppColors.textTertiary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        const SizedBox(height: AppSpacing.sm),
+        TextButton.icon(
+          onPressed: _deleting ? null : _delete,
+          icon: _deleting
+              ? const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Icon(Icons.delete_outline_rounded, size: 18),
+          label: Text(_deleting ? 'Deleting…' : 'Delete homework'),
+          style: TextButton.styleFrom(foregroundColor: AppColors.danger),
+        ),
       ],
     );
   }
@@ -240,7 +384,7 @@ class _AttachmentRow extends StatelessWidget {
         ? (Icons.image_rounded, AppColors.accentTeal)
         : attachment.isPdf
         ? (Icons.picture_as_pdf_rounded, AppColors.danger)
-        : (Icons.description_rounded, AppColors.primary);
+        : (Icons.description_rounded, context.brand.primary);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),

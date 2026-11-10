@@ -16,6 +16,8 @@ Homework? homeworkFromJson(
 
   final studentIds = <String>[
     for (final s in (j['studentIds'] as List? ?? const [])) s.toString(),
+    for (final s in (j['assignedStudentIds'] as List? ?? const []))
+      s.toString(),
     for (final s in j.objects('students'))
       if (s.intOrNull('studentId') != null) s.str('studentId'),
   ];
@@ -35,7 +37,26 @@ Homework? homeworkFromJson(
       for (final a in (j['attachments'] as List? ?? const []))
         attachmentFromJson(a),
     ],
+    createdAt: _created(j),
   );
+}
+
+/// Server timestamps carry no zone suffix on some endpoints; the backend
+/// compares UTC days, so a value without an offset is read as UTC.
+DateTime? _created(Json j) {
+  for (final key in const [
+    'created',
+    'createdAt',
+    'createdOn',
+    'createdDate',
+  ]) {
+    final raw = j.strOrNull(key);
+    if (raw == null) continue;
+    final hasZone = RegExp(r'(Z|[+-]\d{2}:?\d{2})$').hasMatch(raw);
+    final parsed = DateTime.tryParse(hasZone ? raw : '${raw}Z');
+    if (parsed != null) return parsed.toUtc();
+  }
+  return null;
 }
 
 /// The server prefixes stored files with `yyyyMMddHHmmssfff-<guid>-`; hide it

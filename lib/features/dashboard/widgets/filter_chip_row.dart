@@ -3,8 +3,10 @@ import 'package:intl/intl.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_sheet.dart';
 import 'package:skoolstar_teacher_module/data/models/class_group.dart';
+import 'package:skoolstar_teacher_module/data/models/session_model.dart';
 import 'package:skoolstar_teacher_module/data/models/subject_model.dart';
 
 /// Chip-style filter picker used on the Dashboard and Schedule. Day stays a
@@ -23,8 +25,12 @@ class FilterChipRow extends StatelessWidget {
     required this.onSubjectsChanged,
     required this.onReset,
     this.showDay = true,
+    this.showClasses = true,
     this.defaultDay = '',
     this.selectedDate,
+    this.teachers,
+    this.teacherFilterIds = const {},
+    this.onTeachersChanged,
     super.key,
   });
 
@@ -39,6 +45,14 @@ class FilterChipRow extends StatelessWidget {
   final VoidCallback onReset;
   final bool showDay;
 
+  /// Parents have a single class, so they hide the class filter.
+  final bool showClasses;
+
+  /// When non-null a Teachers filter chip is shown (parent module).
+  final List<SessionTeacher>? teachers;
+  final Set<String> teacherFilterIds;
+  final ValueChanged<Set<String>>? onTeachersChanged;
+
   /// The day filter value that counts as "not filtered" (the app's default).
   final String defaultDay;
 
@@ -49,7 +63,10 @@ class FilterChipRow extends StatelessWidget {
       selectedDate != null || (showDay && dayFilter != defaultDay);
 
   bool get _anyActive =>
-      _dayActive || classFilterIds.isNotEmpty || subjectFilterIds.isNotEmpty;
+      _dayActive ||
+      classFilterIds.isNotEmpty ||
+      subjectFilterIds.isNotEmpty ||
+      teacherFilterIds.isNotEmpty;
 
   Color _parseHex(String hex) {
     final value = hex.replaceFirst('#', '');
@@ -78,6 +95,16 @@ class FilterChipRow extends StatelessWidget {
       return s.name;
     }
     return '${subjectFilterIds.length} subjects';
+  }
+
+  String _teachersLabel() {
+    final list = teachers ?? const <SessionTeacher>[];
+    if (teacherFilterIds.isEmpty) return 'All teachers';
+    if (teacherFilterIds.length == 1) {
+      final t = list.where((x) => x.id == teacherFilterIds.first).firstOrNull;
+      return t?.name ?? '1 teacher';
+    }
+    return '${teacherFilterIds.length} teachers';
   }
 
   Color _subjectAccent() {
@@ -114,20 +141,22 @@ class FilterChipRow extends StatelessWidget {
               icon: Icons.calendar_today_rounded,
               active: _dayActive,
               count: 0,
-              color: AppColors.primary,
+              color: context.brand.primary,
               onTap: () => _pickDay(context),
             ),
             const SizedBox(width: 8),
           ],
-          _Chip(
-            label: _classesLabel(),
-            icon: Icons.groups_rounded,
-            active: classFilterIds.isNotEmpty,
-            count: classFilterIds.length,
-            color: AppColors.accentIndigo,
-            onTap: () => _pickClasses(context),
-          ),
-          const SizedBox(width: 8),
+          if (showClasses) ...[
+            _Chip(
+              label: _classesLabel(),
+              icon: Icons.groups_rounded,
+              active: classFilterIds.isNotEmpty,
+              count: classFilterIds.length,
+              color: AppColors.accentIndigo,
+              onTap: () => _pickClasses(context),
+            ),
+            const SizedBox(width: 8),
+          ],
           _Chip(
             label: _subjectsLabel(),
             icon: Icons.menu_book_rounded,
@@ -136,6 +165,17 @@ class FilterChipRow extends StatelessWidget {
             color: _subjectAccent(),
             onTap: () => _pickSubjects(context),
           ),
+          if (teachers != null) ...[
+            const SizedBox(width: 8),
+            _Chip(
+              label: _teachersLabel(),
+              icon: Icons.person_outline_rounded,
+              active: teacherFilterIds.isNotEmpty,
+              count: teacherFilterIds.length,
+              color: AppColors.accentTeal,
+              onTap: () => _pickTeachers(context),
+            ),
+          ],
           if (_anyActive) ...[
             const SizedBox(width: 8),
             _ResetChip(onTap: onReset),
@@ -193,6 +233,25 @@ class FilterChipRow extends StatelessWidget {
       ],
     );
     if (picked != null) onClassesChanged(picked);
+  }
+
+  Future<void> _pickTeachers(BuildContext context) async {
+    final list = teachers ?? const <SessionTeacher>[];
+    final picked = await showAppMultiSelectSheet<String>(
+      context,
+      title: 'Filter by teacher',
+      initialSelection: teacherFilterIds,
+      options: [
+        for (final t in list)
+          AppOption(
+            id: t.id,
+            label: t.name,
+            icon: Icons.person_outline_rounded,
+            color: AppColors.accentTeal,
+          ),
+      ],
+    );
+    if (picked != null) onTeachersChanged?.call(picked);
   }
 
   Future<void> _pickSubjects(BuildContext context) async {

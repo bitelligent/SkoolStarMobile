@@ -5,6 +5,7 @@ import 'package:skoolstar_teacher_module/data/repositories/attendance_repository
 import 'package:skoolstar_teacher_module/data/repositories/auth_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/class_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/feedback_repository.dart';
+import 'package:skoolstar_teacher_module/data/repositories/feedback_subjects_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/homework_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/institute_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/notifications_repository.dart';
@@ -65,6 +66,9 @@ Future<void> _pump(WidgetTester tester, Size size, Widget screen) async {
         ),
         RepositoryProvider<HomeworkRepository>.value(value: FakeHomeworkRepo()),
         RepositoryProvider<FeedbackRepository>.value(value: FakeFeedbackRepo()),
+        RepositoryProvider<FeedbackSubjectsRepository>.value(
+          value: FakeFeedbackSubjects(),
+        ),
       ],
       child: MaterialApp(
         builder: (context, child) => MediaQuery(

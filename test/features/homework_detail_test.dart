@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:skoolstar_teacher_module/core/network/api_client.dart';
+import '../helpers/detail_harness.dart';
 import 'package:skoolstar_teacher_module/data/models/class_group.dart';
 import 'package:skoolstar_teacher_module/data/models/homework_model.dart';
 import 'package:skoolstar_teacher_module/data/models/session_model.dart';
@@ -147,16 +148,21 @@ void main() {
             )
             as SessionDetailLoaded;
 
+    final cubit = await buildDetailCubit(RecordingHomeworkRepo([hw]));
+    addTearDown(cubit.close);
     await tester.pumpWidget(
       RepositoryProvider<HomeworkRepository>.value(
         value: HomeworkRepositoryImpl(_api()),
-        child: MaterialApp(
-          home: Builder(
-            builder: (context) => Scaffold(
-              body: TextButton(
-                onPressed: () =>
-                    showHomeworkDetail(context, homework: hw, state: state),
-                child: const Text('open'),
+        child: BlocProvider.value(
+          value: cubit,
+          child: MaterialApp(
+            home: Builder(
+              builder: (context) => Scaffold(
+                body: TextButton(
+                  onPressed: () =>
+                      showHomeworkDetail(context, homework: hw, state: state),
+                  child: const Text('open'),
+                ),
               ),
             ),
           ),
@@ -175,7 +181,11 @@ void main() {
     expect(find.text('Attachments (2)'), findsOneWidget);
     expect(find.text('sheet.pdf'), findsOneWidget);
     expect(find.text('diagram.png'), findsOneWidget);
-    expect(find.text('Jannat Shahzadi'), findsOneWidget);
+    // Names come from the live screen state (the harness roster).
+    expect(
+      find.text('Muhammad Abdul-Rahman2 Al-Farsi Bin Abdullah'),
+      findsOneWidget,
+    );
     expect(find.text('Student #99'), findsOneWidget); // unknown student id
   });
 }

@@ -112,6 +112,16 @@ void main() {
       await expectLater(call(401), throwsA(isA<UnauthorizedException>()));
       await expectLater(call(403), throwsA(isA<ForbiddenException>()));
       await expectLater(call(404), throwsA(isA<NotFoundException>()));
+      await expectLater(
+        call(405),
+        throwsA(
+          isA<UnknownApiException>().having(
+            (e) => e.message,
+            'message',
+            contains("isn't available on the server yet"),
+          ),
+        ),
+      );
       await expectLater(call(503), throwsA(isA<ServerException>()));
       await expectLater(call(418), throwsA(isA<UnknownApiException>()));
     });

@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:skoolstar_teacher_module/data/models/app_notification.dart';
+import 'package:skoolstar_teacher_module/features/notifications/notifications_context.dart';
+import 'package:skoolstar_teacher_module/data/mappers/chat_mapper.dart';
+import 'package:skoolstar_teacher_module/features/chat/chat_perspective.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
@@ -8,9 +12,11 @@ import 'package:skoolstar_teacher_module/core/widgets/avatar_circle.dart';
 import 'package:skoolstar_teacher_module/core/widgets/loading_view.dart';
 import 'package:skoolstar_teacher_module/data/models/chat_thread.dart';
 import 'package:skoolstar_teacher_module/data/models/direct_message.dart';
+import 'package:skoolstar_teacher_module/data/models/message_status.dart';
 import 'package:skoolstar_teacher_module/data/repositories/chat_repository.dart';
 import 'package:skoolstar_teacher_module/features/chat/cubit/direct_chat_cubit.dart';
 import 'package:skoolstar_teacher_module/features/chat/cubit/direct_chat_state.dart';
+import 'package:skoolstar_teacher_module/features/chat/widgets/connection_banner.dart';
 import 'package:skoolstar_teacher_module/features/chat/widgets/direct_message_bubble.dart';
 import 'package:skoolstar_teacher_module/features/chat/widgets/feedback_composer.dart';
 
@@ -25,6 +31,15 @@ class DirectChatScreen extends StatelessWidget {
       create: (context) => DirectChatCubit(
         threadId: threadId,
         repository: context.read<ChatRepository>(),
+        asParent: ChatPerspectiveScope.read(context).isParent,
+        onSeen: () {
+          final serverId = serverDirectThreadId(threadId);
+          if (serverId == null) return;
+          context.notificationsOrNull?.markRelatedRead(
+            type: NotificationType.chat,
+            referenceIds: {'$serverId'},
+          );
+        },
       )..load(),
       child: const _DirectChatView(),
     );
@@ -43,13 +58,11 @@ class _DirectChatView extends StatelessWidget {
         child: BlocBuilder<DirectChatCubit, DirectChatState>(
           builder: (context, state) {
             return switch (state) {
-              DirectChatInitial() ||
-              DirectChatLoading() =>
-                const LoadingView(),
+              DirectChatInitial() || DirectChatLoading() => const LoadingView(),
               DirectChatError(:final message) => ErrorView(
-                  message: message,
-                  onRetry: () => context.read<DirectChatCubit>().load(),
-                ),
+                message: message,
+                onRetry: () => context.read<DirectChatCubit>().load(),
+              ),
               DirectChatLoaded() => _Loaded(state: state),
             };
           },
@@ -72,21 +85,61 @@ class _LoadedState extends State<_Loaded> {
   final _scroll = ScrollController();
   int _lastKnownMessageCount = 0;
 
+  /// Distance from the bottom within which new messages keep the list
+  /// pinned to the end (so reading older history is not interrupted).
+  static const _stickyExtent = 140.0;
+
   @override
   void initState() {
     super.initState();
     _lastKnownMessageCount = widget.state.messages.length;
+    _scroll.addListener(_onScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) => _jumpToEnd());
   }
+
+  void _onScroll() {
+    if (!_scroll.hasClients) return;
+    if (_scroll.position.pixels <= 120) {
+      context.read<DirectChatCubit>().loadOlder();
+    }
+  }
+
+  bool get _nearBottom =>
+      !_scroll.hasClients ||
+      _scroll.position.maxScrollExtent - _scroll.position.pixels <=
+          _stickyExtent;
 
   @override
   void didUpdateWidget(covariant _Loaded old) {
     super.didUpdateWidget(old);
-    final current = widget.state.messages.length;
-    if (current > _lastKnownMessageCount) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => _animateToEnd());
+    final oldMsgs = old.state.messages;
+    final msgs = widget.state.messages;
+    final prepended =
+        oldMsgs.isNotEmpty &&
+        msgs.isNotEmpty &&
+        msgs.first.id != oldMsgs.first.id &&
+        msgs.length > oldMsgs.length &&
+        msgs.any((m) => m.id == oldMsgs.first.id);
+
+    if (prepended && _scroll.hasClients) {
+      // Older history was inserted above: keep the same message in view.
+      final before = _scroll.position.maxScrollExtent;
+      final offset = _scroll.position.pixels;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!_scroll.hasClients) return;
+        _scroll.jumpTo(offset + (_scroll.position.maxScrollExtent - before));
+      });
+    } else if (msgs.length > _lastKnownMessageCount) {
+      final newest = msgs.last;
+      final mine = ChatPerspectiveScope.of(context).isMine(
+        fromTeacher: newest.fromTeacher,
+      );
+      // Always follow my own sends; follow others only if already at the end.
+      if (mine || _nearBottom) {
+        WidgetsBinding.instance.addPostFrameCallback((_) => _animateToEnd());
+      }
     }
-    _lastKnownMessageCount = current;
+    _lastKnownMessageCount = msgs.length;
   }
 
   @override
@@ -118,6 +171,7 @@ class _LoadedState extends State<_Loaded> {
     return Column(
       children: [
         _ParentHeader(thread: state.thread),
+        if (!state.isLive) const ConnectionBanner(),
         Expanded(
           child: items.isEmpty
               ? const AppEmptyState(
@@ -133,8 +187,14 @@ class _LoadedState extends State<_Loaded> {
                     AppSpacing.md,
                     AppSpacing.md,
                   ),
-                  itemCount: items.length,
-                  itemBuilder: (context, i) => items[i],
+                  itemCount: items.length + (state.isLoadingOlder ? 1 : 0),
+                  itemBuilder: (context, i) {
+                    if (state.isLoadingOlder) {
+                      if (i == 0) return const _OlderSpinner();
+                      return items[i - 1];
+                    }
+                    return items[i];
+                  },
                 ),
         ),
         Padding(
@@ -147,6 +207,7 @@ class _LoadedState extends State<_Loaded> {
           child: FeedbackComposer(
             hint: 'Message ${state.thread.name.split(' ').first}…',
             enabled: !state.isSending,
+            maxLength: cubit.maxLength,
             onSend: cubit.send,
           ),
         ),
@@ -177,11 +238,13 @@ class _LoadedState extends State<_Loaded> {
       final next = i < messages.length - 1 ? messages[i + 1] : null;
 
       // Group messages from the same sender back-to-back (<3 min gap).
-      final startsRun = prev == null ||
+      final startsRun =
+          prev == null ||
           prev.fromTeacher != m.fromTeacher ||
           m.sentAt.difference(prev.sentAt).inMinutes >= 3 ||
           !_isSameDay(prev.sentAt, m.sentAt);
-      final endsRun = next == null ||
+      final endsRun =
+          next == null ||
           next.fromTeacher != m.fromTeacher ||
           next.sentAt.difference(m.sentAt).inMinutes >= 3 ||
           !_isSameDay(next.sentAt, m.sentAt);
@@ -195,6 +258,12 @@ class _LoadedState extends State<_Loaded> {
           showAvatar: endsRun,
           showTail: endsRun,
           showMeta: endsRun,
+          onRetry: m.clientId == null
+              ? null
+              : () => context.read<DirectChatCubit>().retry(m.clientId!),
+          onDiscard: m.clientId == null
+              ? null
+              : () => context.read<DirectChatCubit>().discard(m.clientId!),
         ),
       );
 
@@ -208,6 +277,22 @@ class _LoadedState extends State<_Loaded> {
 
   bool _isSameDay(DateTime a, DateTime b) =>
       a.year == b.year && a.month == b.month && a.day == b.day;
+}
+
+class _OlderSpinner extends StatelessWidget {
+  const _OlderSpinner();
+
+  @override
+  Widget build(BuildContext context) => const Padding(
+    padding: EdgeInsets.all(AppSpacing.sm),
+    child: Center(
+      child: SizedBox(
+        width: 18,
+        height: 18,
+        child: CircularProgressIndicator(strokeWidth: 2),
+      ),
+    ),
+  );
 }
 
 // ─── Parent header strip (back button + avatar + name) ───────────────

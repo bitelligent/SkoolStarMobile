@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 
 /// Small coloured pill (eg. "Math" subject tag next to a student name).
 class StatusPill extends StatelessWidget {
   const StatusPill({
     required this.label,
     this.icon,
-    this.color = AppColors.primary,
+    this.color,
     this.backgroundColor,
     this.dense = false,
     super.key,
@@ -16,12 +16,13 @@ class StatusPill extends StatelessWidget {
 
   final String label;
   final IconData? icon;
-  final Color color;
+  final Color? color;
   final Color? backgroundColor;
   final bool dense;
 
   @override
   Widget build(BuildContext context) {
+    final color = this.color ?? context.brand.primary;
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: dense ? AppSpacing.sm : AppSpacing.md,

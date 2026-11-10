@@ -1,5 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:skoolstar_teacher_module/core/bloc/safe_cubit.dart';
 import 'package:skoolstar_teacher_module/core/config/attendance_status_config.dart';
+import 'package:skoolstar_teacher_module/core/network/api_exception.dart';
 import 'package:skoolstar_teacher_module/core/network/error_message.dart';
 import 'package:skoolstar_teacher_module/data/models/feedback_model.dart';
 import 'package:skoolstar_teacher_module/data/models/homework_model.dart';
@@ -12,7 +14,33 @@ import 'package:skoolstar_teacher_module/data/repositories/session_repository.da
 import 'package:skoolstar_teacher_module/data/repositories/subject_repository.dart';
 import 'package:skoolstar_teacher_module/features/session_detail/cubit/session_detail_state.dart';
 
-class SessionDetailCubit extends Cubit<SessionDetailState> {
+/// What happened to an edit / delete request.
+enum HomeworkActionResult {
+  success,
+
+  /// The homework no longer exists on the server (already removed).
+  notFound,
+
+  /// The server refused the edit because the day it was assigned is over.
+  editWindowClosed,
+
+  /// A request for the same homework is still running.
+  busy,
+  failed,
+}
+
+class HomeworkActionOutcome {
+  const HomeworkActionOutcome(this.result, [this.message]);
+
+  final HomeworkActionResult result;
+
+  /// User-safe text to show, when there is something to say.
+  final String? message;
+
+  bool get ok => result == HomeworkActionResult.success;
+}
+
+class SessionDetailCubit extends SafeCubit<SessionDetailState> {
   SessionDetailCubit({
     required this.sessionId,
     required SessionRepository sessionRepository,
@@ -167,6 +195,129 @@ class SessionDetailCubit extends Cubit<SessionDetailState> {
       return false;
     }
   }
+
+  /// Edits a homework's title / description / max marks.
+  Future<HomeworkActionOutcome> updateHomework(
+    String id, {
+    required String title,
+    required String description,
+    int? maxMarks,
+  }) async {
+    final s = state;
+    if (s is! SessionDetailLoaded) {
+      return const HomeworkActionOutcome(HomeworkActionResult.failed);
+    }
+    if (!_busyHomework.add(id)) {
+      return const HomeworkActionOutcome(HomeworkActionResult.busy);
+    }
+    try {
+      await _homeworkRepository.update(
+        id,
+        title: title,
+        description: description,
+        maxMarks: maxMarks,
+      );
+      _emitIfLoaded(
+        (cur) => cur.copyWith(
+          homeworks: [
+            for (final h in cur.homeworks)
+              if (h.id == id)
+                h.copyWith(
+                  title: title.trim(),
+                  description: description.trim(),
+                  maxMarks: (maxMarks != null && maxMarks > 0)
+                      ? maxMarks
+                      : h.maxMarks,
+                )
+              else
+                h,
+          ],
+        ),
+      );
+      return const HomeworkActionOutcome(HomeworkActionResult.success);
+    } on NotFoundException {
+      // Deleted elsewhere (e.g. on the web): reflect that here.
+      _removeHomework(id);
+      return const HomeworkActionOutcome(
+        HomeworkActionResult.notFound,
+        'This homework no longer exists.',
+      );
+    } on ValidationException catch (e) {
+      if (_isEditWindowClosed(e.message)) {
+        _lockHomework(id);
+        return HomeworkActionOutcome(
+          HomeworkActionResult.editWindowClosed,
+          e.message,
+        );
+      }
+      return HomeworkActionOutcome(HomeworkActionResult.failed, e.message);
+    } on Object catch (e, st) {
+      return HomeworkActionOutcome(
+        HomeworkActionResult.failed,
+        errorMessage(e, st),
+      );
+    } finally {
+      _busyHomework.remove(id);
+    }
+  }
+
+  /// Deletes a homework and removes it (and its reviews) from the screen.
+  Future<HomeworkActionOutcome> deleteHomework(String id) async {
+    final s = state;
+    if (s is! SessionDetailLoaded) {
+      return const HomeworkActionOutcome(HomeworkActionResult.failed);
+    }
+    if (!_busyHomework.add(id)) {
+      return const HomeworkActionOutcome(HomeworkActionResult.busy);
+    }
+    try {
+      await _homeworkRepository.delete(id);
+      _removeHomework(id);
+      return const HomeworkActionOutcome(HomeworkActionResult.success);
+    } on NotFoundException {
+      // Already gone: the outcome the user wanted. Just sync the list.
+      _removeHomework(id);
+      return const HomeworkActionOutcome(
+        HomeworkActionResult.notFound,
+        'This homework was already deleted.',
+      );
+    } on Object catch (e, st) {
+      return HomeworkActionOutcome(
+        HomeworkActionResult.failed,
+        errorMessage(e, st),
+      );
+    } finally {
+      _busyHomework.remove(id);
+    }
+  }
+
+  final Set<String> _busyHomework = {};
+
+  /// True while an edit or delete of [id] is in flight.
+  bool isHomeworkBusy(String id) => _busyHomework.contains(id);
+
+  static bool _isEditWindowClosed(String message) {
+    final m = message.toLowerCase();
+    return m.contains('can only be edited') || m.contains('edit window');
+  }
+
+  void _lockHomework(String id) => _emitIfLoaded(
+    (cur) => cur.copyWith(
+      homeworks: [
+        for (final h in cur.homeworks)
+          if (h.id == id) h.copyWith(editLocked: true) else h,
+      ],
+    ),
+  );
+
+  void _removeHomework(String id) => _emitIfLoaded(
+    (cur) => cur.copyWith(
+      homeworks: cur.homeworks.where((h) => h.id != id).toList(),
+      assignmentReviews: cur.assignmentReviews
+          .where((r) => r.homeworkId != id)
+          .toList(),
+    ),
+  );
 
   Future<HomeworkAttachment?> uploadAttachment({
     required String fileName,

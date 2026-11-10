@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:skoolstar_teacher_module/core/network/api_client.dart';
 import 'package:skoolstar_teacher_module/core/network/api_exception.dart';
+import 'package:skoolstar_teacher_module/data/models/auth/auth_context.dart';
 import 'package:skoolstar_teacher_module/data/models/class_group.dart';
 import 'package:skoolstar_teacher_module/data/models/feedback_model.dart';
 import 'package:skoolstar_teacher_module/data/models/homework_model.dart';
@@ -133,6 +134,7 @@ void main() {
       build((_) => jsonResponse(fx.occurrencesOctober));
       await repo.getBetween(DateTime(2026, 10), DateTime(2026, 10, 31));
       await auth.logout();
+      auth.signInAs(AuthContext.fromJson(fx.teacherContext));
       await repo.getBetween(DateTime(2026, 10), DateTime(2026, 10, 31));
       expect(requests, hasLength(2));
     });
@@ -528,6 +530,22 @@ void main() {
       expect(bodies.first['content'], 'Well done');
       expect(bodies.first['isPositive'], isTrue);
       expect(bodies.first['scheduleOccurrencePublicId'], 'pub-1');
+    });
+
+    test('sends the chosen subject name, or null when none', () async {
+      final bodies = <Map<String, dynamic>>[];
+      final repo = FeedbackRepositoryImpl(
+        _api(
+          MockClient((r) async {
+            bodies.add(jsonDecode(r.body) as Map<String, dynamic>);
+            return jsonResponse({'id': 1});
+          }),
+        ),
+      );
+      await repo.sendMessage(_session, draft.copyWith(subject: 'Mathematics'));
+      await repo.sendMessage(_session, draft);
+      expect(bodies.first['subject'], 'Mathematics');
+      expect(bodies[3]['subject'], isNull, reason: 'no subject picked');
     });
 
     test('partial failure reports the failed students only', () async {

@@ -5,6 +5,7 @@ import 'package:skoolstar_teacher_module/core/widgets/avatar_circle.dart';
 import 'package:skoolstar_teacher_module/core/widgets/institute_header.dart';
 import 'package:skoolstar_teacher_module/data/models/institute_model.dart';
 import 'package:skoolstar_teacher_module/data/models/user_model.dart';
+import 'package:skoolstar_teacher_module/features/notifications/widgets/notification_bell.dart';
 
 /// Top bar used on the main tab screens: Institute pill centered, with the
 /// notification bell + teacher avatar on the right (matching the web
@@ -36,10 +37,7 @@ class MainTopBar extends StatelessWidget {
         children: [
           Expanded(child: InstitutePill(institute: institute)),
           const SizedBox(width: AppSpacing.sm),
-          _BellButton(
-            hasUnread: user.hasUnreadNotifications,
-            onTap: onNotificationsTap,
-          ),
+          NotificationBell(onTap: onNotificationsTap),
           const SizedBox(width: AppSpacing.sm),
           GestureDetector(
             onTap: onAvatarTap,
@@ -50,53 +48,6 @@ class MainTopBar extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _BellButton extends StatelessWidget {
-  const _BellButton({required this.hasUnread, required this.onTap});
-
-  final bool hasUnread;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 36,
-        height: 36,
-        alignment: Alignment.center,
-        decoration: const BoxDecoration(
-          color: AppColors.surfaceMuted,
-          shape: BoxShape.circle,
-        ),
-        child: Stack(
-          clipBehavior: Clip.none,
-          alignment: Alignment.center,
-          children: [
-            const Icon(
-              Icons.notifications_none_rounded,
-              color: AppColors.textPrimary,
-              size: 20,
-            ),
-            if (hasUnread)
-              Positioned(
-                top: 4,
-                right: 8,
-                child: Container(
-                  width: 7,
-                  height: 7,
-                  decoration: const BoxDecoration(
-                    color: AppColors.danger,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
-          ],
-        ),
       ),
     );
   }

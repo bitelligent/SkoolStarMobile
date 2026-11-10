@@ -1,4 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:skoolstar_teacher_module/core/bloc/safe_cubit.dart';
+import 'package:skoolstar_teacher_module/core/utils/day_filter.dart';
 import 'package:skoolstar_teacher_module/core/network/error_message.dart';
 import 'package:skoolstar_teacher_module/data/models/class_group.dart';
 import 'package:skoolstar_teacher_module/data/models/session_model.dart';
@@ -6,30 +8,23 @@ import 'package:skoolstar_teacher_module/data/models/subject_model.dart';
 import 'package:skoolstar_teacher_module/data/models/user_model.dart';
 import 'package:skoolstar_teacher_module/data/repositories/class_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/institute_repository.dart';
-import 'package:skoolstar_teacher_module/data/repositories/notifications_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/session_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/subject_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/user_repository.dart';
 import 'package:skoolstar_teacher_module/features/dashboard/cubit/dashboard_state.dart';
 
-/// Day filter value for "today" (also the default). `''` means all days,
-/// `'week'` the current Monday–Sunday week and `'month'` the current month.
-const defaultDayFilter = 'today';
-
-class DashboardCubit extends Cubit<DashboardState> {
+class DashboardCubit extends SafeCubit<DashboardState> {
   DashboardCubit({
     required InstituteRepository instituteRepository,
     required UserRepository userRepository,
     required SessionRepository sessionRepository,
     required ClassRepository classRepository,
     required SubjectRepository subjectRepository,
-    required NotificationsRepository notificationsRepository,
   }) : _instituteRepository = instituteRepository,
        _userRepository = userRepository,
        _sessionRepository = sessionRepository,
        _classRepository = classRepository,
        _subjectRepository = subjectRepository,
-       _notificationsRepository = notificationsRepository,
        super(const DashboardState.initial());
 
   final InstituteRepository _instituteRepository;
@@ -37,7 +32,6 @@ class DashboardCubit extends Cubit<DashboardState> {
   final SessionRepository _sessionRepository;
   final ClassRepository _classRepository;
   final SubjectRepository _subjectRepository;
-  final NotificationsRepository _notificationsRepository;
 
   /// Date range of sessions currently held in state.
   DateTime? _loadedFrom;
@@ -94,7 +88,6 @@ class DashboardCubit extends Cubit<DashboardState> {
       _sessionRepository.getBetween(from, to, refresh: refresh),
       _classRepository.getAll(),
       _subjectRepository.getAll(),
-      _hasUnreadNotifications(),
     ]);
     final sessions = results[1] as List<Session>;
     _loadedFrom = from;
@@ -102,9 +95,7 @@ class DashboardCubit extends Cubit<DashboardState> {
 
     return DashboardLoaded(
       institute: institute,
-      user: (results[0] as UserModel).copyWith(
-        hasUnreadNotifications: results[4] as bool,
-      ),
+      user: results[0] as UserModel,
       liveSession: sessions.where((s) => s.isLive).firstOrNull,
       sessions: sessions,
       classes: results[2] as List<ClassGroup>,
@@ -114,17 +105,6 @@ class DashboardCubit extends Cubit<DashboardState> {
       dayFilter: defaultDayFilter,
       view: DashboardView.agenda,
     );
-  }
-
-  /// Notifications have no backend yet (mock data); never fail the dashboard
-  /// because of them.
-  Future<bool> _hasUnreadNotifications() async {
-    try {
-      final data = await _notificationsRepository.getNotifications();
-      return data.items.any((n) => !n.isRead);
-    } on Object {
-      return false;
-    }
   }
 
   void setQuery(String query) {
@@ -277,28 +257,7 @@ class DashboardCubit extends Cubit<DashboardState> {
     final s = state;
     if (s is! DashboardLoaded) return 0;
     final now = DateTime.now();
-    return calendarSessions().where((x) => _sameDay(x.date, now)).length;
-  }
-
-  static bool _sameDay(DateTime a, DateTime b) =>
-      a.year == b.year && a.month == b.month && a.day == b.day;
-
-  /// Whether [date] falls in the relative range named by [filter].
-  static bool _matchesDayFilter(DateTime date, String filter, DateTime now) {
-    final d = DateTime(date.year, date.month, date.day);
-    final today = DateTime(now.year, now.month, now.day);
-    switch (filter) {
-      case 'today':
-        return d == today;
-      case 'week':
-        final monday = today.subtract(Duration(days: today.weekday - 1));
-        final sunday = monday.add(const Duration(days: 6));
-        return !d.isBefore(monday) && !d.isAfter(sunday);
-      case 'month':
-        return d.year == today.year && d.month == today.month;
-      default:
-        return true; // '' = all days
-    }
+    return calendarSessions().where((x) => sameDay(x.date, now)).length;
   }
 
   /// Sessions filtered by query/day/class/subject but ignoring the month
@@ -311,8 +270,8 @@ class DashboardCubit extends Cubit<DashboardState> {
       // A day picked on the calendar wins over the relative day filter.
       final selected = s.selectedDate;
       if (selected != null) {
-        if (!_sameDay(session.date, selected)) return false;
-      } else if (!_matchesDayFilter(session.date, s.dayFilter, now)) {
+        if (!sameDay(session.date, selected)) return false;
+      } else if (!matchesDayFilter(session.date, s.dayFilter, now)) {
         return false;
       }
       if (s.classFilterIds.isNotEmpty &&

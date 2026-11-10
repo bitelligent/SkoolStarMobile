@@ -14,6 +14,14 @@ _DirectMessage _$DirectMessageFromJson(Map<String, dynamic> json) =>
       content: json['content'] as String,
       sentAt: DateTime.parse(json['sentAt'] as String),
       isRead: json['isRead'] as bool? ?? true,
+      status:
+          $enumDecodeNullable(
+            _$MessageStatusEnumMap,
+            json['status'],
+            unknownValue: MessageStatus.sent,
+          ) ??
+          MessageStatus.sent,
+      clientId: json['clientId'] as String?,
     );
 
 Map<String, dynamic> _$DirectMessageToJson(_DirectMessage instance) =>
@@ -24,4 +32,12 @@ Map<String, dynamic> _$DirectMessageToJson(_DirectMessage instance) =>
       'content': instance.content,
       'sentAt': instance.sentAt.toIso8601String(),
       'isRead': instance.isRead,
+      'status': _$MessageStatusEnumMap[instance.status]!,
+      'clientId': instance.clientId,
     };
+
+const _$MessageStatusEnumMap = {
+  MessageStatus.sent: 'sent',
+  MessageStatus.sending: 'sending',
+  MessageStatus.failed: 'failed',
+};

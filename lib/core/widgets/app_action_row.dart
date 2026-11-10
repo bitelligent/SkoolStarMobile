@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 import 'package:skoolstar_teacher_module/core/widgets/icon_tile.dart';
 
 /// Row with a coloured leading icon, title (+ optional subtitle) and
@@ -13,7 +14,7 @@ class AppActionRow extends StatelessWidget {
     required this.label,
     required this.onTap,
     this.subtitle,
-    this.iconColor = AppColors.primary,
+    this.iconColor,
     this.iconBackground,
     this.trailing,
     this.dense = false,
@@ -24,13 +25,14 @@ class AppActionRow extends StatelessWidget {
   final String label;
   final String? subtitle;
   final VoidCallback onTap;
-  final Color iconColor;
+  final Color? iconColor;
   final Color? iconBackground;
   final Widget? trailing;
   final bool dense;
 
   @override
   Widget build(BuildContext context) {
+    final iconColor = this.iconColor ?? context.brand.primary;
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(AppRadius.md),

@@ -5,11 +5,8 @@ import 'package:flutter/material.dart';
 class AppColors {
   AppColors._();
 
-  // ---------- Brand ----------
-  static const Color primary = Color(0xFF2563EB);
-  static const Color primaryDark = Color(0xFF1D4ED8);
-  static const Color primaryLight = Color(0xFFDBEAFE);
-  static const Color primarySoft = Color(0xFFEEF4FF);
+  // Brand colours (primary / secondary and their shades) are institute
+  // specific and live in `BrandColors` (`context.brand`).
 
   // ---------- Category accents (used for subject chips, class pills,
   // category tiles). Each has a hard colour + its soft tinted variant.
@@ -62,17 +59,9 @@ class AppColors {
 class AppGradients {
   AppGradients._();
 
-  static const LinearGradient primary = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [Color(0xFF4F7FFF), Color(0xFF2563EB)],
-  );
-
-  static const LinearGradient live = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
-  );
+  // The brand gradient is institute specific: `context.brand.gradient`.
+  // Hero cards (live class included) all use it, so no screen has a colour
+  // of its own.
 
   static const LinearGradient success = LinearGradient(
     begin: Alignment.topLeft,
@@ -121,10 +110,10 @@ class AppShadows {
   ];
 
   static List<BoxShadow> glow(Color color) => [
-        BoxShadow(
-          color: color.withOpacity(0.28),
-          blurRadius: 20,
-          offset: const Offset(0, 8),
-        ),
-      ];
+    BoxShadow(
+      color: color.withOpacity(0.28),
+      blurRadius: 20,
+      offset: const Offset(0, 8),
+    ),
+  ];
 }

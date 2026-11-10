@@ -11,5 +11,13 @@ class AppConfig {
     defaultValue: 'http://194.164.89.239:86',
   );
 
+  /// Where accounts with a role the mobile app does not cover (client admin,
+  /// institute admin, …) are sent. Override per environment with
+  /// `--dart-define=WEB_APP_URL=...`.
+  static const String webAppUrl = String.fromEnvironment(
+    'WEB_APP_URL',
+    defaultValue: 'http://194.164.89.239:85',
+  );
+
   static const Duration requestTimeout = Duration(seconds: 30);
 }

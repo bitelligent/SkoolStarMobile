@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 
 /// White rounded surface used everywhere for grouping content. Uses the
 /// shared [AppShadows] tokens so elevation is consistent across the app.
@@ -93,7 +94,9 @@ class AccentCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Container(width: stripeWidth, color: accentColor),
-            Expanded(child: Padding(padding: padding, child: child)),
+            Expanded(
+              child: Padding(padding: padding, child: child),
+            ),
           ],
         ),
       ),
@@ -132,15 +135,15 @@ class AppSectionTitle extends StatelessWidget {
     return Row(
       children: [
         if (icon != null) ...[
-          Icon(icon, size: 18, color: iconColor ?? AppColors.primary),
+          Icon(icon, size: 18, color: iconColor ?? context.brand.primary),
           const SizedBox(width: 6),
         ],
         Expanded(
           child: Text(
             title,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ),
         if (trailing != null) trailing!,

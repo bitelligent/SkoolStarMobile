@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
-import 'package:skoolstar_teacher_module/core/router/app_routes.dart';
+import 'package:skoolstar_teacher_module/core/utils/keyboard.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_form_field.dart';
 import 'package:skoolstar_teacher_module/core/widgets/primary_button.dart';
-import 'package:skoolstar_teacher_module/data/models/auth/auth_context.dart';
 import 'package:skoolstar_teacher_module/data/repositories/auth_repository.dart';
 import 'package:skoolstar_teacher_module/features/auth/cubit/login_cubit.dart';
 import 'package:skoolstar_teacher_module/features/auth/cubit/login_state.dart';
+import 'package:skoolstar_teacher_module/features/branding/brand_context.dart';
+import 'package:skoolstar_teacher_module/features/branding/widgets/brand_logo.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -47,35 +48,12 @@ class _LoginViewState extends State<_LoginView> {
 
   void _submit({String? contextKey}) {
     if (!_formKey.currentState!.validate()) return;
-    FocusScope.of(context).unfocus();
+    context.dismissKeyboard();
     context.read<LoginCubit>().submit(
       email: _email.text,
       password: _password.text,
       contextKey: contextKey,
     );
-  }
-
-  Future<void> _pickContext(List<AuthContext> contexts) async {
-    final picked = await showModalBottomSheet<AuthContext>(
-      context: context,
-      showDragHandle: true,
-      builder: (_) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text('Choose an account', style: AppTextStyles.titleLarge),
-            const SizedBox(height: AppSpacing.sm),
-            for (final c in contexts)
-              ListTile(
-                title: Text(c.displayName ?? c.contextKey),
-                subtitle: c.instituteName == null ? null : Text(c.role),
-                onTap: () => Navigator.of(context).pop(c),
-              ),
-          ],
-        ),
-      ),
-    );
-    if (picked != null && mounted) _submit(contextKey: picked.contextKey);
   }
 
   @override
@@ -86,9 +64,9 @@ class _LoginViewState extends State<_LoginView> {
       listener: (context, state) {
         switch (state) {
           case LoginSuccess():
-            context.goNamed(AppRoutes.dashboard);
-          case LoginContextSelection(:final contexts):
-            _pickContext(contexts);
+            // Nothing to do: the router sees the new session and moves the
+            // user to the role list, teacher or parent module.
+            break;
           case LoginFailure(:final message):
             ScaffoldMessenger.of(context)
               ..hideCurrentSnackBar()
@@ -158,7 +136,7 @@ class _LoginViewState extends State<_LoginView> {
         borderRadius: BorderRadius.circular(AppRadius.xxl),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.14),
+            color: context.brand.primary.withValues(alpha: 0.14),
             blurRadius: 32,
             offset: const Offset(0, 14),
           ),
@@ -173,7 +151,7 @@ class _LoginViewState extends State<_LoginView> {
               Text('Welcome back', style: AppTextStyles.headingLarge),
               const SizedBox(height: AppSpacing.xs),
               Text(
-                'Sign in to manage your classes and sessions.',
+                'Sign in to your ${context.appName} account.',
                 style: AppTextStyles.bodyMedium.copyWith(
                   color: AppColors.textSecondary,
                 ),
@@ -278,7 +256,7 @@ class _LoginViewState extends State<_LoginView> {
           vertical: AppSpacing.lg,
         ),
         enabledBorder: border(AppColors.border),
-        focusedBorder: border(AppColors.primary, 1.6),
+        focusedBorder: border(context.brand.primary, 1.6),
         errorBorder: border(AppColors.danger),
         focusedErrorBorder: border(AppColors.danger, 1.6),
       ),
@@ -301,7 +279,7 @@ class _HeroBackground extends StatelessWidget {
         child: Container(
           height: height,
           width: double.infinity,
-          decoration: const BoxDecoration(gradient: AppGradients.primary),
+          decoration: BoxDecoration(gradient: context.brand.gradient),
           child: Stack(
             children: [
               const Positioned(
@@ -373,29 +351,10 @@ class _Brand extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Container(
-          width: 72,
-          height: 72,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(AppRadius.xl),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.16),
-                blurRadius: 24,
-                offset: const Offset(0, 8),
-              ),
-            ],
-          ),
-          child: const Icon(
-            Icons.school_rounded,
-            size: 40,
-            color: AppColors.primary,
-          ),
-        ),
+        const BrandLogo(),
         const SizedBox(height: AppSpacing.lg),
         Text(
-          'SkoolStar',
+          context.appName,
           style: AppTextStyles.displayLarge.copyWith(
             color: Colors.white,
             fontWeight: FontWeight.w800,
@@ -404,7 +363,7 @@ class _Brand extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.xxs),
         Text(
-          'Teacher Module',
+          'Teachers & Parents',
           style: AppTextStyles.bodyMedium.copyWith(
             color: Colors.white.withValues(alpha: 0.85),
             letterSpacing: 0.4,

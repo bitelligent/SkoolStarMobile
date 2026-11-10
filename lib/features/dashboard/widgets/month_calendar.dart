@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 import 'package:skoolstar_teacher_module/data/models/session_model.dart';
 
 /// Compact month calendar used by the Dashboard's Month view. Each day cell
@@ -185,24 +186,23 @@ class _DayCell extends StatelessWidget {
     final FontWeight weight;
 
     if (isSelected) {
-      bg = AppColors.primary;
+      bg = context.brand.primary;
       textColor = Colors.white;
       borderColor = null;
       weight = FontWeight.w800;
     } else if (isToday) {
-      bg = hasSchedule ? AppColors.primaryLight : Colors.transparent;
-      textColor = AppColors.primary;
-      borderColor = AppColors.primary;
+      bg = hasSchedule ? context.brand.primaryLight : Colors.transparent;
+      textColor = context.brand.primary;
+      borderColor = context.brand.primary;
       weight = FontWeight.w800;
     } else if (hasSchedule) {
-      bg = AppColors.primarySoft;
-      textColor = AppColors.primary;
+      bg = context.brand.primarySoft;
+      textColor = context.brand.primary;
       borderColor = null;
       weight = FontWeight.w700;
     } else {
       bg = Colors.transparent;
-      textColor =
-          inMonth ? AppColors.textPrimary : AppColors.textTertiary;
+      textColor = inMonth ? AppColors.textPrimary : AppColors.textTertiary;
       borderColor = null;
       weight = FontWeight.w500;
     }

@@ -125,12 +125,12 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( ChatThread thread,  List<DirectMessage> messages,  bool isSending)?  loaded,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( ChatThread thread,  List<DirectMessage> messages,  bool isSending,  bool hasMore,  bool isLoadingOlder,  bool isLive)?  loaded,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case DirectChatInitial() when initial != null:
 return initial();case DirectChatLoading() when loading != null:
 return loading();case DirectChatLoaded() when loaded != null:
-return loaded(_that.thread,_that.messages,_that.isSending);case DirectChatError() when error != null:
+return loaded(_that.thread,_that.messages,_that.isSending,_that.hasMore,_that.isLoadingOlder,_that.isLive);case DirectChatError() when error != null:
 return error(_that.message);case _:
   return orElse();
 
@@ -149,12 +149,12 @@ return error(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( ChatThread thread,  List<DirectMessage> messages,  bool isSending)  loaded,required TResult Function( String message)  error,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( ChatThread thread,  List<DirectMessage> messages,  bool isSending,  bool hasMore,  bool isLoadingOlder,  bool isLive)  loaded,required TResult Function( String message)  error,}) {final _that = this;
 switch (_that) {
 case DirectChatInitial():
 return initial();case DirectChatLoading():
 return loading();case DirectChatLoaded():
-return loaded(_that.thread,_that.messages,_that.isSending);case DirectChatError():
+return loaded(_that.thread,_that.messages,_that.isSending,_that.hasMore,_that.isLoadingOlder,_that.isLive);case DirectChatError():
 return error(_that.message);}
 }
 /// A variant of `when` that fallback to returning `null`
@@ -169,12 +169,12 @@ return error(_that.message);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( ChatThread thread,  List<DirectMessage> messages,  bool isSending)?  loaded,TResult? Function( String message)?  error,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( ChatThread thread,  List<DirectMessage> messages,  bool isSending,  bool hasMore,  bool isLoadingOlder,  bool isLive)?  loaded,TResult? Function( String message)?  error,}) {final _that = this;
 switch (_that) {
 case DirectChatInitial() when initial != null:
 return initial();case DirectChatLoading() when loading != null:
 return loading();case DirectChatLoaded() when loaded != null:
-return loaded(_that.thread,_that.messages,_that.isSending);case DirectChatError() when error != null:
+return loaded(_that.thread,_that.messages,_that.isSending,_that.hasMore,_that.isLoadingOlder,_that.isLive);case DirectChatError() when error != null:
 return error(_that.message);case _:
   return null;
 
@@ -251,7 +251,7 @@ String toString() {
 
 
 class DirectChatLoaded implements DirectChatState {
-  const DirectChatLoaded({required this.thread, required final  List<DirectMessage> messages, this.isSending = false}): _messages = messages;
+  const DirectChatLoaded({required this.thread, required final  List<DirectMessage> messages, this.isSending = false, this.hasMore = false, this.isLoadingOlder = false, this.isLive = true}): _messages = messages;
   
 
  final  ChatThread thread;
@@ -262,7 +262,13 @@ class DirectChatLoaded implements DirectChatState {
   return EqualUnmodifiableListView(_messages);
 }
 
+/// Kept for the composer; sending is optimistic so it stays `false`.
 @JsonKey() final  bool isSending;
+/// More (older) messages can be fetched.
+@JsonKey() final  bool hasMore;
+@JsonKey() final  bool isLoadingOlder;
+/// Realtime link is up (otherwise new messages arrive on refresh only).
+@JsonKey() final  bool isLive;
 
 /// Create a copy of DirectChatState
 /// with the given fields replaced by the non-null parameter values.
@@ -274,16 +280,16 @@ $DirectChatLoadedCopyWith<DirectChatLoaded> get copyWith => _$DirectChatLoadedCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DirectChatLoaded&&(identical(other.thread, thread) || other.thread == thread)&&const DeepCollectionEquality().equals(other._messages, _messages)&&(identical(other.isSending, isSending) || other.isSending == isSending));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DirectChatLoaded&&(identical(other.thread, thread) || other.thread == thread)&&const DeepCollectionEquality().equals(other._messages, _messages)&&(identical(other.isSending, isSending) || other.isSending == isSending)&&(identical(other.hasMore, hasMore) || other.hasMore == hasMore)&&(identical(other.isLoadingOlder, isLoadingOlder) || other.isLoadingOlder == isLoadingOlder)&&(identical(other.isLive, isLive) || other.isLive == isLive));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,thread,const DeepCollectionEquality().hash(_messages),isSending);
+int get hashCode => Object.hash(runtimeType,thread,const DeepCollectionEquality().hash(_messages),isSending,hasMore,isLoadingOlder,isLive);
 
 @override
 String toString() {
-  return 'DirectChatState.loaded(thread: $thread, messages: $messages, isSending: $isSending)';
+  return 'DirectChatState.loaded(thread: $thread, messages: $messages, isSending: $isSending, hasMore: $hasMore, isLoadingOlder: $isLoadingOlder, isLive: $isLive)';
 }
 
 
@@ -294,7 +300,7 @@ abstract mixin class $DirectChatLoadedCopyWith<$Res> implements $DirectChatState
   factory $DirectChatLoadedCopyWith(DirectChatLoaded value, $Res Function(DirectChatLoaded) _then) = _$DirectChatLoadedCopyWithImpl;
 @useResult
 $Res call({
- ChatThread thread, List<DirectMessage> messages, bool isSending
+ ChatThread thread, List<DirectMessage> messages, bool isSending, bool hasMore, bool isLoadingOlder, bool isLive
 });
 
 
@@ -311,11 +317,14 @@ class _$DirectChatLoadedCopyWithImpl<$Res>
 
 /// Create a copy of DirectChatState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? thread = null,Object? messages = null,Object? isSending = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? thread = null,Object? messages = null,Object? isSending = null,Object? hasMore = null,Object? isLoadingOlder = null,Object? isLive = null,}) {
   return _then(DirectChatLoaded(
 thread: null == thread ? _self.thread : thread // ignore: cast_nullable_to_non_nullable
 as ChatThread,messages: null == messages ? _self._messages : messages // ignore: cast_nullable_to_non_nullable
 as List<DirectMessage>,isSending: null == isSending ? _self.isSending : isSending // ignore: cast_nullable_to_non_nullable
+as bool,hasMore: null == hasMore ? _self.hasMore : hasMore // ignore: cast_nullable_to_non_nullable
+as bool,isLoadingOlder: null == isLoadingOlder ? _self.isLoadingOlder : isLoadingOlder // ignore: cast_nullable_to_non_nullable
+as bool,isLive: null == isLive ? _self.isLive : isLive // ignore: cast_nullable_to_non_nullable
 as bool,
   ));
 }

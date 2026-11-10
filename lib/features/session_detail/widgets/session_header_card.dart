@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_card.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_chip.dart';
 import 'package:skoolstar_teacher_module/data/models/class_group.dart';
@@ -34,7 +35,9 @@ class SessionHeaderCard extends StatelessWidget {
     return Color(int.parse('FF$value', radix: 16));
   }
 
-  ({String label, IconData icon, Color color}) _statusChip() {
+  ({String label, IconData icon, Color color}) _statusChip(
+    BuildContext context,
+  ) {
     return switch (session.phaseAt(DateTime.now())) {
       SessionPhase.live => (
         label: 'LIVE',
@@ -44,7 +47,7 @@ class SessionHeaderCard extends StatelessWidget {
       SessionPhase.laterToday => (
         label: 'TODAY',
         icon: Icons.today_rounded,
-        color: AppColors.primary,
+        color: context.brand.primary,
       ),
       SessionPhase.upcoming => (
         label: 'UPCOMING',
@@ -72,7 +75,7 @@ class SessionHeaderCard extends StatelessWidget {
     final sessClasses = classes
         .where((c) => session.classIds.contains(c.id))
         .toList();
-    final status = _statusChip();
+    final status = _statusChip(context);
 
     return AppCard(
       padding: const EdgeInsets.all(AppSpacing.lg),
@@ -163,9 +166,9 @@ class _DateTimePanel extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: AppColors.primarySoft,
+        color: context.brand.primarySoft,
         borderRadius: BorderRadius.circular(AppRadius.md),
-        border: Border.all(color: AppColors.primary.withOpacity(0.12)),
+        border: Border.all(color: context.brand.primary.withOpacity(0.12)),
       ),
       child: Column(
         children: [
@@ -194,12 +197,12 @@ class _DateTimeRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, size: 16, color: AppColors.primary),
+        Icon(icon, size: 16, color: context.brand.primary),
         const SizedBox(width: 8),
         Text(
           label,
           style: AppTextStyles.titleSmall.copyWith(
-            color: AppColors.primary,
+            color: context.brand.primary,
             fontWeight: FontWeight.w700,
           ),
         ),

@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_sheet.dart';
 
 /// Field-style dropdown. Tapping opens the common bottom sheet picker
@@ -102,11 +103,21 @@ class AppDateField extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () async {
+        final first = firstDate ?? DateTime(2020);
+        final last = lastDate ?? DateTime(2100);
+        // The picker asserts when its initial date is outside the range
+        // (e.g. a stale value from before `firstDate`).
+        final wanted = value ?? DateTime.now();
+        final initial = wanted.isBefore(first)
+            ? first
+            : wanted.isAfter(last)
+            ? last
+            : wanted;
         final picked = await showDatePicker(
           context: context,
-          firstDate: firstDate ?? DateTime(2020),
-          lastDate: lastDate ?? DateTime(2100),
-          initialDate: value ?? DateTime.now(),
+          firstDate: first,
+          lastDate: last,
+          initialDate: initial,
         );
         if (picked != null) onChanged(picked);
       },
@@ -123,10 +134,10 @@ class AppDateField extends StatelessWidget {
         ),
         child: Row(
           children: [
-            const Icon(
+            Icon(
               Icons.calendar_today_rounded,
               size: 16,
-              color: AppColors.primary,
+              color: context.brand.primary,
             ),
             const SizedBox(width: 8),
             Expanded(
@@ -189,10 +200,10 @@ class AppTimeField extends StatelessWidget {
         ),
         child: Row(
           children: [
-            const Icon(
+            Icon(
               Icons.access_time_rounded,
               size: 16,
-              color: AppColors.primary,
+              color: context.brand.primary,
             ),
             const SizedBox(width: 8),
             Expanded(

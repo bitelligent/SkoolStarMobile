@@ -11,7 +11,16 @@ sealed class DirectChatState with _$DirectChatState {
   const factory DirectChatState.loaded({
     required ChatThread thread,
     required List<DirectMessage> messages,
+
+    /// Kept for the composer; sending is optimistic so it stays `false`.
     @Default(false) bool isSending,
+
+    /// More (older) messages can be fetched.
+    @Default(false) bool hasMore,
+    @Default(false) bool isLoadingOlder,
+
+    /// Realtime link is up (otherwise new messages arrive on refresh only).
+    @Default(true) bool isLive,
   }) = DirectChatLoaded;
   const factory DirectChatState.error(String message) = DirectChatError;
 }

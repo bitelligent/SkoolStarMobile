@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:skoolstar_teacher_module/data/models/message_status.dart';
 
 part 'feedback_topic.freezed.dart';
 part 'feedback_topic.g.dart';
@@ -24,6 +25,17 @@ abstract class FeedbackMessage with _$FeedbackMessage {
     required String content,
     required DateTime sentAt,
     @Default(true) bool isRead,
+
+    /// Name shown above the bubble when the API provides one.
+    @Default('') String senderName,
+
+    /// Local-only: delivery state of an optimistic message.
+    @JsonKey(unknownEnumValue: MessageStatus.sent)
+    @Default(MessageStatus.sent)
+    MessageStatus status,
+
+    /// Local id of an optimistic message; lets the server copy replace it.
+    String? clientId,
   }) = _FeedbackMessage;
 
   factory FeedbackMessage.fromJson(Map<String, dynamic> json) =>
@@ -51,8 +63,7 @@ abstract class FeedbackTopic with _$FeedbackTopic {
       _$FeedbackTopicFromJson(json);
 
   /// Teacher's original feedback body — always the first message.
-  String get initialBody =>
-      messages.isEmpty ? '' : messages.first.content;
+  String get initialBody => messages.isEmpty ? '' : messages.first.content;
 
   /// Timestamp of the most recent message in the thread.
   DateTime get lastActivityAt =>
@@ -60,7 +71,10 @@ abstract class FeedbackTopic with _$FeedbackTopic {
 
   /// Count of unread messages addressed to the teacher
   /// (i.e. parent replies that haven't been read yet).
-  int get unreadFromParent => messages
-      .where((m) => !m.fromTeacher && !m.isRead)
-      .length;
+  int get unreadFromParent =>
+      messages.where((m) => !m.fromTeacher && !m.isRead).length;
+
+  /// Count of unread messages addressed to the parent (teacher messages).
+  int get unreadFromTeacher =>
+      messages.where((m) => m.fromTeacher && !m.isRead).length;
 }

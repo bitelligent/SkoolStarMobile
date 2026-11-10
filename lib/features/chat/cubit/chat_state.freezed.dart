@@ -125,12 +125,12 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( List<ChatThread> threads,  String query,  ChatCategory activeTab)?  loaded,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( List<ChatThread> threads,  String query,  ChatCategory activeTab,  bool isLive)?  loaded,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case ChatInitial() when initial != null:
 return initial();case ChatLoading() when loading != null:
 return loading();case ChatLoaded() when loaded != null:
-return loaded(_that.threads,_that.query,_that.activeTab);case ChatError() when error != null:
+return loaded(_that.threads,_that.query,_that.activeTab,_that.isLive);case ChatError() when error != null:
 return error(_that.message);case _:
   return orElse();
 
@@ -149,12 +149,12 @@ return error(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( List<ChatThread> threads,  String query,  ChatCategory activeTab)  loaded,required TResult Function( String message)  error,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( List<ChatThread> threads,  String query,  ChatCategory activeTab,  bool isLive)  loaded,required TResult Function( String message)  error,}) {final _that = this;
 switch (_that) {
 case ChatInitial():
 return initial();case ChatLoading():
 return loading();case ChatLoaded():
-return loaded(_that.threads,_that.query,_that.activeTab);case ChatError():
+return loaded(_that.threads,_that.query,_that.activeTab,_that.isLive);case ChatError():
 return error(_that.message);}
 }
 /// A variant of `when` that fallback to returning `null`
@@ -169,12 +169,12 @@ return error(_that.message);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( List<ChatThread> threads,  String query,  ChatCategory activeTab)?  loaded,TResult? Function( String message)?  error,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( List<ChatThread> threads,  String query,  ChatCategory activeTab,  bool isLive)?  loaded,TResult? Function( String message)?  error,}) {final _that = this;
 switch (_that) {
 case ChatInitial() when initial != null:
 return initial();case ChatLoading() when loading != null:
 return loading();case ChatLoaded() when loaded != null:
-return loaded(_that.threads,_that.query,_that.activeTab);case ChatError() when error != null:
+return loaded(_that.threads,_that.query,_that.activeTab,_that.isLive);case ChatError() when error != null:
 return error(_that.message);case _:
   return null;
 
@@ -251,7 +251,7 @@ String toString() {
 
 
 class ChatLoaded implements ChatState {
-  const ChatLoaded({required final  List<ChatThread> threads, this.query = '', this.activeTab = ChatCategory.feedback}): _threads = threads;
+  const ChatLoaded({required final  List<ChatThread> threads, this.query = '', this.activeTab = ChatCategory.feedback, this.isLive = true}): _threads = threads;
   
 
  final  List<ChatThread> _threads;
@@ -263,6 +263,7 @@ class ChatLoaded implements ChatState {
 
 @JsonKey() final  String query;
 @JsonKey() final  ChatCategory activeTab;
+@JsonKey() final  bool isLive;
 
 /// Create a copy of ChatState
 /// with the given fields replaced by the non-null parameter values.
@@ -274,16 +275,16 @@ $ChatLoadedCopyWith<ChatLoaded> get copyWith => _$ChatLoadedCopyWithImpl<ChatLoa
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ChatLoaded&&const DeepCollectionEquality().equals(other._threads, _threads)&&(identical(other.query, query) || other.query == query)&&(identical(other.activeTab, activeTab) || other.activeTab == activeTab));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ChatLoaded&&const DeepCollectionEquality().equals(other._threads, _threads)&&(identical(other.query, query) || other.query == query)&&(identical(other.activeTab, activeTab) || other.activeTab == activeTab)&&(identical(other.isLive, isLive) || other.isLive == isLive));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_threads),query,activeTab);
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_threads),query,activeTab,isLive);
 
 @override
 String toString() {
-  return 'ChatState.loaded(threads: $threads, query: $query, activeTab: $activeTab)';
+  return 'ChatState.loaded(threads: $threads, query: $query, activeTab: $activeTab, isLive: $isLive)';
 }
 
 
@@ -294,7 +295,7 @@ abstract mixin class $ChatLoadedCopyWith<$Res> implements $ChatStateCopyWith<$Re
   factory $ChatLoadedCopyWith(ChatLoaded value, $Res Function(ChatLoaded) _then) = _$ChatLoadedCopyWithImpl;
 @useResult
 $Res call({
- List<ChatThread> threads, String query, ChatCategory activeTab
+ List<ChatThread> threads, String query, ChatCategory activeTab, bool isLive
 });
 
 
@@ -311,12 +312,13 @@ class _$ChatLoadedCopyWithImpl<$Res>
 
 /// Create a copy of ChatState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? threads = null,Object? query = null,Object? activeTab = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? threads = null,Object? query = null,Object? activeTab = null,Object? isLive = null,}) {
   return _then(ChatLoaded(
 threads: null == threads ? _self._threads : threads // ignore: cast_nullable_to_non_nullable
 as List<ChatThread>,query: null == query ? _self.query : query // ignore: cast_nullable_to_non_nullable
 as String,activeTab: null == activeTab ? _self.activeTab : activeTab // ignore: cast_nullable_to_non_nullable
-as ChatCategory,
+as ChatCategory,isLive: null == isLive ? _self.isLive : isLive // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

@@ -11,7 +11,9 @@ abstract class JsonDataSource {
 
 /// Reads JSON files bundled under `assets/json/`.
 class LocalJsonDataSource implements JsonDataSource {
-  const LocalJsonDataSource({this.simulatedLatency = const Duration(milliseconds: 300)});
+  const LocalJsonDataSource({
+    this.simulatedLatency = const Duration(milliseconds: 300),
+  });
 
   /// Artificial delay so loading states are visible in dev. Set to
   /// [Duration.zero] (or remove) when wiring real APIs.

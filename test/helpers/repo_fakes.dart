@@ -1,8 +1,9 @@
+import 'package:skoolstar_teacher_module/data/mappers/feedback_mapper.dart';
 import 'package:skoolstar_teacher_module/data/models/class_group.dart';
 import 'package:skoolstar_teacher_module/data/models/feedback_model.dart';
 import 'package:skoolstar_teacher_module/data/models/homework_model.dart';
 import 'package:skoolstar_teacher_module/data/models/institute_model.dart';
-import 'package:skoolstar_teacher_module/data/models/notification_model.dart';
+import 'package:skoolstar_teacher_module/data/models/app_notification.dart';
 import 'package:skoolstar_teacher_module/data/models/session_model.dart';
 import 'package:skoolstar_teacher_module/data/models/student_model.dart';
 import 'package:skoolstar_teacher_module/data/models/subject_model.dart';
@@ -10,6 +11,7 @@ import 'package:skoolstar_teacher_module/data/models/user_model.dart';
 import 'package:skoolstar_teacher_module/data/repositories/attendance_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/class_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/feedback_repository.dart';
+import 'package:skoolstar_teacher_module/data/repositories/feedback_subjects_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/homework_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/institute_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/notifications_repository.dart';
@@ -110,10 +112,77 @@ class FakeSubjectsRepo implements SubjectRepository {
   Future<List<Subject>> getAll() async => stressSubjects;
 }
 
-class FakeNotificationsRepo implements NotificationsRepository {
+/// Subjects per student id; students not listed have none.
+class FakeFeedbackSubjects implements FeedbackSubjectsRepository {
+  FakeFeedbackSubjects([this.byStudent = const {}]);
+
+  final Map<String, List<String>> byStudent;
+  Object? error;
+  final List<List<String>> calls = [];
+
   @override
-  Future<NotificationsData> getNotifications() async =>
-      const NotificationsData(items: []);
+  Future<List<Subject>> commonFor(Iterable<String> studentIds) async {
+    calls.add(studentIds.toList());
+    if (error != null) throw error!;
+    final lists = [
+      for (final id in studentIds)
+        [
+          for (final n in byStudent[id] ?? const <String>[])
+            Subject(id: n, name: n),
+        ],
+    ];
+    return commonSubjects(lists);
+  }
+}
+
+class FakeNotificationsRepo implements NotificationsRepository {
+  FakeNotificationsRepo([List<AppNotification>? items]) : items = items ?? [];
+
+  List<AppNotification> items;
+  Object? error;
+  final List<String> marked = [];
+  int allMarked = 0;
+  int countCalls = 0;
+  final List<({bool unreadOnly, int take})> listCalls = [];
+
+  @override
+  Future<List<AppNotification>> getNotifications({
+    bool unreadOnly = false,
+    int take = 50,
+  }) async {
+    listCalls.add((unreadOnly: unreadOnly, take: take));
+    if (error != null) throw error!;
+    return [
+      for (final n in items)
+        if (!unreadOnly || !n.isRead) n,
+    ].take(take).toList();
+  }
+
+  @override
+  Future<int> unreadCount() async {
+    countCalls++;
+    if (error != null) throw error!;
+    return items.where((n) => !n.isRead).length;
+  }
+
+  @override
+  Future<void> markRead(String id) async {
+    if (error != null) throw error!;
+    marked.add(id);
+    items = [
+      for (final n in items)
+        if (n.id == id) n.copyWith(isRead: true) else n,
+    ];
+  }
+
+  @override
+  Future<int> markAllRead() async {
+    if (error != null) throw error!;
+    allMarked++;
+    final n = items.where((x) => !x.isRead).length;
+    items = [for (final x in items) x.copyWith(isRead: true)];
+    return n;
+  }
 }
 
 class FakeAttendanceRepo implements AttendanceRepository {
@@ -164,6 +233,17 @@ class FakeHomeworkRepo implements HomeworkRepository {
 
   @override
   Future<Homework> create(Session session, Homework draft) async => draft;
+
+  @override
+  Future<void> update(
+    String id, {
+    required String title,
+    required String description,
+    int? maxMarks,
+  }) async {}
+
+  @override
+  Future<void> delete(String id) async {}
 
   @override
   Future<HomeworkAttachment> uploadAttachment({

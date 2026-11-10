@@ -10,6 +10,5 @@ abstract class UserModel with _$UserModel {
     required String lastName,
     required String email,
     @Default('') String avatarUrl,
-    @Default(false) bool hasUnreadNotifications,
   }) = _UserModel;
 }

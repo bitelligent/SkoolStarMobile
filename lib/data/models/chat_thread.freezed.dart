@@ -15,7 +15,9 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$ChatThread {
 
- String get id; String get name; ChatCategory get category; DateTime get lastMessageAt; String get avatarUrl; String get role; String get lastMessage; int get unreadCount; bool get isOnline; bool get isPinned; bool get isTyping; bool get outgoingLast;
+ String get id; String get name; ChatCategory get category; DateTime get lastMessageAt; String get avatarUrl; String get role; String get lastMessage; int get unreadCount; bool get isOnline; bool get isPinned; bool get isTyping; bool get outgoingLast;/// Chat user id of the other person (1-to-1 threads); used to map
+/// presence and to tell own messages from the peer's.
+ String get peerUserId;
 /// Create a copy of ChatThread
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +30,16 @@ $ChatThreadCopyWith<ChatThread> get copyWith => _$ChatThreadCopyWithImpl<ChatThr
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ChatThread&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.category, category) || other.category == category)&&(identical(other.lastMessageAt, lastMessageAt) || other.lastMessageAt == lastMessageAt)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.role, role) || other.role == role)&&(identical(other.lastMessage, lastMessage) || other.lastMessage == lastMessage)&&(identical(other.unreadCount, unreadCount) || other.unreadCount == unreadCount)&&(identical(other.isOnline, isOnline) || other.isOnline == isOnline)&&(identical(other.isPinned, isPinned) || other.isPinned == isPinned)&&(identical(other.isTyping, isTyping) || other.isTyping == isTyping)&&(identical(other.outgoingLast, outgoingLast) || other.outgoingLast == outgoingLast));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ChatThread&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.category, category) || other.category == category)&&(identical(other.lastMessageAt, lastMessageAt) || other.lastMessageAt == lastMessageAt)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.role, role) || other.role == role)&&(identical(other.lastMessage, lastMessage) || other.lastMessage == lastMessage)&&(identical(other.unreadCount, unreadCount) || other.unreadCount == unreadCount)&&(identical(other.isOnline, isOnline) || other.isOnline == isOnline)&&(identical(other.isPinned, isPinned) || other.isPinned == isPinned)&&(identical(other.isTyping, isTyping) || other.isTyping == isTyping)&&(identical(other.outgoingLast, outgoingLast) || other.outgoingLast == outgoingLast)&&(identical(other.peerUserId, peerUserId) || other.peerUserId == peerUserId));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,category,lastMessageAt,avatarUrl,role,lastMessage,unreadCount,isOnline,isPinned,isTyping,outgoingLast);
+int get hashCode => Object.hash(runtimeType,id,name,category,lastMessageAt,avatarUrl,role,lastMessage,unreadCount,isOnline,isPinned,isTyping,outgoingLast,peerUserId);
 
 @override
 String toString() {
-  return 'ChatThread(id: $id, name: $name, category: $category, lastMessageAt: $lastMessageAt, avatarUrl: $avatarUrl, role: $role, lastMessage: $lastMessage, unreadCount: $unreadCount, isOnline: $isOnline, isPinned: $isPinned, isTyping: $isTyping, outgoingLast: $outgoingLast)';
+  return 'ChatThread(id: $id, name: $name, category: $category, lastMessageAt: $lastMessageAt, avatarUrl: $avatarUrl, role: $role, lastMessage: $lastMessage, unreadCount: $unreadCount, isOnline: $isOnline, isPinned: $isPinned, isTyping: $isTyping, outgoingLast: $outgoingLast, peerUserId: $peerUserId)';
 }
 
 
@@ -48,7 +50,7 @@ abstract mixin class $ChatThreadCopyWith<$Res>  {
   factory $ChatThreadCopyWith(ChatThread value, $Res Function(ChatThread) _then) = _$ChatThreadCopyWithImpl;
 @useResult
 $Res call({
- String id, String name, ChatCategory category, DateTime lastMessageAt, String avatarUrl, String role, String lastMessage, int unreadCount, bool isOnline, bool isPinned, bool isTyping, bool outgoingLast
+ String id, String name, ChatCategory category, DateTime lastMessageAt, String avatarUrl, String role, String lastMessage, int unreadCount, bool isOnline, bool isPinned, bool isTyping, bool outgoingLast, String peerUserId
 });
 
 
@@ -65,7 +67,7 @@ class _$ChatThreadCopyWithImpl<$Res>
 
 /// Create a copy of ChatThread
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? category = null,Object? lastMessageAt = null,Object? avatarUrl = null,Object? role = null,Object? lastMessage = null,Object? unreadCount = null,Object? isOnline = null,Object? isPinned = null,Object? isTyping = null,Object? outgoingLast = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? category = null,Object? lastMessageAt = null,Object? avatarUrl = null,Object? role = null,Object? lastMessage = null,Object? unreadCount = null,Object? isOnline = null,Object? isPinned = null,Object? isTyping = null,Object? outgoingLast = null,Object? peerUserId = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -79,7 +81,8 @@ as int,isOnline: null == isOnline ? _self.isOnline : isOnline // ignore: cast_nu
 as bool,isPinned: null == isPinned ? _self.isPinned : isPinned // ignore: cast_nullable_to_non_nullable
 as bool,isTyping: null == isTyping ? _self.isTyping : isTyping // ignore: cast_nullable_to_non_nullable
 as bool,outgoingLast: null == outgoingLast ? _self.outgoingLast : outgoingLast // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,peerUserId: null == peerUserId ? _self.peerUserId : peerUserId // ignore: cast_nullable_to_non_nullable
+as String,
   ));
 }
 
@@ -164,10 +167,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  ChatCategory category,  DateTime lastMessageAt,  String avatarUrl,  String role,  String lastMessage,  int unreadCount,  bool isOnline,  bool isPinned,  bool isTyping,  bool outgoingLast)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  ChatCategory category,  DateTime lastMessageAt,  String avatarUrl,  String role,  String lastMessage,  int unreadCount,  bool isOnline,  bool isPinned,  bool isTyping,  bool outgoingLast,  String peerUserId)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ChatThread() when $default != null:
-return $default(_that.id,_that.name,_that.category,_that.lastMessageAt,_that.avatarUrl,_that.role,_that.lastMessage,_that.unreadCount,_that.isOnline,_that.isPinned,_that.isTyping,_that.outgoingLast);case _:
+return $default(_that.id,_that.name,_that.category,_that.lastMessageAt,_that.avatarUrl,_that.role,_that.lastMessage,_that.unreadCount,_that.isOnline,_that.isPinned,_that.isTyping,_that.outgoingLast,_that.peerUserId);case _:
   return orElse();
 
 }
@@ -185,10 +188,10 @@ return $default(_that.id,_that.name,_that.category,_that.lastMessageAt,_that.ava
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  ChatCategory category,  DateTime lastMessageAt,  String avatarUrl,  String role,  String lastMessage,  int unreadCount,  bool isOnline,  bool isPinned,  bool isTyping,  bool outgoingLast)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  ChatCategory category,  DateTime lastMessageAt,  String avatarUrl,  String role,  String lastMessage,  int unreadCount,  bool isOnline,  bool isPinned,  bool isTyping,  bool outgoingLast,  String peerUserId)  $default,) {final _that = this;
 switch (_that) {
 case _ChatThread():
-return $default(_that.id,_that.name,_that.category,_that.lastMessageAt,_that.avatarUrl,_that.role,_that.lastMessage,_that.unreadCount,_that.isOnline,_that.isPinned,_that.isTyping,_that.outgoingLast);case _:
+return $default(_that.id,_that.name,_that.category,_that.lastMessageAt,_that.avatarUrl,_that.role,_that.lastMessage,_that.unreadCount,_that.isOnline,_that.isPinned,_that.isTyping,_that.outgoingLast,_that.peerUserId);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -205,10 +208,10 @@ return $default(_that.id,_that.name,_that.category,_that.lastMessageAt,_that.ava
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  ChatCategory category,  DateTime lastMessageAt,  String avatarUrl,  String role,  String lastMessage,  int unreadCount,  bool isOnline,  bool isPinned,  bool isTyping,  bool outgoingLast)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  ChatCategory category,  DateTime lastMessageAt,  String avatarUrl,  String role,  String lastMessage,  int unreadCount,  bool isOnline,  bool isPinned,  bool isTyping,  bool outgoingLast,  String peerUserId)?  $default,) {final _that = this;
 switch (_that) {
 case _ChatThread() when $default != null:
-return $default(_that.id,_that.name,_that.category,_that.lastMessageAt,_that.avatarUrl,_that.role,_that.lastMessage,_that.unreadCount,_that.isOnline,_that.isPinned,_that.isTyping,_that.outgoingLast);case _:
+return $default(_that.id,_that.name,_that.category,_that.lastMessageAt,_that.avatarUrl,_that.role,_that.lastMessage,_that.unreadCount,_that.isOnline,_that.isPinned,_that.isTyping,_that.outgoingLast,_that.peerUserId);case _:
   return null;
 
 }
@@ -220,7 +223,7 @@ return $default(_that.id,_that.name,_that.category,_that.lastMessageAt,_that.ava
 @JsonSerializable()
 
 class _ChatThread implements ChatThread {
-  const _ChatThread({required this.id, required this.name, required this.category, required this.lastMessageAt, this.avatarUrl = '', this.role = '', this.lastMessage = '', this.unreadCount = 0, this.isOnline = false, this.isPinned = false, this.isTyping = false, this.outgoingLast = false});
+  const _ChatThread({required this.id, required this.name, required this.category, required this.lastMessageAt, this.avatarUrl = '', this.role = '', this.lastMessage = '', this.unreadCount = 0, this.isOnline = false, this.isPinned = false, this.isTyping = false, this.outgoingLast = false, this.peerUserId = ''});
   factory _ChatThread.fromJson(Map<String, dynamic> json) => _$ChatThreadFromJson(json);
 
 @override final  String id;
@@ -235,6 +238,9 @@ class _ChatThread implements ChatThread {
 @override@JsonKey() final  bool isPinned;
 @override@JsonKey() final  bool isTyping;
 @override@JsonKey() final  bool outgoingLast;
+/// Chat user id of the other person (1-to-1 threads); used to map
+/// presence and to tell own messages from the peer's.
+@override@JsonKey() final  String peerUserId;
 
 /// Create a copy of ChatThread
 /// with the given fields replaced by the non-null parameter values.
@@ -249,16 +255,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ChatThread&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.category, category) || other.category == category)&&(identical(other.lastMessageAt, lastMessageAt) || other.lastMessageAt == lastMessageAt)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.role, role) || other.role == role)&&(identical(other.lastMessage, lastMessage) || other.lastMessage == lastMessage)&&(identical(other.unreadCount, unreadCount) || other.unreadCount == unreadCount)&&(identical(other.isOnline, isOnline) || other.isOnline == isOnline)&&(identical(other.isPinned, isPinned) || other.isPinned == isPinned)&&(identical(other.isTyping, isTyping) || other.isTyping == isTyping)&&(identical(other.outgoingLast, outgoingLast) || other.outgoingLast == outgoingLast));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ChatThread&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.category, category) || other.category == category)&&(identical(other.lastMessageAt, lastMessageAt) || other.lastMessageAt == lastMessageAt)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.role, role) || other.role == role)&&(identical(other.lastMessage, lastMessage) || other.lastMessage == lastMessage)&&(identical(other.unreadCount, unreadCount) || other.unreadCount == unreadCount)&&(identical(other.isOnline, isOnline) || other.isOnline == isOnline)&&(identical(other.isPinned, isPinned) || other.isPinned == isPinned)&&(identical(other.isTyping, isTyping) || other.isTyping == isTyping)&&(identical(other.outgoingLast, outgoingLast) || other.outgoingLast == outgoingLast)&&(identical(other.peerUserId, peerUserId) || other.peerUserId == peerUserId));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,category,lastMessageAt,avatarUrl,role,lastMessage,unreadCount,isOnline,isPinned,isTyping,outgoingLast);
+int get hashCode => Object.hash(runtimeType,id,name,category,lastMessageAt,avatarUrl,role,lastMessage,unreadCount,isOnline,isPinned,isTyping,outgoingLast,peerUserId);
 
 @override
 String toString() {
-  return 'ChatThread(id: $id, name: $name, category: $category, lastMessageAt: $lastMessageAt, avatarUrl: $avatarUrl, role: $role, lastMessage: $lastMessage, unreadCount: $unreadCount, isOnline: $isOnline, isPinned: $isPinned, isTyping: $isTyping, outgoingLast: $outgoingLast)';
+  return 'ChatThread(id: $id, name: $name, category: $category, lastMessageAt: $lastMessageAt, avatarUrl: $avatarUrl, role: $role, lastMessage: $lastMessage, unreadCount: $unreadCount, isOnline: $isOnline, isPinned: $isPinned, isTyping: $isTyping, outgoingLast: $outgoingLast, peerUserId: $peerUserId)';
 }
 
 
@@ -269,7 +275,7 @@ abstract mixin class _$ChatThreadCopyWith<$Res> implements $ChatThreadCopyWith<$
   factory _$ChatThreadCopyWith(_ChatThread value, $Res Function(_ChatThread) _then) = __$ChatThreadCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String name, ChatCategory category, DateTime lastMessageAt, String avatarUrl, String role, String lastMessage, int unreadCount, bool isOnline, bool isPinned, bool isTyping, bool outgoingLast
+ String id, String name, ChatCategory category, DateTime lastMessageAt, String avatarUrl, String role, String lastMessage, int unreadCount, bool isOnline, bool isPinned, bool isTyping, bool outgoingLast, String peerUserId
 });
 
 
@@ -286,7 +292,7 @@ class __$ChatThreadCopyWithImpl<$Res>
 
 /// Create a copy of ChatThread
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? category = null,Object? lastMessageAt = null,Object? avatarUrl = null,Object? role = null,Object? lastMessage = null,Object? unreadCount = null,Object? isOnline = null,Object? isPinned = null,Object? isTyping = null,Object? outgoingLast = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? category = null,Object? lastMessageAt = null,Object? avatarUrl = null,Object? role = null,Object? lastMessage = null,Object? unreadCount = null,Object? isOnline = null,Object? isPinned = null,Object? isTyping = null,Object? outgoingLast = null,Object? peerUserId = null,}) {
   return _then(_ChatThread(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -300,7 +306,8 @@ as int,isOnline: null == isOnline ? _self.isOnline : isOnline // ignore: cast_nu
 as bool,isPinned: null == isPinned ? _self.isPinned : isPinned // ignore: cast_nullable_to_non_nullable
 as bool,isTyping: null == isTyping ? _self.isTyping : isTyping // ignore: cast_nullable_to_non_nullable
 as bool,outgoingLast: null == outgoingLast ? _self.outgoingLast : outgoingLast // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,peerUserId: null == peerUserId ? _self.peerUserId : peerUserId // ignore: cast_nullable_to_non_nullable
+as String,
   ));
 }
 

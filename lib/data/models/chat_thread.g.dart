@@ -19,6 +19,7 @@ _ChatThread _$ChatThreadFromJson(Map<String, dynamic> json) => _ChatThread(
   isPinned: json['isPinned'] as bool? ?? false,
   isTyping: json['isTyping'] as bool? ?? false,
   outgoingLast: json['outgoingLast'] as bool? ?? false,
+  peerUserId: json['peerUserId'] as String? ?? '',
 );
 
 Map<String, dynamic> _$ChatThreadToJson(_ChatThread instance) =>
@@ -35,6 +36,7 @@ Map<String, dynamic> _$ChatThreadToJson(_ChatThread instance) =>
       'isPinned': instance.isPinned,
       'isTyping': instance.isTyping,
       'outgoingLast': instance.outgoingLast,
+      'peerUserId': instance.peerUserId,
     };
 
 const _$ChatCategoryEnumMap = {

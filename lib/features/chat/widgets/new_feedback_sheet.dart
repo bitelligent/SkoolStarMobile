@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:skoolstar_teacher_module/core/utils/keyboard.dart';
+import 'package:skoolstar_teacher_module/core/speech/dictation_controller.dart';
+import 'package:skoolstar_teacher_module/core/speech/dictation_scope.dart';
+import 'package:skoolstar_teacher_module/core/widgets/dictation_button.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
@@ -7,23 +12,19 @@ import 'package:skoolstar_teacher_module/core/widgets/app_form_field.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_sheet.dart';
 import 'package:skoolstar_teacher_module/core/widgets/primary_button.dart';
 import 'package:skoolstar_teacher_module/data/models/feedback_topic.dart';
-
-typedef FeedbackSubmit = Future<bool> Function({
-  required String subject,
-  required FeedbackTone tone,
-  required String message,
-});
+import 'package:skoolstar_teacher_module/features/chat/widgets/feedback_subject_picker.dart';
 
 /// Draft returned to the caller — the sheet pops this value when the
 /// user hits "Send". Null means the sheet was dismissed.
 class NewFeedbackDraft {
   const NewFeedbackDraft({
-    required this.subject,
     required this.tone,
     required this.message,
+    this.subject,
   });
 
-  final String subject;
+  /// Optional subject name; `null` sends the feedback without one.
+  final String? subject;
   final FeedbackTone tone;
   final String message;
 }
@@ -32,30 +33,46 @@ class NewFeedbackDraft {
 Future<NewFeedbackDraft?> showNewFeedbackSheet(
   BuildContext context, {
   required String parentName,
+  required String studentId,
+  NewFeedbackDraft? initial,
 }) {
   return showAppSheet<NewFeedbackDraft>(
     context,
     title: 'New feedback  ·  $parentName',
     isScrollControlled: true,
     builder: (sheetContext) => _NewFeedbackBody(
+      studentId: studentId,
+      initial: initial,
       onSubmit: (draft) => Navigator.of(sheetContext).pop(draft),
     ),
   );
 }
 
 class _NewFeedbackBody extends StatefulWidget {
-  const _NewFeedbackBody({required this.onSubmit});
+  const _NewFeedbackBody({
+    required this.studentId,
+    required this.onSubmit,
+    this.initial,
+  });
 
+  final String studentId;
   final ValueChanged<NewFeedbackDraft> onSubmit;
+  final NewFeedbackDraft? initial;
 
   @override
   State<_NewFeedbackBody> createState() => _NewFeedbackBodyState();
 }
 
 class _NewFeedbackBodyState extends State<_NewFeedbackBody> {
-  final _subject = TextEditingController();
-  final _message = TextEditingController();
-  FeedbackTone _tone = FeedbackTone.positive;
+  late String? _subject = widget.initial?.subject;
+  late final _message = TextEditingController(text: widget.initial?.message);
+  late FeedbackTone _tone = widget.initial?.tone ?? FeedbackTone.positive;
+
+  /// Server limits for the message.
+  static const _min = 2;
+  static const _max = 1000;
+
+  DictationController? _dictation;
 
   @override
   void initState() {
@@ -64,13 +81,22 @@ class _NewFeedbackBodyState extends State<_NewFeedbackBody> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final engine = DictationScope.maybeOf(context);
+    if (_dictation == null && engine != null) {
+      _dictation = DictationController(engine: engine, text: _message);
+    }
+  }
+
+  @override
   void dispose() {
-    _subject.dispose();
+    _dictation?.dispose();
     _message.dispose();
     super.dispose();
   }
 
-  bool get _canSend => _message.text.trim().isNotEmpty;
+  bool get _canSend => _message.text.trim().length >= _min;
 
   @override
   Widget build(BuildContext context) {
@@ -87,13 +113,11 @@ class _NewFeedbackBodyState extends State<_NewFeedbackBody> {
         children: [
           _toneRow(),
           const SizedBox(height: AppSpacing.md),
-          AppFormField(
-            label: 'Subject',
-            hint: 'A short title helps the parent find this later.',
-            child: AppTextField(
-              controller: _subject,
-              hint: 'eg. Math homework progress',
-            ),
+          FeedbackSubjectPicker(
+            studentIds: [widget.studentId],
+            value: _subject,
+            noneLabel: 'General feedback',
+            onChanged: (v) => setState(() => _subject = v),
           ),
           const SizedBox(height: AppSpacing.md),
           AppFormField(
@@ -103,6 +127,10 @@ class _NewFeedbackBodyState extends State<_NewFeedbackBody> {
               controller: _message,
               hint: 'Share the feedback you want to send to the parent…',
               maxLines: 5,
+              inputFormatters: [LengthLimitingTextInputFormatter(_max)],
+              suffix: _dictation == null
+                  ? null
+                  : DictationButton(controller: _dictation!),
             ),
           ),
           const SizedBox(height: AppSpacing.lg),
@@ -110,13 +138,16 @@ class _NewFeedbackBodyState extends State<_NewFeedbackBody> {
             label: 'Send feedback',
             icon: Icons.send_rounded,
             onPressed: _canSend
-                ? () => widget.onSubmit(
+                ? () {
+                    context.dismissKeyboard();
+                    widget.onSubmit(
                       NewFeedbackDraft(
-                        subject: _subject.text,
+                        subject: _subject,
                         tone: _tone,
                         message: _message.text,
                       ),
-                    )
+                    );
+                  }
                 : null,
           ),
           const SizedBox(height: 2),

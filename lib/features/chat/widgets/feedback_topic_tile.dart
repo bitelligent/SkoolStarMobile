@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
+import 'package:skoolstar_teacher_module/features/chat/chat_perspective.dart';
 import 'package:intl/intl.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
@@ -20,6 +22,8 @@ class FeedbackTopicTile extends StatelessWidget {
     required this.parentAvatarUrl,
     required this.onToggle,
     required this.onReply,
+    required this.onRetryReply,
+    required this.onDiscardReply,
     required this.onToggleResolved,
     required this.onDelete,
     super.key,
@@ -32,6 +36,8 @@ class FeedbackTopicTile extends StatelessWidget {
   final String parentAvatarUrl;
   final VoidCallback onToggle;
   final Future<bool> Function(String content) onReply;
+  final void Function(String clientId) onRetryReply;
+  final void Function(String clientId) onDiscardReply;
   final VoidCallback onToggleResolved;
   final VoidCallback onDelete;
 
@@ -64,7 +70,10 @@ class FeedbackTopicTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = _toneTheme();
-    final unread = topic.unreadFromParent;
+    final perspective = ChatPerspectiveScope.of(context);
+    final unread = perspective.isParent
+        ? topic.unreadFromTeacher
+        : topic.unreadFromParent;
 
     return Container(
       decoration: BoxDecoration(
@@ -101,6 +110,8 @@ class FeedbackTopicTile extends StatelessWidget {
                     parentAvatarUrl: parentAvatarUrl,
                     isReplying: isReplying,
                     onReply: onReply,
+                    onRetryReply: onRetryReply,
+                    onDiscardReply: onDiscardReply,
                   )
                 : const SizedBox(width: double.infinity),
           ),
@@ -181,11 +192,12 @@ class _Header extends StatelessWidget {
                   ),
                 ],
                 const Spacer(),
-                _TopicMenu(
-                  isResolved: topic.isResolved,
-                  onToggleResolved: onToggleResolved,
-                  onDelete: onDelete,
-                ),
+                if (ChatPerspectiveScope.of(context).canManageTopics)
+                  _TopicMenu(
+                    isResolved: topic.isResolved,
+                    onToggleResolved: onToggleResolved,
+                    onDelete: onDelete,
+                  ),
                 AnimatedRotation(
                   duration: const Duration(milliseconds: 220),
                   turns: isExpanded ? 0.5 : 0,
@@ -293,6 +305,8 @@ class _Body extends StatelessWidget {
     required this.parentAvatarUrl,
     required this.isReplying,
     required this.onReply,
+    required this.onRetryReply,
+    required this.onDiscardReply,
   });
 
   final FeedbackTopic topic;
@@ -300,6 +314,8 @@ class _Body extends StatelessWidget {
   final String parentAvatarUrl;
   final bool isReplying;
   final Future<bool> Function(String content) onReply;
+  final void Function(String clientId) onRetryReply;
+  final void Function(String clientId) onDiscardReply;
 
   @override
   Widget build(BuildContext context) {
@@ -320,6 +336,12 @@ class _Body extends StatelessWidget {
               message: m,
               parentName: parentName,
               parentAvatarUrl: parentAvatarUrl,
+              onRetry: m.clientId == null
+                  ? null
+                  : () => onRetryReply(m.clientId!),
+              onDiscard: m.clientId == null
+                  ? null
+                  : () => onDiscardReply(m.clientId!),
             ),
           ),
           const SizedBox(height: 4),
@@ -356,21 +378,22 @@ class _Body extends StatelessWidget {
             )
           else
             FeedbackComposer(
+              hint: ChatPerspectiveScope.of(context).composerHint,
               onSend: onReply,
               enabled: !isReplying,
+              minLength: 2,
             ),
           if (isReplying) ...[
             const SizedBox(height: 6),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                const SizedBox(
+                SizedBox(
                   width: 12,
                   height: 12,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
-                    valueColor:
-                        AlwaysStoppedAnimation(AppColors.primary),
+                    valueColor: AlwaysStoppedAnimation(context.brand.primary),
                   ),
                 ),
                 const SizedBox(width: 6),

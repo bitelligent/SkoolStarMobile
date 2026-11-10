@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 
 /// A label-on-top wrapper for any form input. Keeps spacing + typography
 /// consistent across every form in the app.
@@ -11,6 +12,7 @@ class AppFormField extends StatelessWidget {
     required this.label,
     required this.child,
     this.hint,
+    this.error,
     this.trailing,
     this.required = false,
     super.key,
@@ -19,6 +21,9 @@ class AppFormField extends StatelessWidget {
   final String label;
   final Widget child;
   final String? hint;
+
+  /// Replaces [hint] (in the danger colour) while the value is invalid.
+  final String? error;
   final Widget? trailing;
   final bool required;
 
@@ -47,12 +52,12 @@ class AppFormField extends StatelessWidget {
         ),
         const SizedBox(height: 6),
         child,
-        if (hint != null) ...[
+        if (error != null || hint != null) ...[
           const SizedBox(height: 4),
           Text(
-            hint!,
+            error ?? hint!,
             style: AppTextStyles.labelSmall.copyWith(
-              color: AppColors.textTertiary,
+              color: error != null ? AppColors.danger : AppColors.textTertiary,
             ),
           ),
         ],
@@ -114,36 +119,64 @@ class AppTextField extends StatelessWidget {
         prefixIcon: prefix,
         suffixIcon: suffix,
         enabledBorder: _border(AppColors.border),
-        focusedBorder: _border(AppColors.primary, width: 1.4),
+        focusedBorder: _border(context.brand.primary, width: 1.4),
         disabledBorder: _border(AppColors.border),
       ),
     );
   }
 
   OutlineInputBorder _border(Color c, {double width = 1}) => OutlineInputBorder(
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        borderSide: BorderSide(color: c, width: width),
-      );
+    borderRadius: BorderRadius.circular(AppRadius.md),
+    borderSide: BorderSide(color: c, width: width),
+  );
 }
 
-/// Compact rounded search field (used in Dashboard filter card, Session
-/// learner list, etc.).
-class AppSearchField extends StatelessWidget {
+/// Rounded search field (Dashboard filter card, Session learner list, chat
+/// list, ...). Shows a clear button while it holds text; works with or without
+/// an external [controller].
+class AppSearchField extends StatefulWidget {
   const AppSearchField({
     required this.hint,
     required this.onChanged,
     this.controller,
+    this.autofocus = false,
     super.key,
   });
 
   final String hint;
   final ValueChanged<String> onChanged;
   final TextEditingController? controller;
+  final bool autofocus;
+
+  /// Comfortable touch height (the field used to be ~36 px).
+  static const double height = 48;
+
+  @override
+  State<AppSearchField> createState() => _AppSearchFieldState();
+}
+
+class _AppSearchFieldState extends State<AppSearchField> {
+  TextEditingController? _own;
+
+  TextEditingController get _controller =>
+      widget.controller ?? (_own ??= TextEditingController());
+
+  void _clear() {
+    _controller.clear();
+    widget.onChanged('');
+  }
+
+  @override
+  void dispose() {
+    _own?.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+      constraints: const BoxConstraints(minHeight: AppSearchField.height),
+      padding: const EdgeInsets.only(left: AppSpacing.md),
       decoration: BoxDecoration(
         color: AppColors.surfaceMuted,
         borderRadius: BorderRadius.circular(AppRadius.pill),
@@ -152,24 +185,41 @@ class AppSearchField extends StatelessWidget {
         children: [
           const Icon(
             Icons.search_rounded,
-            size: 18,
+            size: 20,
             color: AppColors.iconSubtle,
           ),
           const SizedBox(width: 8),
           Expanded(
             child: TextField(
-              controller: controller,
-              onChanged: onChanged,
+              controller: _controller,
+              autofocus: widget.autofocus,
+              onChanged: widget.onChanged,
+              textInputAction: TextInputAction.search,
               style: AppTextStyles.bodyMedium,
               decoration: InputDecoration(
                 isDense: true,
                 border: InputBorder.none,
-                hintText: hint,
+                hintText: widget.hint,
                 hintStyle: AppTextStyles.bodyMedium.copyWith(
                   color: AppColors.textTertiary,
                 ),
               ),
             ),
+          ),
+          ValueListenableBuilder<TextEditingValue>(
+            valueListenable: _controller,
+            builder: (context, value, _) => value.text.isEmpty
+                ? const SizedBox(width: AppSpacing.md)
+                : IconButton(
+                    tooltip: 'Clear search',
+                    visualDensity: VisualDensity.compact,
+                    onPressed: _clear,
+                    icon: const Icon(
+                      Icons.close_rounded,
+                      size: 18,
+                      color: AppColors.iconSubtle,
+                    ),
+                  ),
           ),
         ],
       ),

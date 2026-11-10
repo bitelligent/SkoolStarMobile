@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:skoolstar_teacher_module/core/utils/keyboard.dart';
+import 'package:skoolstar_teacher_module/core/router/app_routes.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_action_row.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_card.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_form_field.dart';
@@ -12,6 +16,7 @@ import 'package:skoolstar_teacher_module/core/widgets/loading_view.dart';
 import 'package:skoolstar_teacher_module/core/widgets/primary_button.dart';
 import 'package:skoolstar_teacher_module/data/repositories/auth_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/user_repository.dart';
+import 'package:skoolstar_teacher_module/features/branding/brand_context.dart';
 import 'package:skoolstar_teacher_module/features/profile/cubit/profile_cubit.dart';
 import 'package:skoolstar_teacher_module/features/profile/cubit/profile_state.dart';
 
@@ -33,6 +38,7 @@ class _ProfileView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: AppColors.background,
       body: SafeArea(
         bottom: false,
@@ -130,6 +136,7 @@ class _LoadedState extends State<_Loaded> {
 
   Future<void> _save() async {
     final cubit = context.read<ProfileCubit>();
+    context.dismissKeyboard();
     final ok = await cubit.save();
     if (!mounted) return;
     if (ok) {
@@ -184,7 +191,7 @@ class _LoadedState extends State<_Loaded> {
                         name: '${s.user.firstName} ${s.user.lastName}',
                         size: 60,
                         background: Colors.white,
-                        foreground: AppColors.primary,
+                        foreground: context.brand.primary,
                       ),
                     ),
                     const SizedBox(width: AppSpacing.md),
@@ -314,14 +321,21 @@ class _ViewSection extends StatelessWidget {
             ),
             child: Column(
               children: [
-                AppActionRow(
-                  icon: Icons.notifications_rounded,
-                  iconColor: AppColors.warning,
-                  label: 'Notifications',
-                  subtitle: 'Manage push alerts',
-                  onTap: () => onNotice('Notifications'),
-                ),
-                const Divider(height: 1),
+                if (context
+                    .read<AuthRepository>()
+                    .session
+                    .value
+                    .canSwitchRole) ...[
+                  AppActionRow(
+                    icon: Icons.swap_horiz_rounded,
+                    iconColor: context.brand.primary,
+                    label: 'Switch role',
+                    subtitle:
+                        'Use ${context.appName} as a parent or another role',
+                    onTap: () => context.push(AppRoutes.selectRolePath),
+                  ),
+                  const Divider(height: 1),
+                ],
                 AppActionRow(
                   icon: Icons.help_outline_rounded,
                   iconColor: AppColors.accentTeal,
@@ -347,7 +361,7 @@ class _ViewSection extends StatelessWidget {
           child: SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(
-              onPressed: () => _confirmLogout(context),
+              onPressed: () => confirmLogout(context),
               icon: const Icon(Icons.logout_rounded, color: AppColors.danger),
               label: Text(
                 'Log out',
@@ -370,7 +384,8 @@ class _ViewSection extends StatelessWidget {
   }
 }
 
-Future<void> _confirmLogout(BuildContext context) async {
+/// Confirms, then signs out. Shared with the parent profile.
+Future<void> confirmLogout(BuildContext context) async {
   final confirmed = await showDialog<bool>(
     context: context,
     builder: (ctx) => AlertDialog(
@@ -669,7 +684,7 @@ class _EditSection extends StatelessWidget {
                   label: 'Save',
                   icon: Icons.check_rounded,
                   isLoading: state.isSaving,
-                  onPressed: onSave,
+                  onPressed: state.canSave ? onSave : null,
                 ),
               ),
             ],
@@ -719,7 +734,7 @@ class _HeroEditButton extends StatelessWidget {
               isEditing ? Icons.close_rounded : Icons.edit_rounded,
               key: ValueKey(isEditing),
               size: 18,
-              color: isEditing ? AppColors.primary : Colors.white,
+              color: isEditing ? context.brand.primary : Colors.white,
             ),
           ),
         ),

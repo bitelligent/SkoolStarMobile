@@ -1,0 +1,141 @@
+{
+  "threads": [
+    {
+      "id": "pfb_01",
+      "name": "Mr. Tahir Mughal",
+      "category": "feedback",
+      "role": "Teacher \u00b7 Computer",
+      "avatarUrl": "",
+      "lastMessage": "Needs more attention in English.",
+      "lastMessageAt": "2026-10-09T10:36:00.000",
+      "unreadCount": 1,
+      "isOnline": true,
+      "isPinned": true
+    },
+    {
+      "id": "pfb_02",
+      "name": "Ms. Adnan Ilyas",
+      "category": "feedback",
+      "role": "Teacher \u00b7 English",
+      "avatarUrl": "",
+      "lastMessage": "Great progress this week!",
+      "lastMessageAt": "2026-10-07T14:11:00.000",
+      "unreadCount": 0
+    },
+    {
+      "id": "po2o_01",
+      "name": "School Office",
+      "category": "oneToOne",
+      "role": "Administration",
+      "avatarUrl": "",
+      "lastMessage": "Fee receipt for October is ready.",
+      "lastMessageAt": "2026-10-06T09:00:00.000",
+      "unreadCount": 1
+    },
+    {
+      "id": "po2o_02",
+      "name": "Mr. Tahir Mughal",
+      "category": "oneToOne",
+      "role": "Teacher \u00b7 Computer",
+      "avatarUrl": "",
+      "lastMessage": "Thank you, I will make sure of it.",
+      "lastMessageAt": "2026-10-04T16:20:00.000",
+      "unreadCount": 0,
+      "outgoingLast": true
+    }
+  ],
+  "feedbackTopics": [
+    {
+      "id": "pft_01",
+      "threadId": "pfb_01",
+      "subject": "English \u2014 needs attention",
+      "tone": "needsAttention",
+      "createdAt": "2026-10-09T10:36:00.000",
+      "isResolved": false,
+      "messages": [
+        {
+          "id": "pfm_01_1",
+          "fromTeacher": true,
+          "content": "Needs more attention in English. Please practise reading aloud for 15 minutes daily.",
+          "sentAt": "2026-10-09T10:36:00.000",
+          "isRead": false
+        }
+      ]
+    },
+    {
+      "id": "pft_02",
+      "threadId": "pfb_01",
+      "subject": "Class participation",
+      "tone": "positive",
+      "createdAt": "2026-10-07T14:11:00.000",
+      "isResolved": true,
+      "messages": [
+        {
+          "id": "pfm_02_1",
+          "fromTeacher": true,
+          "content": "Hi! Jannat answered every question in class today.",
+          "sentAt": "2026-10-07T14:11:00.000",
+          "isRead": true
+        },
+        {
+          "id": "pfm_02_2",
+          "fromTeacher": false,
+          "content": "That is wonderful to hear, thank you!",
+          "sentAt": "2026-10-07T14:12:00.000",
+          "isRead": true
+        }
+      ]
+    },
+    {
+      "id": "pft_03",
+      "threadId": "pfb_02",
+      "subject": "Weekly progress",
+      "tone": "positive",
+      "createdAt": "2026-10-07T14:11:00.000",
+      "isResolved": false,
+      "messages": [
+        {
+          "id": "pfm_03_1",
+          "fromTeacher": true,
+          "content": "Great progress this week! Keep revising the new vocabulary.",
+          "sentAt": "2026-10-07T14:11:00.000",
+          "isRead": true
+        }
+      ]
+    }
+  ],
+  "directMessages": [
+    {
+      "id": "pdm_01_1",
+      "threadId": "po2o_01",
+      "fromTeacher": true,
+      "content": "Fee receipt for October is ready. You can collect it from the office.",
+      "sentAt": "2026-10-06T09:00:00.000",
+      "isRead": false
+    },
+    {
+      "id": "pdm_02_1",
+      "threadId": "po2o_02",
+      "fromTeacher": false,
+      "content": "Could Jannat have an extra practice sheet for the weekend?",
+      "sentAt": "2026-10-04T16:10:00.000",
+      "isRead": true
+    },
+    {
+      "id": "pdm_02_2",
+      "threadId": "po2o_02",
+      "fromTeacher": true,
+      "content": "Of course. I will send one with her on Monday.",
+      "sentAt": "2026-10-04T16:15:00.000",
+      "isRead": true
+    },
+    {
+      "id": "pdm_02_3",
+      "threadId": "po2o_02",
+      "fromTeacher": false,
+      "content": "Thank you, I will make sure of it.",
+      "sentAt": "2026-10-04T16:20:00.000",
+      "isRead": true
+    }
+  ]
+}

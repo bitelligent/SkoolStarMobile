@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
+import 'package:skoolstar_teacher_module/features/chat/chat_perspective.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:skoolstar_teacher_module/core/router/app_routes.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
@@ -14,6 +15,7 @@ import 'package:skoolstar_teacher_module/data/repositories/chat_repository.dart'
 import 'package:skoolstar_teacher_module/features/chat/cubit/chat_cubit.dart';
 import 'package:skoolstar_teacher_module/features/chat/cubit/chat_state.dart';
 import 'package:skoolstar_teacher_module/features/chat/widgets/chat_thread_tile.dart';
+import 'package:skoolstar_teacher_module/features/chat/widgets/connection_banner.dart';
 
 class ChatScreen extends StatelessWidget {
   const ChatScreen({super.key});
@@ -46,8 +48,9 @@ class _ChatViewState extends State<_ChatView>
 
   void _onTabChanged() {
     if (_tabs.indexIsChanging) return;
-    final cat =
-        _tabs.index == 0 ? ChatCategory.feedback : ChatCategory.oneToOne;
+    final cat = _tabs.index == 0
+        ? ChatCategory.feedback
+        : ChatCategory.oneToOne;
     final cubit = context.read<ChatCubit>();
     final s = cubit.state;
     if (s is ChatLoaded && s.activeTab != cat) cubit.setActiveTab(cat);
@@ -61,15 +64,12 @@ class _ChatViewState extends State<_ChatView>
     super.dispose();
   }
 
-  void _snack(BuildContext context, String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(msg), duration: const Duration(seconds: 1)),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // The tab shell already resizes for the keyboard; doing it again here
+      // would apply the inset twice and collapse the content.
+      resizeToAvoidBottomInset: false,
       backgroundColor: AppColors.background,
       body: SafeArea(
         bottom: false,
@@ -78,14 +78,13 @@ class _ChatViewState extends State<_ChatView>
             return switch (state) {
               ChatInitial() || ChatLoading() => const LoadingView(),
               ChatError(:final message) => ErrorView(
-                  message: message,
-                  onRetry: () => context.read<ChatCubit>().load(),
-                ),
+                message: message,
+                onRetry: () => context.read<ChatCubit>().load(),
+              ),
               ChatLoaded() => _Loaded(
-                  state: state,
-                  tabs: _tabs,
-                  onSnack: (m) => _snack(context, m),
-                ),
+                state: state,
+                tabs: _tabs,
+              ),
             };
           },
         ),
@@ -98,12 +97,10 @@ class _Loaded extends StatelessWidget {
   const _Loaded({
     required this.state,
     required this.tabs,
-    required this.onSnack,
   });
 
   final ChatLoaded state;
   final TabController tabs;
-  final ValueChanged<String> onSnack;
 
   @override
   Widget build(BuildContext context) {
@@ -140,13 +137,11 @@ class _Loaded extends StatelessWidget {
                   ],
                 ),
               ),
-              _IconChip(
-                icon: Icons.edit_square,
-                onTap: () => onSnack('New chat'),
-              ),
             ],
           ),
         ),
+
+        if (!state.isLive) const ConnectionBanner(),
 
         // ── Search ───────────────────────────────────────────────────
         Padding(
@@ -166,13 +161,17 @@ class _Loaded extends StatelessWidget {
             layout: AppPillTabsLayout.equal,
             items: [
               AppPillTab(
-                label: _tabLabel('Feedback',
-                    cubit.unreadCountFor(ChatCategory.feedback)),
+                label: _tabLabel(
+                  'Feedback',
+                  cubit.unreadCountFor(ChatCategory.feedback),
+                ),
                 icon: Icons.reviews_rounded,
               ),
               AppPillTab(
-                label: _tabLabel('1 to 1',
-                    cubit.unreadCountFor(ChatCategory.oneToOne)),
+                label: _tabLabel(
+                  '1 to 1',
+                  cubit.unreadCountFor(ChatCategory.oneToOne),
+                ),
                 icon: Icons.chat_bubble_rounded,
               ),
             ],
@@ -188,7 +187,7 @@ class _Loaded extends StatelessWidget {
                   isSearching: state.query.isNotEmpty,
                 )
               : RefreshIndicator(
-                  color: AppColors.primary,
+                  color: context.brand.primary,
                   onRefresh: context.read<ChatCubit>().load,
                   child: ListView.separated(
                     padding: const EdgeInsets.fromLTRB(
@@ -205,9 +204,10 @@ class _Loaded extends StatelessWidget {
                       return ChatThreadTile(
                         thread: t,
                         onTap: () {
+                          final perspective = ChatPerspectiveScope.of(context);
                           final route = t.category == ChatCategory.feedback
-                              ? AppRoutes.feedbackChat
-                              : AppRoutes.directChat;
+                              ? perspective.feedbackRouteName
+                              : perspective.directRouteName;
                           context.pushNamed(
                             route,
                             pathParameters: {'id': t.id},
@@ -241,41 +241,21 @@ class _EmptyChats extends StatelessWidget {
         subtitle: 'Try a different name or keyword.',
       );
     }
+    final parent = ChatPerspectiveScope.of(context).isParent;
     return AppEmptyState(
       icon: activeTab == ChatCategory.feedback
           ? Icons.reviews_outlined
           : Icons.chat_bubble_outline_rounded,
       title: activeTab == ChatCategory.feedback
-          ? 'No parent feedback yet'
+          ? (parent ? 'No teacher feedback yet' : 'No parent feedback yet')
           : 'No conversations yet',
       subtitle: activeTab == ChatCategory.feedback
-          ? 'Feedback threads from parents will appear here.'
-          : 'Start a chat with a colleague or admin.',
-    );
-  }
-}
-
-class _IconChip extends StatelessWidget {
-  const _IconChip({required this.icon, required this.onTap});
-
-  final IconData icon;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkResponse(
-      onTap: onTap,
-      radius: 24,
-      child: Container(
-        width: 40,
-        height: 40,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: AppColors.primarySoft,
-          shape: BoxShape.circle,
-        ),
-        child: Icon(icon, size: 18, color: AppColors.primary),
-      ),
+          ? (parent
+                ? "Feedback from your child's teachers will appear here."
+                : 'Feedback threads from parents will appear here.')
+          : (parent
+                ? 'Messages with teachers will appear here.'
+                : 'Start a chat with a colleague or admin.'),
     );
   }
 }

@@ -1,9 +1,10 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:skoolstar_teacher_module/core/bloc/safe_cubit.dart';
 import 'package:skoolstar_teacher_module/core/network/error_message.dart';
 import 'package:skoolstar_teacher_module/data/repositories/user_repository.dart';
 import 'package:skoolstar_teacher_module/features/profile/cubit/profile_state.dart';
 
-class ProfileCubit extends Cubit<ProfileState> {
+class ProfileCubit extends SafeCubit<ProfileState> {
   ProfileCubit(this._repo) : super(const ProfileState.initial());
 
   final UserRepository _repo;

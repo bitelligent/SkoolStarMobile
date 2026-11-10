@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 
 /// One function used everywhere to show a styled bottom sheet. Handles the
 /// rounded top, grab handle, title row and padding.
@@ -138,7 +139,7 @@ class _MultiSelectBodyState<T> extends State<_MultiSelectBody<T>> {
             itemBuilder: (context, i) {
               final o = widget.options[i];
               final selected = _selection.contains(o.id);
-              final accent = o.color ?? AppColors.primary;
+              final accent = o.color ?? context.brand.primary;
               return InkWell(
                 onTap: () => setState(() {
                   if (selected) {
@@ -158,8 +159,9 @@ class _MultiSelectBodyState<T> extends State<_MultiSelectBody<T>> {
                     vertical: AppSpacing.md - 2,
                   ),
                   decoration: BoxDecoration(
-                    color:
-                        selected ? accent.withOpacity(0.08) : Colors.transparent,
+                    color: selected
+                        ? accent.withOpacity(0.08)
+                        : Colors.transparent,
                     borderRadius: BorderRadius.circular(AppRadius.md),
                     border: Border.all(
                       color: selected ? accent : AppColors.border,
@@ -251,13 +253,13 @@ class _MultiSelectBodyState<T> extends State<_MultiSelectBody<T>> {
                   vertical: 3,
                 ),
                 decoration: BoxDecoration(
-                  color: AppColors.primarySoft,
+                  color: context.brand.primarySoft,
                   borderRadius: BorderRadius.circular(AppRadius.pill),
                 ),
                 child: Text(
                   '${_selection.length} selected',
                   style: AppTextStyles.labelMedium.copyWith(
-                    color: AppColors.primary,
+                    color: context.brand.primary,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -268,7 +270,7 @@ class _MultiSelectBodyState<T> extends State<_MultiSelectBody<T>> {
                 icon: const Icon(Icons.check_rounded, size: 18),
                 label: Text(widget.applyLabel),
                 style: FilledButton.styleFrom(
-                  backgroundColor: AppColors.primary,
+                  backgroundColor: context.brand.primary,
                   padding: const EdgeInsets.symmetric(
                     horizontal: AppSpacing.lg,
                     vertical: 12,
@@ -303,7 +305,7 @@ Future<T?> showAppOptionsSheet<T>(
       itemBuilder: (context, i) {
         final o = options[i];
         final selected = o.id == selectedId;
-        final accent = o.color ?? AppColors.primary;
+        final accent = o.color ?? context.brand.primary;
         return InkWell(
           onTap: () => Navigator.of(sheetContext).pop(o.id),
           borderRadius: BorderRadius.circular(AppRadius.md),

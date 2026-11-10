@@ -3,38 +3,70 @@ import 'package:flutter/services.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 
-/// Edge-to-edge bottom navigation. All three tabs always show icon + label
-/// — the only difference between active and inactive is colour + a soft
-/// pill highlight behind the active icon (Material 3 NavigationBar style,
-/// tuned for our palette).
+/// Edge-to-edge bottom navigation. Every tab shows its label under its icon
+/// (4 or 5 tabs alike) — the only difference between active and inactive is
+/// colour + a soft pill highlight behind the active icon (Material 3
+/// NavigationBar style, tuned for our palette). Labels scale down rather than
+/// collide on narrow screens.
 class AppBottomNav extends StatelessWidget {
   const AppBottomNav({
     required this.currentIndex,
     required this.onTap,
+    this.items = teacherItems,
     super.key,
   });
 
   final int currentIndex;
   final ValueChanged<int> onTap;
+  final List<AppNavItem> items;
 
-  static const List<_NavItem> _items = [
-    _NavItem(
+  static const List<AppNavItem> teacherItems = [
+    AppNavItem(
       label: 'Home',
       icon: Icons.home_outlined,
       activeIcon: Icons.home_rounded,
     ),
-    _NavItem(
+    AppNavItem(
       label: 'Schedule',
       icon: Icons.event_outlined,
       activeIcon: Icons.event_rounded,
     ),
-    _NavItem(
+    AppNavItem(
       label: 'Chat',
       icon: Icons.chat_bubble_outline_rounded,
       activeIcon: Icons.chat_bubble_rounded,
     ),
-    _NavItem(
+    AppNavItem(
+      label: 'Profile',
+      icon: Icons.person_outline_rounded,
+      activeIcon: Icons.person_rounded,
+    ),
+  ];
+
+  static const List<AppNavItem> parentItems = [
+    AppNavItem(
+      label: 'Home',
+      icon: Icons.home_outlined,
+      activeIcon: Icons.home_rounded,
+    ),
+    AppNavItem(
+      label: 'Attendance',
+      icon: Icons.fact_check_outlined,
+      activeIcon: Icons.fact_check_rounded,
+    ),
+    AppNavItem(
+      label: 'Assignments',
+      icon: Icons.assignment_outlined,
+      activeIcon: Icons.assignment_rounded,
+    ),
+    AppNavItem(
+      label: 'Chat',
+      icon: Icons.chat_bubble_outline_rounded,
+      activeIcon: Icons.chat_bubble_rounded,
+    ),
+    AppNavItem(
       label: 'Profile',
       icon: Icons.person_outline_rounded,
       activeIcon: Icons.person_rounded,
@@ -54,14 +86,14 @@ class AppBottomNav extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(
             vertical: 6,
-            horizontal: AppSpacing.sm,
+            horizontal: AppSpacing.xs,
           ),
           child: Row(
-            children: List.generate(_items.length, (i) {
+            children: List.generate(items.length, (i) {
               final active = i == currentIndex;
               return Expanded(
                 child: _NavButton(
-                  item: _items[i],
+                  item: items[i],
                   active: active,
                   onTap: () {
                     HapticFeedback.selectionClick();
@@ -77,8 +109,8 @@ class AppBottomNav extends StatelessWidget {
   }
 }
 
-class _NavItem {
-  const _NavItem({
+class AppNavItem {
+  const AppNavItem({
     required this.label,
     required this.icon,
     required this.activeIcon,
@@ -96,7 +128,7 @@ class _NavButton extends StatelessWidget {
     required this.onTap,
   });
 
-  final _NavItem item;
+  final AppNavItem item;
   final bool active;
   final VoidCallback onTap;
 
@@ -110,6 +142,7 @@ class _NavButton extends StatelessWidget {
         button: true,
         selected: active,
         label: item.label,
+        excludeSemantics: true,
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 6),
           child: Column(
@@ -119,11 +152,13 @@ class _NavButton extends StatelessWidget {
                 duration: const Duration(milliseconds: 240),
                 curve: Curves.easeOutCubic,
                 padding: EdgeInsets.symmetric(
-                  horizontal: active ? 20 : 12,
+                  horizontal: active ? 16 : 10,
                   vertical: 4,
                 ),
                 decoration: BoxDecoration(
-                  color: active ? AppColors.primarySoft : Colors.transparent,
+                  color: active
+                      ? context.brand.primarySoft
+                      : Colors.transparent,
                   borderRadius: BorderRadius.circular(AppRadius.pill),
                 ),
                 child: AnimatedSwitcher(
@@ -135,21 +170,24 @@ class _NavButton extends StatelessWidget {
                     key: ValueKey(active),
                     size: 22,
                     color: active
-                        ? AppColors.primary
+                        ? context.brand.primary
                         : AppColors.textSecondary,
                   ),
                 ),
               ),
               const SizedBox(height: 4),
-              AnimatedDefaultTextStyle(
-                duration: const Duration(milliseconds: 220),
-                style: AppTextStyles.labelSmall.copyWith(
-                  color: active
-                      ? AppColors.primary
-                      : AppColors.textSecondary,
-                  fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: AnimatedDefaultTextStyle(
+                  duration: const Duration(milliseconds: 220),
+                  style: AppTextStyles.labelSmall.copyWith(
+                    color: active
+                        ? context.brand.primary
+                        : AppColors.textSecondary,
+                    fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+                  ),
+                  child: Text(item.label, maxLines: 1),
                 ),
-                child: Text(item.label),
               ),
             ],
           ),

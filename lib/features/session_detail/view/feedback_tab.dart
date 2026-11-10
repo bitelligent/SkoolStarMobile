@@ -4,6 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
+import 'package:skoolstar_teacher_module/core/utils/keyboard.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_card.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_dropdown.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_empty_state.dart';
@@ -12,6 +14,7 @@ import 'package:skoolstar_teacher_module/core/widgets/app_selectable_tile.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_sheet.dart';
 import 'package:skoolstar_teacher_module/core/widgets/primary_button.dart';
 import 'package:skoolstar_teacher_module/data/models/feedback_model.dart';
+import 'package:skoolstar_teacher_module/features/chat/widgets/feedback_subject_picker.dart';
 import 'package:skoolstar_teacher_module/features/session_detail/cubit/session_detail_cubit.dart';
 import 'package:skoolstar_teacher_module/features/session_detail/cubit/session_detail_state.dart';
 import 'package:skoolstar_teacher_module/features/session_detail/widgets/session_header_card.dart';
@@ -35,6 +38,7 @@ class _FeedbackTabState extends State<FeedbackTab> {
 
   final Set<String> _recipientIds = {};
   bool _isPositive = true;
+  String? _subject;
   String? _taskId;
   String? _studentId;
 
@@ -42,6 +46,16 @@ class _FeedbackTabState extends State<FeedbackTab> {
   void initState() {
     super.initState();
     _taskId = widget.state.homeworks.firstOrNull?.id;
+  }
+
+  @override
+  void didUpdateWidget(covariant FeedbackTab old) {
+    super.didUpdateWidget(old);
+    // The selected task may have been deleted from the Homework tab.
+    final ids = widget.state.homeworks.map((h) => h.id);
+    if (_taskId != null && !ids.contains(_taskId)) {
+      _taskId = widget.state.homeworks.firstOrNull?.id;
+    }
   }
 
   @override
@@ -53,12 +67,14 @@ class _FeedbackTabState extends State<FeedbackTab> {
   }
 
   Future<void> _send() async {
+    context.dismissKeyboard();
     final draft = FeedbackMessage(
       id: '',
       sessionId: widget.state.session.id,
       studentIds: _recipientIds.toList(),
       message: _message.text.trim(),
       isPositive: _isPositive,
+      subject: _subject,
     );
     final cubit = context.read<SessionDetailCubit>();
     final ok = await cubit.sendFeedback(draft);
@@ -81,18 +97,43 @@ class _FeedbackTabState extends State<FeedbackTab> {
       setState(() {
         _message.clear();
         _recipientIds.clear();
+        _subject = null;
       });
     }
   }
 
+  /// Highest mark the selected task allows.
+  int get _maxMarks =>
+      widget.state.homeworks
+          .where((h) => h.id == _taskId)
+          .firstOrNull
+          ?.maxMarks ??
+      100;
+
+  int? get _marksValue => int.tryParse(_marks.text.trim());
+
+  String? get _marksError {
+    final v = _marksValue;
+    if (v == null) return 'Enter the marks.';
+    if (v > _maxMarks) return 'Cannot exceed the task\'s $_maxMarks marks.';
+    return null;
+  }
+
+  bool get _canSaveReview =>
+      _taskId != null &&
+      _studentId != null &&
+      _marksError == null &&
+      _review.text.trim().isNotEmpty;
+
   Future<void> _saveReview() async {
-    final marks = int.tryParse(_marks.text) ?? 0;
+    context.dismissKeyboard();
+    final marks = _marksValue ?? 0;
     final draft = AssignmentReview(
       id: '',
       sessionId: widget.state.session.id,
       homeworkId: _taskId ?? '',
       studentId: _studentId ?? '',
-      marks: marks.clamp(0, 100),
+      marks: marks,
       reviewText: _review.text.trim(),
     );
     final cubit = context.read<SessionDetailCubit>();
@@ -133,7 +174,7 @@ class _FeedbackTabState extends State<FeedbackTab> {
               AppSectionTitle(
                 title: 'General Feedback',
                 icon: Icons.mail_outline_rounded,
-                iconColor: AppColors.primary,
+                iconColor: context.brand.primary,
               ),
               const SizedBox(height: AppSpacing.md),
               AppFormField(
@@ -163,6 +204,13 @@ class _FeedbackTabState extends State<FeedbackTab> {
                       ),
                   ],
                 ),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              FeedbackSubjectPicker(
+                studentIds: _recipientIds.toList(),
+                value: _subject,
+                noneLabel: "This lesson's subject",
+                onChanged: (v) => setState(() => _subject = v),
               ),
               const SizedBox(height: AppSpacing.md),
               AppFormField(
@@ -300,7 +348,7 @@ class _FeedbackTabState extends State<FeedbackTab> {
                             id: s.id,
                             label: '${s.firstName} ${s.lastName}',
                             icon: Icons.person_rounded,
-                            color: AppColors.primary,
+                            color: context.brand.primary,
                             subtitle: s.rollNo.isEmpty
                                 ? null
                                 : 'Roll ${s.rollNo}',
@@ -312,30 +360,32 @@ class _FeedbackTabState extends State<FeedbackTab> {
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 AppFormField(
-                  label: 'Marks (0-100)',
+                  label: 'Marks (0-$_maxMarks)',
                   required: true,
+                  error: _marksError,
                   child: AppTextField(
                     controller: _marks,
                     keyboardType: TextInputType.number,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    onChanged: (_) => setState(() {}),
                   ),
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 AppFormField(
                   label: 'Review for Parent and Student',
+                  required: true,
                   child: AppTextField(
                     controller: _review,
                     hint: 'Write your review...',
                     maxLines: 4,
+                    onChanged: (_) => setState(() {}),
                   ),
                 ),
                 const SizedBox(height: AppSpacing.md),
                 PrimaryButton(
                   label: 'Save Review',
                   icon: Icons.save_rounded,
-                  onPressed: _taskId == null || _studentId == null
-                      ? null
-                      : _saveReview,
+                  onPressed: _canSaveReview ? _saveReview : null,
                 ),
               ],
             ],

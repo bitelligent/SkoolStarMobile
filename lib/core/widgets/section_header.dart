@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 
 /// Section title row with optional badge and trailing action (eg.
 /// "Today's Timetable                                          View All").
@@ -40,7 +41,7 @@ class SectionHeader extends StatelessWidget {
               child: Text(
                 actionLabel!,
                 style: AppTextStyles.labelLarge.copyWith(
-                  color: AppColors.primary,
+                  color: context.brand.primary,
                 ),
               ),
             ),

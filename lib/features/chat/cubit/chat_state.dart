@@ -11,6 +11,7 @@ sealed class ChatState with _$ChatState {
     required List<ChatThread> threads,
     @Default('') String query,
     @Default(ChatCategory.feedback) ChatCategory activeTab,
+    @Default(true) bool isLive,
   }) = ChatLoaded;
   const factory ChatState.error(String message) = ChatError;
 }

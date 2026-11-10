@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 
 /// Solid primary button used throughout the app (eg. Submit Attendance,
 /// Assign Homework).
@@ -53,8 +54,8 @@ class PrimaryButton extends StatelessWidget {
 
     final button = Material(
       color: onPressed == null
-          ? AppColors.primary.withOpacity(0.4)
-          : AppColors.primary,
+          ? context.brand.primary.withOpacity(0.4)
+          : context.brand.primary,
       borderRadius: BorderRadius.circular(AppRadius.lg),
       elevation: 0,
       child: InkWell(
@@ -99,13 +100,13 @@ class SecondaryButton extends StatelessWidget {
       mainAxisSize: expanded ? MainAxisSize.max : MainAxisSize.min,
       children: [
         if (icon != null) ...[
-          Icon(icon, color: AppColors.primary, size: 18),
+          Icon(icon, color: context.brand.primary, size: 18),
           const SizedBox(width: AppSpacing.sm),
         ],
         Text(
           label,
           style: (dense ? AppTextStyles.labelMedium : AppTextStyles.titleSmall)
-              .copyWith(color: AppColors.primary),
+              .copyWith(color: context.brand.primary),
         ),
       ],
     );
@@ -122,7 +123,7 @@ class SecondaryButton extends StatelessWidget {
             horizontal: dense ? AppSpacing.md : AppSpacing.lg,
           ),
           decoration: BoxDecoration(
-            border: Border.all(color: AppColors.primary),
+            border: Border.all(color: context.brand.primary),
             borderRadius: BorderRadius.circular(AppRadius.md),
           ),
           child: child,

@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 
 /// Horizontal strip of day cards (14 days around the anchor). The selected
 /// day gets the primary gradient background; the rest are muted. Used at
@@ -42,7 +43,10 @@ class _DateStripState extends State<DateStrip> {
     final target = widget.selected ?? widget.anchor;
     final i = list.indexWhere((d) => _same(d, target));
     if (i < 0) return;
-    final offset = (i * 64.0 - 120).clamp(0.0, _controller.position.maxScrollExtent);
+    final offset = (i * 64.0 - 120).clamp(
+      0.0,
+      _controller.position.maxScrollExtent,
+    );
     _controller.jumpTo(offset);
   }
 
@@ -59,8 +63,11 @@ class _DateStripState extends State<DateStrip> {
   }
 
   List<DateTime> _days() {
-    final start = DateTime(widget.anchor.year, widget.anchor.month, widget.anchor.day)
-        .subtract(const Duration(days: 7));
+    final start = DateTime(
+      widget.anchor.year,
+      widget.anchor.month,
+      widget.anchor.day,
+    ).subtract(const Duration(days: 7));
     return List.generate(widget.span, (i) => start.add(Duration(days: i)));
   }
 
@@ -80,7 +87,8 @@ class _DateStripState extends State<DateStrip> {
         separatorBuilder: (_, __) => const SizedBox(width: 8),
         itemBuilder: (context, i) {
           final d = days[i];
-          final isSelected = widget.selected != null && _same(d, widget.selected!);
+          final isSelected =
+              widget.selected != null && _same(d, widget.selected!);
           final isToday = _same(d, today);
           return _DayPill(
             date: d,
@@ -117,15 +125,15 @@ class _DayPill extends StatelessWidget {
         width: 56,
         padding: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
-          gradient: isSelected ? AppGradients.primary : null,
+          gradient: isSelected ? context.brand.gradient : null,
           color: isSelected ? null : AppColors.surface,
           borderRadius: BorderRadius.circular(AppRadius.xl),
           border: Border.all(
             color: isSelected
                 ? Colors.transparent
-                : (isToday ? AppColors.primary : AppColors.border),
+                : (isToday ? context.brand.primary : AppColors.border),
           ),
-          boxShadow: isSelected ? AppShadows.glow(AppColors.primary) : null,
+          boxShadow: isSelected ? AppShadows.glow(context.brand.primary) : null,
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -155,7 +163,7 @@ class _DayPill extends StatelessWidget {
                 width: 4,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: isSelected ? Colors.white : AppColors.primary,
+                  color: isSelected ? Colors.white : context.brand.primary,
                   shape: BoxShape.circle,
                 ),
               ),

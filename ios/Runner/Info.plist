@@ -18,6 +18,10 @@
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>The microphone lets you dictate chat messages instead of typing them.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Speech recognition turns what you say into text for your chat message.</string>
 	<key>CFBundleDisplayName</key>
 	<string>Skoolstar Teacher Module</string>
 	<key>CFBundleExecutable</key>

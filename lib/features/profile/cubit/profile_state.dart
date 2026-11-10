@@ -20,3 +20,15 @@ sealed class ProfileState with _$ProfileState {
   }) = ProfileLoaded;
   const factory ProfileState.error(String message) = ProfileError;
 }
+
+extension ProfileLoadedX on ProfileLoaded {
+  /// What the Save button needs before it is offered: a first name, and — when
+  /// changing the password — both passwords, matching.
+  bool get canSave =>
+      !isSaving &&
+      firstNameDraft.trim().isNotEmpty &&
+      (!changePasswordEnabled ||
+          (currentPasswordDraft.isNotEmpty &&
+              newPasswordDraft.isNotEmpty &&
+              newPasswordDraft == confirmPasswordDraft));
+}
