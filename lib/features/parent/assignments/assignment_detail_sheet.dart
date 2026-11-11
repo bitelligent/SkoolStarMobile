@@ -5,6 +5,7 @@ import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
 import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_chip.dart';
+import 'package:skoolstar_teacher_module/core/widgets/primary_button.dart';
 import 'package:skoolstar_teacher_module/data/models/parent/child_assignment.dart';
 import 'package:skoolstar_teacher_module/features/parent/assignments/parent_assignments_screen.dart';
 
@@ -14,6 +15,7 @@ Future<void> showAssignmentDetail(
   BuildContext context, {
   required ChildAssignment assignment,
   required DateTime now,
+  VoidCallback? onHandIn,
 }) {
   return showModalBottomSheet<void>(
     context: context,
@@ -29,6 +31,7 @@ Future<void> showAssignmentDetail(
         assignment: assignment,
         now: now,
         controller: controller,
+        onHandIn: onHandIn,
       ),
     ),
   );
@@ -39,11 +42,13 @@ class _Detail extends StatelessWidget {
     required this.assignment,
     required this.now,
     required this.controller,
+    this.onHandIn,
   });
 
   final ChildAssignment assignment;
   final DateTime now;
   final ScrollController controller;
+  final VoidCallback? onHandIn;
 
   @override
   Widget build(BuildContext context) {
@@ -138,7 +143,9 @@ class _Detail extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Teacher's feedback",
+                  // One server field holds the guardian's note and the
+                  // teacher's review.
+                  a.isGraded ? "Teacher's feedback" : 'Note',
                   style: AppTextStyles.labelMedium.copyWith(
                     color: AppColors.success,
                     fontWeight: FontWeight.w800,
@@ -148,6 +155,17 @@ class _Detail extends StatelessWidget {
                 Text(a.feedback!, style: AppTextStyles.bodyMedium),
               ],
             ),
+          ),
+        ],
+        if (onHandIn != null && !a.isCompleted) ...[
+          const SizedBox(height: AppSpacing.lg),
+          PrimaryButton(
+            label: 'Hand in homework',
+            icon: Icons.upload_file_rounded,
+            onPressed: () {
+              Navigator.of(context).pop();
+              onHandIn!();
+            },
           ),
         ],
       ],

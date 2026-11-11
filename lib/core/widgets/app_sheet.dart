@@ -14,6 +14,11 @@ Future<T?> showAppSheet<T>(
 }) {
   return showModalBottomSheet<T>(
     context: context,
+    // Above the bottom navigation, on the full-screen navigator: inside a tab
+    // the keyboard inset would be subtracted from an area the tab bar and the
+    // header already shrank, leaving a sheet with no room for its content.
+    useRootNavigator: true,
+    useSafeArea: isScrollControlled,
     isScrollControlled: isScrollControlled,
     backgroundColor: AppColors.surface,
     shape: const RoundedRectangleBorder(
@@ -46,7 +51,8 @@ Future<T?> showAppSheet<T>(
                     child: Text(title, style: AppTextStyles.titleMedium),
                   ),
                   IconButton(
-                    onPressed: () => Navigator.of(sheetContext).pop(),
+                    // maybePop, so a sheet guarding unsaved input is asked first.
+                    onPressed: () => Navigator.of(sheetContext).maybePop(),
                     icon: const Icon(Icons.close_rounded),
                     color: AppColors.iconSubtle,
                   ),

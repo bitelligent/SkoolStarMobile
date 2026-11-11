@@ -1,6 +1,5 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skoolstar_teacher_module/core/bloc/safe_cubit.dart';
 import 'package:skoolstar_teacher_module/core/network/api_exception.dart';
 import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';

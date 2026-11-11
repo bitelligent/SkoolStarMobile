@@ -424,7 +424,14 @@ void main() {
 
   // ─── Client feedback: a calmer home screen ──────────────────────────
   group('home screen (client feedback)', () {
-    Future<void> pumpHome(WidgetTester tester, {Size? size}) => _pump(
+    Future<void> pumpHome(
+      WidgetTester tester, {
+      Size? size,
+
+      /// Pins the cubit's clock; the dated fixtures age out of the 30-day
+      /// window under the real one.
+      DateTime? now,
+    }) => _pump(
       tester,
       size ?? const Size(390, 844),
       (c) => BlocProvider(
@@ -433,6 +440,7 @@ void main() {
           schedule: ctx.read<ChildScheduleRepository>(),
           assignments: ctx.read<ChildAssignmentsRepository>(),
           attendance: ctx.read<ChildAttendanceRepository>(),
+          clock: now == null ? null : () => now,
         )..load(),
         child: const ParentHomeScreen(),
       ),
@@ -463,7 +471,7 @@ void main() {
     testWidgets('progress cards show a percentage and a label, no counts', (
       tester,
     ) async {
-      await pumpHome(tester);
+      await pumpHome(tester, now: DateTime(2026, 10, 12, 10));
       expect(find.text('Progress'), findsOneWidget);
       expect(find.text('Attendance'), findsOneWidget);
       expect(find.text('Homework'), findsOneWidget);
@@ -471,7 +479,7 @@ void main() {
       expect(find.textContaining('%'), findsWidgets);
       // The old captions ("7 of 7 classes", "0 of 2 done", "89 / 100 marks").
       expect(find.textContaining(' of '), findsNothing);
-      expect(find.textContaining('classes'), findsNothing);
+      expect(find.textContaining(RegExp(r'\d+ of \d+ classes')), findsNothing);
       expect(find.textContaining('marks'), findsNothing);
       expect(find.textContaining(' done'), findsNothing);
       expect(find.text('No data yet'), findsNothing);

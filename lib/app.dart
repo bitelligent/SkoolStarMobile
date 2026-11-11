@@ -11,6 +11,7 @@ import 'package:skoolstar_teacher_module/core/network/api_client.dart';
 import 'package:skoolstar_teacher_module/core/network/token_store.dart';
 import 'package:skoolstar_teacher_module/core/router/app_router.dart';
 import 'package:skoolstar_teacher_module/core/speech/dictation_engine.dart';
+import 'package:skoolstar_teacher_module/core/utils/attachment_picker.dart';
 import 'package:skoolstar_teacher_module/core/utils/stream_merge.dart';
 import 'package:skoolstar_teacher_module/features/notifications/cubit/notifications_cubit.dart';
 import 'package:skoolstar_teacher_module/core/speech/dictation_scope.dart';
@@ -33,6 +34,7 @@ import 'package:skoolstar_teacher_module/data/repositories/notifications_reposit
 import 'package:skoolstar_teacher_module/data/repositories/session_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/subject_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/teacher_catalog.dart';
+import 'package:skoolstar_teacher_module/data/repositories/parent/assignment_submission_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/parent/child_assignments_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/parent/child_attendance_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/parent/child_progress_repository.dart';
@@ -265,6 +267,15 @@ class _SkoolStarAppState extends State<SkoolStarApp>
           create: (_) => ChildAssignmentsRepositoryImpl(
             apiClient: _apiClient,
             authRepository: _authRepository,
+          ),
+        ),
+        RepositoryProvider<AttachmentPicker>(
+          create: (_) => DeviceAttachmentPicker(),
+        ),
+        RepositoryProvider<AssignmentSubmissionRepository>(
+          create: (ctx) => AssignmentSubmissionRepositoryImpl(
+            apiClient: _apiClient,
+            assignments: ctx.read<ChildAssignmentsRepository>(),
           ),
         ),
         RepositoryProvider<ChildProgressRepository>(

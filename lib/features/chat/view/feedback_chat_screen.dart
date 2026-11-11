@@ -174,7 +174,7 @@ class _Loaded extends StatelessWidget {
                       AppSpacing.xxl + 72, // keep clear of the FAB
                     ),
                     itemCount: topics.length + 1,
-                    separatorBuilder: (_, __) =>
+                    separatorBuilder: (_, _) =>
                         const SizedBox(height: AppSpacing.md),
                     itemBuilder: (context, i) {
                       if (i == 0) return _CountRow(count: topics.length);

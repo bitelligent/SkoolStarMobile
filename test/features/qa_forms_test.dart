@@ -8,7 +8,6 @@ import 'package:skoolstar_teacher_module/core/widgets/primary_button.dart';
 import 'package:skoolstar_teacher_module/data/models/auth/auth_context.dart';
 import 'package:skoolstar_teacher_module/data/models/auth/auth_session.dart';
 import 'package:skoolstar_teacher_module/data/models/homework_model.dart';
-import 'package:skoolstar_teacher_module/data/models/session_model.dart';
 import 'package:skoolstar_teacher_module/data/models/subject_model.dart';
 import 'package:skoolstar_teacher_module/data/models/class_group.dart';
 import 'package:skoolstar_teacher_module/data/models/user_model.dart';

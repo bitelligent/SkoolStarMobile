@@ -1,5 +1,6 @@
 import 'package:skoolstar_teacher_module/core/config/attendance_status_config.dart';
 import 'package:skoolstar_teacher_module/core/utils/json_utils.dart';
+import 'package:skoolstar_teacher_module/data/mappers/chat_mapper.dart';
 import 'package:skoolstar_teacher_module/data/models/parent/child.dart';
 import 'package:skoolstar_teacher_module/data/models/parent/child_assignment.dart';
 import 'package:skoolstar_teacher_module/data/models/parent/child_attendance_record.dart';
@@ -79,7 +80,10 @@ List<ChildAssignment> assignmentsFromJson(Object? json) {
         description: row.str('description'),
         maxMarks: row.integer('maxMarks', 100),
         isCompleted: row.boolean('isCompleted'),
-        completedAt: row.dateOrNull('completedAt'),
+        // UTC on the wire, like every server time.
+        completedAt: row.strOrNull('completedAt') == null
+            ? null
+            : parseServerTime(row['completedAt']),
         feedback: row.strOrNull('feedback'),
         marks: row.intOrNull('marks'),
         sessionDate: _dateOnly(row, ['sessionDate']),

@@ -128,7 +128,7 @@ class _Loaded extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       totalUnread == 0
-                          ? 'You\'re all caught up'
+                          ? "You're all caught up"
                           : '$totalUnread unread in ${state.activeTab == ChatCategory.feedback ? 'Feedback' : '1-to-1'}',
                       style: AppTextStyles.bodySmall.copyWith(
                         color: AppColors.textSecondary,

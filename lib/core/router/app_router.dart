@@ -3,12 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:skoolstar_teacher_module/core/router/app_routes.dart';
-import 'package:skoolstar_teacher_module/core/widgets/shell_scaffold.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_empty_state.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_top_bar.dart';
+import 'package:skoolstar_teacher_module/core/widgets/shell_scaffold.dart';
 import 'package:skoolstar_teacher_module/data/models/auth/app_role.dart';
 import 'package:skoolstar_teacher_module/data/models/auth/auth_session.dart';
 import 'package:skoolstar_teacher_module/data/repositories/chat_repository.dart';
+import 'package:skoolstar_teacher_module/data/repositories/parent/assignment_submission_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/parent/child_assignments_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/parent/child_attendance_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/parent/child_progress_repository.dart';
@@ -18,26 +19,26 @@ import 'package:skoolstar_teacher_module/data/repositories/parent/leave_reposito
 import 'package:skoolstar_teacher_module/features/auth/view/login_screen.dart';
 import 'package:skoolstar_teacher_module/features/auth/view/role_selection_screen.dart';
 import 'package:skoolstar_teacher_module/features/chat/chat_perspective.dart';
+import 'package:skoolstar_teacher_module/features/chat/view/chat_screen.dart';
+import 'package:skoolstar_teacher_module/features/chat/view/direct_chat_screen.dart';
+import 'package:skoolstar_teacher_module/features/chat/view/feedback_chat_screen.dart';
+import 'package:skoolstar_teacher_module/features/dashboard/view/dashboard_screen.dart';
+import 'package:skoolstar_teacher_module/features/notifications/view/notifications_screen.dart';
 import 'package:skoolstar_teacher_module/features/parent/assignments/parent_assignments_cubit.dart';
 import 'package:skoolstar_teacher_module/features/parent/assignments/parent_assignments_screen.dart';
 import 'package:skoolstar_teacher_module/features/parent/attendance/parent_attendance_cubit.dart';
 import 'package:skoolstar_teacher_module/features/parent/attendance/parent_attendance_screen.dart';
 import 'package:skoolstar_teacher_module/features/parent/common/children_cubit.dart';
 import 'package:skoolstar_teacher_module/features/parent/home/parent_home_cubit.dart';
+import 'package:skoolstar_teacher_module/features/parent/home/parent_home_screen.dart';
 import 'package:skoolstar_teacher_module/features/parent/leave/parent_leave_cubit.dart';
 import 'package:skoolstar_teacher_module/features/parent/leave/parent_leave_screen.dart';
-import 'package:skoolstar_teacher_module/features/parent/home/parent_home_screen.dart';
 import 'package:skoolstar_teacher_module/features/parent/profile/parent_profile_cubit.dart';
+import 'package:skoolstar_teacher_module/features/parent/profile/parent_profile_screen.dart';
 import 'package:skoolstar_teacher_module/features/parent/progress/parent_progress_cubit.dart';
 import 'package:skoolstar_teacher_module/features/parent/progress/parent_progress_screen.dart';
-import 'package:skoolstar_teacher_module/features/parent/profile/parent_profile_screen.dart';
 import 'package:skoolstar_teacher_module/features/parent/session_detail/parent_session_detail_screen.dart';
 import 'package:skoolstar_teacher_module/features/parent/shell/parent_shell.dart';
-import 'package:skoolstar_teacher_module/features/chat/view/chat_screen.dart';
-import 'package:skoolstar_teacher_module/features/chat/view/direct_chat_screen.dart';
-import 'package:skoolstar_teacher_module/features/chat/view/feedback_chat_screen.dart';
-import 'package:skoolstar_teacher_module/features/dashboard/view/dashboard_screen.dart';
-import 'package:skoolstar_teacher_module/features/notifications/view/notifications_screen.dart';
 import 'package:skoolstar_teacher_module/features/profile/view/profile_screen.dart';
 import 'package:skoolstar_teacher_module/features/schedule/view/schedule_screen.dart';
 import 'package:skoolstar_teacher_module/features/session_detail/view/session_detail_screen.dart';
@@ -105,17 +106,17 @@ GoRouter buildRouter({
       GoRoute(
         path: AppRoutes.splashPath,
         name: AppRoutes.splash,
-        builder: (_, __) => const SplashScreen(),
+        builder: (_, _) => const SplashScreen(),
       ),
       GoRoute(
         path: AppRoutes.loginPath,
         name: AppRoutes.login,
-        builder: (_, __) => const LoginScreen(),
+        builder: (_, _) => const LoginScreen(),
       ),
       GoRoute(
         path: AppRoutes.selectRolePath,
         name: AppRoutes.selectRole,
-        builder: (_, __) => const RoleSelectionScreen(),
+        builder: (_, _) => const RoleSelectionScreen(),
       ),
       GoRoute(
         path: AppRoutes.parentNotificationsPath,
@@ -123,7 +124,7 @@ GoRouter buildRouter({
         parentNavigatorKey: _rootKey,
         // Opening a notification needs the parent's chat repository and
         // routes.
-        builder: (_, __) => parentChat(const NotificationsScreen()),
+        builder: (_, _) => parentChat(const NotificationsScreen()),
       ),
       GoRoute(
         path: AppRoutes.parentProgressPath,
@@ -137,6 +138,7 @@ GoRouter buildRouter({
               assignments: ctx.read<ChildAssignmentsRepository>(),
               progress: ctx.read<ChildProgressRepository>(),
               chat: ctx.read<ChatRepository>(),
+              handedIn: ctx.read<AssignmentSubmissionRepository>().submitted,
             )..load(),
             child: const ParentProgressScreen(),
           ),
@@ -161,9 +163,9 @@ GoRouter buildRouter({
         builder: (context, state) {
           final child = context.read<ChildrenCubit>().state.selectedChild;
           if (child == null) {
-            return Scaffold(
-              appBar: const AppTopBar(title: 'Session'),
-              body: const AppEmptyState(
+            return const Scaffold(
+              appBar: AppTopBar(title: 'Session'),
+              body: AppEmptyState(
                 icon: Icons.child_care_rounded,
                 title: 'No child selected',
                 subtitle: 'Go back and choose a child first.',
@@ -208,6 +210,9 @@ GoRouter buildRouter({
                     schedule: ctx.read<ChildScheduleRepository>(),
                     assignments: ctx.read<ChildAssignmentsRepository>(),
                     attendance: ctx.read<ChildAttendanceRepository>(),
+                    handedIn: ctx
+                        .read<AssignmentSubmissionRepository>()
+                        .submitted,
                   )..load(),
                   child: const ParentHomeScreen(),
                 ),
@@ -278,7 +283,7 @@ GoRouter buildRouter({
         path: AppRoutes.notificationsPath,
         name: AppRoutes.notifications,
         parentNavigatorKey: _rootKey,
-        builder: (_, __) => const NotificationsScreen(),
+        builder: (_, _) => const NotificationsScreen(),
       ),
       GoRoute(
         path: '/session/:id',
@@ -311,7 +316,7 @@ GoRouter buildRouter({
               GoRoute(
                 path: AppRoutes.dashboardPath,
                 name: AppRoutes.dashboard,
-                builder: (_, __) => const DashboardScreen(),
+                builder: (_, _) => const DashboardScreen(),
               ),
             ],
           ),
@@ -321,7 +326,7 @@ GoRouter buildRouter({
               GoRoute(
                 path: AppRoutes.schedulePath,
                 name: AppRoutes.schedule,
-                builder: (_, __) => const ScheduleScreen(),
+                builder: (_, _) => const ScheduleScreen(),
               ),
             ],
           ),
@@ -331,7 +336,7 @@ GoRouter buildRouter({
               GoRoute(
                 path: AppRoutes.chatPath,
                 name: AppRoutes.chat,
-                builder: (_, __) => const ChatScreen(),
+                builder: (_, _) => const ChatScreen(),
               ),
             ],
           ),
@@ -341,7 +346,7 @@ GoRouter buildRouter({
               GoRoute(
                 path: AppRoutes.profilePath,
                 name: AppRoutes.profile,
-                builder: (_, __) => const ProfileScreen(),
+                builder: (_, _) => const ProfileScreen(),
               ),
             ],
           ),

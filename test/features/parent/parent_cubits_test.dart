@@ -63,12 +63,16 @@ class _Attendance implements ChildAttendanceRepository {
 
 class _Assignments implements ChildAssignmentsRepository {
   Object? error;
+
+  /// Replaces the fixture when set.
+  List<ChildAssignment>? items;
   @override
   Future<List<ChildAssignment>> getForChild(
     String childId, {
     bool refresh = false,
   }) async {
     if (error != null) throw error!;
+    if (items != null) return items!;
     return assignmentsFromJson(
       fx.childAssignments,
     ).map((a) => a.copyWith(childId: childId)).toList();
@@ -393,6 +397,59 @@ void main() {
           at('earlier', now, '08:00', '09:00'), // already over
         ];
       });
+
+      test(
+        'homework handed in elsewhere updates the homework figure quietly',
+        () async {
+          final repo = _Assignments()
+            ..items = [
+              ChildAssignment(
+                id: 'a',
+                childId: '3',
+                title: 'Fractions',
+                deadline: now.subtract(const Duration(days: 2)),
+              ),
+            ];
+          final handedIn = StreamController<String>.broadcast();
+          final cubit = ParentHomeCubit(
+            children: children,
+            schedule: schedule,
+            assignments: repo,
+            attendance: _Attendance(),
+            handedIn: handedIn.stream,
+            clock: () => now,
+          );
+          await cubit.load();
+          expect(
+            (cubit.state as ParentHomeLoaded).homeworkStat,
+            const RatioStat(0, 1),
+          );
+
+          final states = <ParentHomeState>[];
+          final sub = cubit.stream.listen(states.add);
+          repo.items = [repo.items!.single.copyWith(isCompleted: true)];
+
+          handedIn.add('2'); // another child: ignored
+          await Future<void>.delayed(Duration.zero);
+          expect(states, isEmpty);
+
+          handedIn.add('3');
+          await Future<void>.delayed(Duration.zero);
+          await Future<void>.delayed(Duration.zero);
+          expect(
+            (cubit.state as ParentHomeLoaded).homeworkStat,
+            const RatioStat(1, 1),
+          );
+          expect(
+            states.any((s) => s is ParentHomeLoading),
+            isFalse,
+          ); // no spinner
+
+          await sub.cancel();
+          await cubit.close();
+          await handedIn.close();
+        },
+      );
 
       test('is the next three classes, soonest first, across days', () async {
         final cubit = make();

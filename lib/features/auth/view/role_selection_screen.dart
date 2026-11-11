@@ -60,7 +60,7 @@ class _RoleSelectionView extends StatelessWidget {
       messenger
         ..hideCurrentSnackBar()
         ..showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text(
               "Couldn't open the web app. Visit ${AppConfig.webAppUrl} "
               'in your browser.',
@@ -210,7 +210,7 @@ class _Header extends StatelessWidget {
       width: double.infinity,
       decoration: BoxDecoration(
         gradient: context.brand.gradient,
-        borderRadius: BorderRadius.vertical(
+        borderRadius: const BorderRadius.vertical(
           bottom: Radius.circular(AppRadius.xxl + 8),
         ),
       ),

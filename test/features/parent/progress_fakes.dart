@@ -1,7 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:skoolstar_teacher_module/core/network/api_exception.dart';
-import 'package:skoolstar_teacher_module/core/storage/key_value_store.dart';
-import 'package:skoolstar_teacher_module/data/models/auth/auth_context.dart';
 import 'package:skoolstar_teacher_module/data/models/chat_thread.dart';
 import 'package:skoolstar_teacher_module/data/models/feedback_topic.dart';
 import 'package:skoolstar_teacher_module/data/models/parent/child.dart';
@@ -12,12 +9,7 @@ import 'package:skoolstar_teacher_module/data/repositories/parent/child_assignme
 import 'package:skoolstar_teacher_module/data/repositories/parent/child_attendance_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/parent/child_progress_repository.dart';
 import 'package:skoolstar_teacher_module/data/repositories/parent/children_repository.dart';
-import 'package:skoolstar_teacher_module/features/parent/common/children_cubit.dart';
-import 'package:skoolstar_teacher_module/features/parent/progress/parent_progress_cubit.dart';
-import 'package:skoolstar_teacher_module/features/parent/progress/progress_report.dart';
 
-import '../../fixtures/fixtures.dart' as fx;
-import '../../helpers/fakes.dart';
 import '../chat/chat_fakes.dart';
 
 final progressNow = DateTime(2026, 10, 20, 12);

@@ -98,9 +98,9 @@ class MockChatRepository extends ChatRepository {
   @override
   Future<FeedbackTopic> createFeedbackTopic({
     required String threadId,
-    String? subject,
     required FeedbackTone tone,
     required String message,
+    String? subject,
   }) async {
     await _seed();
     await Future<void>.delayed(const Duration(milliseconds: 350));

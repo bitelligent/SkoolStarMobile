@@ -8,7 +8,7 @@ import 'package:skoolstar_teacher_module/data/models/homework_model.dart';
 import 'package:skoolstar_teacher_module/data/models/session_model.dart';
 
 /// Largest attachment accepted before uploading.
-const maxAttachmentBytes = 15 * 1024 * 1024;
+const int maxAttachmentBytes = 15 * 1024 * 1024;
 
 abstract interface class HomeworkRepository {
   Future<List<Homework>> getForSession(Session session);

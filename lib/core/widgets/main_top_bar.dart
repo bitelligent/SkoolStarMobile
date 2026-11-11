@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/widgets/avatar_circle.dart';
 import 'package:skoolstar_teacher_module/core/widgets/institute_header.dart';

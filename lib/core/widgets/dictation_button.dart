@@ -90,7 +90,7 @@ class _DictationButtonState extends State<DictationButton>
               if (listening)
                 AnimatedBuilder(
                   animation: _pulse,
-                  builder: (_, __) => Container(
+                  builder: (_, _) => Container(
                     width: widget.size * (1 + 0.35 * _pulse.value),
                     height: widget.size * (1 + 0.35 * _pulse.value),
                     decoration: BoxDecoration(

@@ -12,6 +12,7 @@ import 'package:skoolstar_teacher_module/core/widgets/app_stat_tile.dart';
 import 'package:skoolstar_teacher_module/core/widgets/loading_view.dart';
 import 'package:skoolstar_teacher_module/data/models/parent/child_assignment.dart';
 import 'package:skoolstar_teacher_module/features/parent/assignments/assignment_detail_sheet.dart';
+import 'package:skoolstar_teacher_module/features/parent/assignments/hand_in/hand_in_sheet.dart';
 import 'package:skoolstar_teacher_module/features/parent/assignments/parent_assignments_cubit.dart';
 
 /// Visual style of an assignment's status.
@@ -43,6 +44,19 @@ import 'package:skoolstar_teacher_module/features/parent/assignments/parent_assi
     soft: AppColors.accentOrangeSoft,
   ),
 };
+
+/// Opens the hand-in form and, once the homework went in, shows it as
+/// handed in right away.
+Future<void> _handIn(BuildContext context, ChildAssignment a) async {
+  final cubit = context.read<ParentAssignmentsCubit>();
+  final messenger = ScaffoldMessenger.of(context);
+  final at = await showHandInSheet(context, assignment: a);
+  if (at == null) return;
+  cubit.markHandedIn(a.id, at);
+  messenger
+    ..hideCurrentSnackBar()
+    ..showSnackBar(const SnackBar(content: Text('Homework handed in.')));
+}
 
 class ParentAssignmentsScreen extends StatelessWidget {
   const ParentAssignmentsScreen({super.key});
@@ -158,7 +172,9 @@ class _Loaded extends StatelessWidget {
                     context,
                     assignment: a,
                     now: cubit.now,
+                    onHandIn: () => _handIn(context, a),
                   ),
+                  onHandIn: () => _handIn(context, a),
                 ),
               ),
         ],
@@ -172,11 +188,13 @@ class _AssignmentCard extends StatelessWidget {
     required this.assignment,
     required this.now,
     required this.onTap,
+    required this.onHandIn,
   });
 
   final ChildAssignment assignment;
   final DateTime now;
   final VoidCallback onTap;
+  final VoidCallback onHandIn;
 
   @override
   Widget build(BuildContext context) {
@@ -278,6 +296,17 @@ class _AssignmentCard extends StatelessWidget {
                     ),
                   ),
                 ],
+              ),
+            ],
+            if (!a.isCompleted) ...[
+              const SizedBox(height: AppSpacing.sm),
+              Align(
+                alignment: Alignment.centerRight,
+                child: FilledButton.tonalIcon(
+                  onPressed: onHandIn,
+                  icon: const Icon(Icons.upload_file_rounded, size: 18),
+                  label: const Text('Hand in'),
+                ),
               ),
             ],
           ],

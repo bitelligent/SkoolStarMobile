@@ -80,6 +80,8 @@ class AppTextField extends StatelessWidget {
     this.suffix,
     this.prefix,
     this.onChanged,
+    this.onSubmitted,
+    this.textInputAction,
     super.key,
   });
 
@@ -93,6 +95,8 @@ class AppTextField extends StatelessWidget {
   final Widget? suffix;
   final Widget? prefix;
   final ValueChanged<String>? onChanged;
+  final ValueChanged<String>? onSubmitted;
+  final TextInputAction? textInputAction;
 
   @override
   Widget build(BuildContext context) {
@@ -104,6 +108,8 @@ class AppTextField extends StatelessWidget {
       inputFormatters: inputFormatters,
       obscureText: obscure,
       onChanged: onChanged,
+      onSubmitted: onSubmitted,
+      textInputAction: textInputAction,
       style: AppTextStyles.bodyLarge,
       decoration: InputDecoration(
         hintText: hint,

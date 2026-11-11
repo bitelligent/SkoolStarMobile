@@ -74,6 +74,24 @@ class ParentAssignmentsCubit extends ChildScopedCubit<ParentAssignmentsState> {
     }
   }
 
+  /// Shows [taskId] as handed in at [at] once the server accepted it. The
+  /// guardian's note comes back with the next refresh.
+  void markHandedIn(String taskId, DateTime at) {
+    final s = state;
+    if (s is! ParentAssignmentsLoaded) return;
+    emit(
+      s.copyWith(
+        items: [
+          for (final a in s.items)
+            if (a.id == taskId)
+              a.copyWith(isCompleted: true, completedAt: at)
+            else
+              a,
+        ],
+      ),
+    );
+  }
+
   void setFilter(AssignmentFilter filter) {
     final s = state;
     if (s is ParentAssignmentsLoaded) {

@@ -206,9 +206,9 @@ class ApiChatRepository extends ChatRepository {
   @override
   Future<FeedbackTopic> createFeedbackTopic({
     required String threadId,
-    String? subject,
     required FeedbackTone tone,
     required String message,
+    String? subject,
   }) async {
     final parsed = parseFeedbackThreadId(threadId);
     if (parsed == null) {

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
-import 'package:skoolstar_teacher_module/features/chat/chat_perspective.dart';
 import 'package:intl/intl.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
+import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
 import 'package:skoolstar_teacher_module/core/widgets/avatar_circle.dart';
 import 'package:skoolstar_teacher_module/data/models/direct_message.dart';
 import 'package:skoolstar_teacher_module/data/models/message_status.dart';
+import 'package:skoolstar_teacher_module/features/chat/chat_perspective.dart';
 
 /// Message bubble for the 1-to-1 parent chat.
 ///

@@ -19,6 +19,10 @@ class ApiEndpoints {
   // Parent module
   static const String childAttendance = '$_teacher/children/attendance';
   static const String childAssignments = '$_teacher/children/assignments';
+  static const String uploadSubmissionFile =
+      '$_teacher/children/assignments/upload-file';
+  static String submitAssignment(String taskId) =>
+      '$_teacher/children/assignments/$taskId/submit';
   static const String childProgress = '$_teacher/children/progress';
   static const String childResults = '$_teacher/children/results';
 

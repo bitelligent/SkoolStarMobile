@@ -47,7 +47,6 @@ abstract class FeedbackMessage with _$FeedbackMessage {
 /// is one of these.
 @freezed
 abstract class FeedbackTopic with _$FeedbackTopic {
-  const FeedbackTopic._();
 
   const factory FeedbackTopic({
     required String id,
@@ -58,6 +57,7 @@ abstract class FeedbackTopic with _$FeedbackTopic {
     required List<FeedbackMessage> messages,
     @Default(false) bool isResolved,
   }) = _FeedbackTopic;
+  const FeedbackTopic._();
 
   factory FeedbackTopic.fromJson(Map<String, dynamic> json) =>
       _$FeedbackTopicFromJson(json);

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:skoolstar_teacher_module/core/speech/dictation_controller.dart';
 import 'package:skoolstar_teacher_module/core/speech/dictation_scope.dart';
-import 'package:skoolstar_teacher_module/core/widgets/dictation_button.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
 import 'package:skoolstar_teacher_module/core/theme/brand_colors.dart';
+import 'package:skoolstar_teacher_module/core/widgets/dictation_button.dart';
 
 /// Inline reply input used at the bottom of an expanded feedback topic.
 /// Owns its own `TextEditingController` so each tile has independent

@@ -20,17 +20,40 @@ class ParentHomeCubit extends ChildScopedCubit<ParentHomeState> {
     required ChildScheduleRepository schedule,
     required ChildAssignmentsRepository assignments,
     required ChildAttendanceRepository attendance,
+    Stream<String>? handedIn,
     DateTime Function()? clock,
   }) : _schedule = schedule,
        _assignments = assignments,
        _attendance = attendance,
        _now = clock ?? DateTime.now,
-       super(const ParentHomeState.initial(), children);
+       super(const ParentHomeState.initial(), children) {
+    _handedIn = handedIn?.listen(_onHandedIn);
+  }
 
   final ChildScheduleRepository _schedule;
   final ChildAssignmentsRepository _assignments;
   final ChildAttendanceRepository _attendance;
   final DateTime Function() _now;
+
+  StreamSubscription<String>? _handedIn;
+
+  /// Homework went in elsewhere: refresh the homework figure only, from the
+  /// already updated cache (no spinner, no reload of the schedule).
+  Future<void> _onHandedIn(String childId) async {
+    final s = state;
+    if (s is! ParentHomeLoaded || s.child.id != childId) return;
+    try {
+      final list = await _assignments.getForChild(childId);
+      final now = state;
+      if (now is ParentHomeLoaded && now.child.id == childId) {
+        emit(
+          now.copyWith(homeworkStat: ProgressStats.homework(list, now: _now())),
+        );
+      }
+    } on Object {
+      // Keep the figure shown; the next refresh will correct it.
+    }
+  }
 
   /// Date range of sessions currently held in state.
   DateTime? _loadedFrom;
@@ -342,5 +365,11 @@ class ParentHomeCubit extends ChildScopedCubit<ParentHomeState> {
   int todayCount() {
     final now = _now();
     return calendarSessions().where((x) => sameDay(x.date, now)).length;
+  }
+
+  @override
+  Future<void> close() async {
+    await _handedIn?.cancel();
+    return super.close();
   }
 }

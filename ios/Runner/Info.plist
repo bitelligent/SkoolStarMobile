@@ -18,6 +18,10 @@
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>NSCameraUsageDescription</key>
+	<string>The camera lets you photograph homework to hand it in.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Choose a photo of the homework to hand it in.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>The microphone lets you dictate chat messages instead of typing them.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>

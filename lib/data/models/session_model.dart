@@ -31,7 +31,6 @@ class SessionTeacher {
 /// One scheduled occurrence of a class slot (a single teaching session).
 @freezed
 abstract class Session with _$Session {
-  const Session._();
 
   const factory Session({
     /// The occurrence's public GUID. Used for routing and API lookups.
@@ -58,6 +57,7 @@ abstract class Session with _$Session {
     /// the parent module (a teacher only sees their own subjects).
     @Default(<SessionTeacher>[]) List<SessionTeacher> teachers,
   }) = _Session;
+  const Session._();
 
   DateTime get startsAt => _at(startTime);
   DateTime get endsAt => _at(endTime);

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:skoolstar_teacher_module/core/network/error_message.dart';
 import 'package:skoolstar_teacher_module/data/mappers/chat_mapper.dart';
@@ -54,13 +56,38 @@ class ParentProgressCubit extends ChildScopedCubit<ParentProgressState> {
     required ChildAssignmentsRepository assignments,
     required ChildProgressRepository progress,
     required ChatRepository chat,
+    Stream<String>? handedIn,
     DateTime Function()? clock,
   }) : _attendance = attendance,
        _assignments = assignments,
        _progress = progress,
        _chat = chat,
        _now = clock ?? DateTime.now,
-       super(const ParentProgressState.initial(), children);
+       super(const ParentProgressState.initial(), children) {
+    _handedIn = handedIn?.listen(_onHandedIn);
+  }
+
+  StreamSubscription<String>? _handedIn;
+
+  /// Homework went in elsewhere: recompute from the updated caches without a
+  /// spinner. The school's all-time figures are fetched again.
+  Future<void> _onHandedIn(String childId) async {
+    final s = state;
+    final c = child;
+    if (s is! ParentProgressLoaded || c == null || c.id != childId) return;
+    final ticket = beginLoad();
+    try {
+      final fresh = await _fetch(
+        c,
+        s.period,
+        refresh: false,
+        refreshSummary: true,
+      );
+      if (isCurrent(ticket)) emit(fresh);
+    } on Object {
+      // Keep what is shown; the next refresh will correct it.
+    }
+  }
 
   final ChildAttendanceRepository _attendance;
   final ChildAssignmentsRepository _assignments;
@@ -134,6 +161,7 @@ class ParentProgressCubit extends ChildScopedCubit<ParentProgressState> {
     Child c,
     ProgressPeriod period, {
     required bool refresh,
+    bool refreshSummary = false,
   }) async {
     // Each source may fail on its own; only losing both essentials is an
     // error.
@@ -148,7 +176,7 @@ class ParentProgressCubit extends ChildScopedCubit<ParentProgressState> {
       _progress.getResults(c.id, refresh: refresh),
     );
     final (summary, summaryError) = await _settle(
-      _progress.getSummary(c.id, refresh: refresh),
+      _progress.getSummary(c.id, refresh: refresh || refreshSummary),
     );
 
     if (att == null && hw == null) {
@@ -197,5 +225,11 @@ class ParentProgressCubit extends ChildScopedCubit<ParentProgressState> {
       }
     }
     return entries;
+  }
+
+  @override
+  Future<void> close() async {
+    await _handedIn?.cancel();
+    return super.close();
   }
 }

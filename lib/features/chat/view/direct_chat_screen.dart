@@ -1,8 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:skoolstar_teacher_module/data/models/app_notification.dart';
-import 'package:skoolstar_teacher_module/features/notifications/notifications_context.dart';
-import 'package:skoolstar_teacher_module/data/mappers/chat_mapper.dart';
-import 'package:skoolstar_teacher_module/features/chat/chat_perspective.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_colors.dart';
 import 'package:skoolstar_teacher_module/core/theme/app_spacing.dart';
@@ -10,15 +6,18 @@ import 'package:skoolstar_teacher_module/core/theme/app_text_styles.dart';
 import 'package:skoolstar_teacher_module/core/widgets/app_empty_state.dart';
 import 'package:skoolstar_teacher_module/core/widgets/avatar_circle.dart';
 import 'package:skoolstar_teacher_module/core/widgets/loading_view.dart';
+import 'package:skoolstar_teacher_module/data/mappers/chat_mapper.dart';
+import 'package:skoolstar_teacher_module/data/models/app_notification.dart';
 import 'package:skoolstar_teacher_module/data/models/chat_thread.dart';
 import 'package:skoolstar_teacher_module/data/models/direct_message.dart';
-import 'package:skoolstar_teacher_module/data/models/message_status.dart';
 import 'package:skoolstar_teacher_module/data/repositories/chat_repository.dart';
+import 'package:skoolstar_teacher_module/features/chat/chat_perspective.dart';
 import 'package:skoolstar_teacher_module/features/chat/cubit/direct_chat_cubit.dart';
 import 'package:skoolstar_teacher_module/features/chat/cubit/direct_chat_state.dart';
 import 'package:skoolstar_teacher_module/features/chat/widgets/connection_banner.dart';
 import 'package:skoolstar_teacher_module/features/chat/widgets/direct_message_bubble.dart';
 import 'package:skoolstar_teacher_module/features/chat/widgets/feedback_composer.dart';
+import 'package:skoolstar_teacher_module/features/notifications/notifications_context.dart';
 
 class DirectChatScreen extends StatelessWidget {
   const DirectChatScreen({required this.threadId, super.key});
